@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看卡商代理')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">查看卡商代理基本信息</h4>
+    <form class="form-horizontal m">
+
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var data = [[${tBankcardAgent}]];
+    $(function () {
+        var options = {
+            columns: [
+                {
+                    field: 'id',
+                    title: '代理ID',
+                    visible: false
+                },
+                {
+                    field: 'supplierBranchId',
+                    title: '财务分支'
+                },
+                {
+                    field: 'agentCode',
+                    title: '代理编码'
+                },
+                {
+                    field: 'agentName',
+                    title: '代理名称'
+                },
+                {
+                    field: 'parentAgentCode',
+                    title: '父级代理编码'
+                },
+                {
+                    field: 'balance',
+                    title: '总余额'
+                },
+                {
+                    field: 'creditBalance',
+                    title: '信用余额'
+                },
+                {
+                    field: 'availableBalance',
+                    title: '可用余额'
+                },
+                {
+                    field: 'fronzenBalance',
+                    title: '冻结余额'
+                },
+                {
+                    field: 'profitBalance',
+                    title: '收益'
+                },
+                {
+                    field: 'status',
+                    title: '状态'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    field: 'lastUpdateTime',
+                    title: '更新时间'
+                },
+                {
+                    field: 'version',
+                    title: '版本'
+                },
+                {
+                    field: 'userId',
+                    title: '卡商代理登录账号'
+                },
+                {
+                    field: 'agentLevel',
+                    title: '代理级别'
+                },
+            ]
+        };
+
+        var html = '';
+        let myoptions = options.columns;
+        for (let item of myoptions) {
+            let field = item.field;
+            let value = data[field];
+            if (item.formatter) {
+                value = item.formatter(value, data);
+            }
+            html += `
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label">${item.title}：</label>
+            <div class="col-sm-8">
+                <span class="form-control">${value}</span>
+            </div>
+        </div>
+            `;
+        }
+        $('.form-horizontal').html(html);
+
+    });
+
+</script>
+</body>
+</html>

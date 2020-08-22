@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.agent.mapper.AgentcreditorderMapper">
+    
+    <resultMap type="Agentcreditorder" id="AgentcreditorderResult">
+        <result property="orderindex"    column="orderindex"    />
+        <result property="orderid"    column="orderid"    />
+        <result property="supplierbranchid"    column="supplierbranchid"    />
+        <result property="paytype"    column="paytype"    />
+        <result property="payamount"    column="payamount"    />
+        <result property="paidamount"    column="paidamount"    />
+        <result property="paidchannelfee"    column="paidchannelfee"    />
+        <result property="supplierpaidchannelfee"    column="supplierpaidchannelfee"    />
+        <result property="notifyurl"    column="notifyurl"    />
+        <result property="returnurl"    column="returnurl"    />
+        <result property="bankcode"    column="bankcode"    />
+        <result property="md5orderid"    column="md5orderid"    />
+        <result property="paychannelid"    column="paychannelid"    />
+        <result property="banknum"    column="banknum"    />
+        <result property="bankaccount"    column="bankaccount"    />
+        <result property="orderstatus"    column="orderstatus"    />
+        <result property="orderpaidstatuschangetime"    column="orderpaidstatuschangetime"    />
+        <result property="ordernotifystatus"    column="ordernotifystatus"    />
+        <result property="ordernotifytime"    column="ordernotifytime"    />
+        <result property="remark"    column="remark"    />
+        <result property="name"    column="name"    />
+        <result property="createtime"    column="createtime"    />
+        <result property="lasttime"    column="lastupdatetime"    />
+        <result property="agentId"    column="agent_id"    />
+        <result property="orderType"    column="order_type"    />
+        <result property="loginName"    column="login_name"    />
+        <result property="userName"    column="user_name"    />
+        <result property="profit"    column="profit"    />
+        <result property="agentCode"    column="agent_code"    />
+    </resultMap>
+
+    <sql id="selectAgentcreditorderVo">
+        select ta.orderindex, ta.orderid, ta.supplierbranchid, ta.paytype, ta.payamount, ta.paidamount, ta.paidchannelfee,
+        ta.supplierpaidchannelfee, ta.notifyurl, ta.returnurl, ta.bankcode, ta.md5orderid, ta.paychannelid, ta.banknum,
+        ta.bankaccount, ta.orderstatus, ta.orderpaidstatuschangetime, ta.ordernotifystatus, ta.ordernotifytime,
+        ta.remark, ta.name, ta.createtime, ta.lastupdatetime, ta.agent_id, ta.order_type, ta.agent_code, users.login_name,
+        users.user_name,
+        ifnull((tba.ratio * ta.paidamount),0.00) as profit from t_agentcreditorder ta
+        left join t_bankcard_agent tba on ta.agent_id = tba.id
+        left join cardmerchantfront.sys_user users using (user_id)
+    </sql>
+
+    <select id="selectAgentcreditorderList" parameterType="Agentcreditorder" resultMap="AgentcreditorderResult">
+        <include refid="selectAgentcreditorderVo"/>
+        <where>  
+            <if test="orderid != null  and orderid != ''"> and ta.orderid = #{orderid}</if>
+            <if test="supplierbranchid != null "> and ta.supplierbranchid = #{supplierbranchid}</if>
+
+            <if test="supplierBranchIdGroupList != null ">
+                and ta.supplierbranchid in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="paytype != null "> and ta.paytype = #{paytype}</if>
+            <if test="payamount != null "> and ta.payamount = #{payamount}</if>
+            <if test="paidamount != null "> and ta.paidamount = #{paidamount}</if>
+            <if test="paidchannelfee != null "> and ta.paidchannelfee = #{paidchannelfee}</if>
+            <if test="supplierpaidchannelfee != null "> and ta.supplierpaidchannelfee = #{supplierpaidchannelfee}</if>
+            <if test="notifyurl != null  and notifyurl != ''"> and ta.notifyurl = #{notifyurl}</if>
+            <if test="returnurl != null  and returnurl != ''"> and ta.returnurl = #{returnurl}</if>
+            <if test="bankcode != null  and bankcode != ''"> and ta.bankcode = #{bankcode}</if>
+            <if test="md5orderid != null  and md5orderid != ''"> and ta.md5orderid = #{md5orderid}</if>
+            <if test="paychannelid != null "> and ta.paychannelid = #{paychannelid}</if>
+            <if test="banknum != null  and banknum != ''"> and ta.banknum = #{banknum}</if>
+            <if test="bankaccount != null  and bankaccount != ''"> and ta.bankaccount = #{bankaccount}</if>
+            <if test="orderstatus != null "> and ta.orderstatus = #{orderstatus}</if>
+            <if test="orderpaidstatuschangetime != null "> and ta.orderpaidstatuschangetime = #{orderpaidstatuschangetime}</if>
+            <if test="ordernotifystatus != null "> and ta.ordernotifystatus = #{ordernotifystatus}</if>
+            <if test="ordernotifytime != null "> and ta.ordernotifytime = #{ordernotifytime}</if>
+            <if test="name != null  and name != ''"> and ta.name like concat('%', #{name}, '%')</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                and ta.createtime >=  #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                and ta.createtime &lt;= #{params.endCreatetime}
+            </if>
+            <if test="lasttime != null "> and ta.lastupdatetime = #{lasttime}</if>
+            <if test="agentId != null "> and ta.agent_id = #{agentId}</if>
+            <if test="orderType != null "> and ta.order_type = #{orderType}</if>
+        </where>
+    </select>
+    
+    <select id="selectAgentcreditorderById" resultMap="AgentcreditorderResult">
+        <include refid="selectAgentcreditorderVo"/>
+        where orderindex = #{param1} and supplierbranchid in
+        <foreach  item="param2" index="index" collection="param2.split(',')" open="(" close=")" separator=",">
+            #{param2}
+        </foreach>
+    </select>
+        
+    <insert id="insertAgentcreditorder" parameterType="Agentcreditorder" useGeneratedKeys="true" keyProperty="orderindex">
+        insert into t_agentcreditorder
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''">orderid,</if>
+            <if test="supplierbranchid != null ">supplierbranchid,</if>
+            <if test="paytype != null ">paytype,</if>
+            <if test="payamount != null ">payamount,</if>
+            <if test="paidamount != null ">paidamount,</if>
+            <if test="paidchannelfee != null ">paidchannelfee,</if>
+            <if test="supplierpaidchannelfee != null ">supplierpaidchannelfee,</if>
+            <if test="notifyurl != null  and notifyurl != ''">notifyurl,</if>
+            <if test="returnurl != null  and returnurl != ''">returnurl,</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode,</if>
+            <if test="md5orderid != null  and md5orderid != ''">md5orderid,</if>
+            <if test="paychannelid != null ">paychannelid,</if>
+            <if test="banknum != null  and banknum != ''">banknum,</if>
+            <if test="bankaccount != null  and bankaccount != ''">bankaccount,</if>
+            <if test="orderstatus != null ">orderstatus,</if>
+            <if test="orderpaidstatuschangetime != null ">orderpaidstatuschangetime,</if>
+            <if test="ordernotifystatus != null ">ordernotifystatus,</if>
+            <if test="ordernotifytime != null ">ordernotifytime,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="name != null  and name != ''">name,</if>
+            <if test="createtime != null ">createtime,</if>
+            <if test="lasttime != null ">lastupdatetime,</if>
+            <if test="agentId != null ">agent_id,</if>
+            <if test="agentCode != null ">agent_code,</if>
+            <if test="orderType != null ">order_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''">#{orderid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="paytype != null ">#{paytype},</if>
+            <if test="payamount != null ">#{payamount},</if>
+            <if test="paidamount != null ">#{paidamount},</if>
+            <if test="paidchannelfee != null ">#{paidchannelfee},</if>
+            <if test="supplierpaidchannelfee != null ">#{supplierpaidchannelfee},</if>
+            <if test="notifyurl != null  and notifyurl != ''">#{notifyurl},</if>
+            <if test="returnurl != null  and returnurl != ''">#{returnurl},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="md5orderid != null  and md5orderid != ''">#{md5orderid},</if>
+            <if test="paychannelid != null ">#{paychannelid},</if>
+            <if test="banknum != null  and banknum != ''">#{banknum},</if>
+            <if test="bankaccount != null  and bankaccount != ''">#{bankaccount},</if>
+            <if test="orderstatus != null ">#{orderstatus},</if>
+            <if test="orderpaidstatuschangetime != null ">#{orderpaidstatuschangetime},</if>
+            <if test="ordernotifystatus != null ">#{ordernotifystatus},</if>
+            <if test="ordernotifytime != null ">#{ordernotifytime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lasttime != null ">#{lasttime},</if>
+            <if test="agentId != null ">#{agentId},</if>
+            <if test="agentCode != null ">#{agentCode},</if>
+            <if test="orderType != null ">#{orderType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAgentcreditorder" parameterType="Agentcreditorder">
+        update t_agentcreditorder
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''">orderid = #{orderid},</if>
+            <if test="supplierbranchid != null ">supplierbranchid = #{supplierbranchid},</if>
+            <if test="paytype != null ">paytype = #{paytype},</if>
+            <if test="payamount != null ">payamount = #{payamount},</if>
+            <if test="paidamount != null ">paidamount = #{paidamount},</if>
+            <if test="paidchannelfee != null ">paidchannelfee = #{paidchannelfee},</if>
+            <if test="supplierpaidchannelfee != null ">supplierpaidchannelfee = #{supplierpaidchannelfee},</if>
+            <if test="notifyurl != null  and notifyurl != ''">notifyurl = #{notifyurl},</if>
+            <if test="returnurl != null  and returnurl != ''">returnurl = #{returnurl},</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode = #{bankcode},</if>
+            <if test="md5orderid != null  and md5orderid != ''">md5orderid = #{md5orderid},</if>
+            <if test="paychannelid != null ">paychannelid = #{paychannelid},</if>
+            <if test="banknum != null  and banknum != ''">banknum = #{banknum},</if>
+            <if test="bankaccount != null  and bankaccount != ''">bankaccount = #{bankaccount},</if>
+            <if test="orderstatus != null ">orderstatus = #{orderstatus},</if>
+            <if test="orderpaidstatuschangetime != null ">orderpaidstatuschangetime = #{orderpaidstatuschangetime},</if>
+            <if test="ordernotifystatus != null ">ordernotifystatus = #{ordernotifystatus},</if>
+            <if test="ordernotifytime != null ">ordernotifytime = #{ordernotifytime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="name != null  and name != ''">name = #{name},</if>
+            <if test="createtime != null ">createtime = #{createtime},</if>
+            <if test="lasttime != null ">lastupdatetime = #{lasttime},</if>
+            <if test="agentId != null ">agent_id = #{agentId},</if>
+            <if test="orderType != null ">order_type = #{orderType},</if>
+        </trim>
+        where orderindex = #{orderindex}
+    </update>
+
+</mapper>

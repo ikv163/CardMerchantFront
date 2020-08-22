@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看代理银行卡审核')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">查看代理银行卡审核基本信息</h4>
+    <form class="form-horizontal m">
+
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+        <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭
+        </button>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var serviceState = [[${@dictbank.getSelectUIType('ReviewStatus')}]];
+    var worktype = [[${@dictbank.getSelectUIType('WorkType')}]];
+    var data = [[${tAgentBankcardReview}]];
+    $(function () {
+        var options = {
+            columns: [
+                {
+                    field: 'agentName',
+                    title: '代理名称'
+                },
+                {
+                    field: 'reviewStatus',
+                    title: '审核状态',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                },
+                {
+                    field: 'applicantName',
+                    title: '申请人名称'
+                },
+                {
+                    field: 'reviewer',
+                    title: '审核人名称'
+                },
+                {
+                    field: 'beforWorktype',
+                    title: '审核前工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'afterWorktype',
+                    title: '审核后工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+
+                },
+                {
+                    field: 'reviewTime',
+                    title: '审核时间'
+                },
+                {
+                    field: 'bankAcount',
+                    title: '银行卡编码'
+                },
+            ]
+        };
+        var html = '';
+        let myoptions = options.columns;
+        for (let item of myoptions) {
+            let field = item.field;
+            let value = data[field];
+            if (item.formatter) {
+                value = item.formatter(value, data);
+            }
+            html += `
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label">${item.title}：</label>
+            <div class="col-sm-8">
+                <span class="form-control">${value}</span>
+            </div>
+        </div>
+            `;
+        }
+        $('.form-horizontal').html(html);
+
+    });
+
+    function getServiceState(id) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+
+            }
+        }
+    }
+    function getWorktype(id) {
+        for (let key in worktype) {
+            if (id == key) {
+                return worktype[key];
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.BankClientMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.BankClient" id="BankClientResult">
+        <result property="clientId" column="ClientID"/>
+        <result property="supplierBranchID" column="SupplierBranchID"/>
+        <result property="bankType" column="BankType"/>
+        <result property="clientName" column="ClientName"/>
+        <result property="status" column="Status"/>
+        <result property="identity" column="Identity"/>
+        <result property="bankAccount" column="BankAccount"/>
+        <result property="logoutMsg" column="LogoutMsg"/>
+        <result property="remark" column="ReMark"/>
+        <result property="realremark" column="realremark"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="createby" column="createby"/>
+        <result property="updatetime" column="updatetime"/>
+        <result property="updateby" column="updateby"/>
+        <result property="lastUpDateTime" column="LastUpDateTime"/>
+        <result property="workType" column="WorkType"/>
+        <result property="bankcardStatus" column="bankcardStatus"/>
+        <result property="balance" column="balance"/>
+    </resultMap>
+
+    <sql id="selectBankClientVo">
+        SELECT tb.ClientID,
+               tb.SupplierBranchID,
+               tb.BankType,
+               tb.ClientName,
+               tb.Status,
+               tb.Identity,
+               tb.BankAccount,
+               tb.LogoutMsg,
+               tb.ReMark,
+               tb.realremark,
+               tb.CreateTime,
+               tb.createby,
+               tb.updatetime,
+               tb.updateby,
+               tb.LastUpDateTime,
+               tb.WorkType
+        FROM t_bankclient tb
+    </sql>
+
+    <select id="selectBankClientList" parameterType="BankClient" resultMap="BankClientResult">
+        SELECT tb.ClientID,
+        tb.SupplierBranchID,
+        tb.BankType,
+        tb.ClientName,
+        tb.Status,
+        tb.Identity,
+        tb.BankAccount,
+        tb.LogoutMsg,
+        tb.ReMark,
+        tb.realremark,
+        tb.CreateTime,
+        tb.createby,
+        tb.updatetime,
+        tb.updateby,
+        tb.LastUpDateTime,
+        tb.WorkType,
+        u.Status as bankcardStatus,
+        u.balance
+        FROM t_bankclient tb
+        LEFT JOIN typayv2.t_bankcard u ON u.BankCode = tb.BankAccount
+        <where>
+            tb.Status != -1
+            <if test="bankAccount != null and bankAccount != ''">
+                and tb.BankAccount like concat('%', #{bankAccount},'%')
+            </if>
+            <if test="supplierBranchID !=null">and tb.SupplierBranchID =#{supplierBranchID}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and tb.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="clientId != null ">and tb.ClientID = #{clientId}</if>
+            <if test="bankType != null  and bankType != ''">and tb.BankType = #{bankType}</if>
+            <if test="clientName != null  and clientName != ''">and tb.ClientName like concat('%', #{clientName}, '%')
+            </if>
+            <if test="bankcardStatus != null"> and u.Status = #{bankcardStatus} </if>
+
+            <if test="heartbeat != null ">
+                <choose>
+                    <when test="heartbeat == 0">
+                        and tb.status &lt;> -100
+                    </when>
+                    <otherwise>
+                        and tb.status = -100
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="status != null"> and tb.status = #{status}</if>
+            <if test="surplierType != null "> and tb.surplier_type = #{surplierType}</if>
+            <if test="lastUpDateTime != null ">and tb.LastUpDateTime != #{lastUpDateTime}</if>
+            <if test="workType != null ">and tb.WorkType = #{workType}</if>
+            <if test="identity != null and identity !='' ">and tb.identity = #{identity}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                and tb.createtime >=  #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                and tb.createtime &lt;= #{params.endCreatetime}
+            </if>
+        </where>
+        order by tb.LastUpDateTime desc
+    </select>
+    <select id="check" parameterType="BankClient" resultMap="BankClientResult">
+        <include refid="selectBankClientVo"/>
+        <where>
+<!--            <if test="clientName != null  and clientName != ''">and tb.ClientName like concat('%', #{clientName}, '%')-->
+<!--            </if>-->
+            <if test="clientName != null  and clientName != ''">and tb.ClientName = #{clientName}</if>
+            <if test="identity != null and identity !='' ">and tb.identity = #{identity}</if>
+        </where>
+    </select>
+
+    <select id="selectBankClientById" resultMap="BankClientResult">
+        <include refid="selectBankClientVo"/>
+        where ClientID = #{param1} and supplierBranchID = #{param2}
+    </select>
+
+    <select id="selectClientByBanckAccount" parameterType="java.lang.String" resultMap="BankClientResult">
+        <include refid="selectBankClientVo"/>
+        where BankAccount = #{bankAccount}
+    </select>
+
+    <insert id="insertBankClient" parameterType="BankClient" useGeneratedKeys="true" keyProperty="clientId">
+        insert into t_bankclient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierBranchID != null ">SupplierBranchID,</if>
+            <if test="bankType != null  and bankType != ''">BankType,</if>
+            <if test="clientName != null  and clientName != ''">ClientName,</if>
+            <if test="status != null ">Status,</if>
+            <if test="identity != null  and identity != ''">Identity,</if>
+            <if test="bankAccount != null  and bankAccount != ''">BankAccount,</if>
+            <if test="logoutMsg != null  and logoutMsg != ''">LogoutMsg,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="realremark != null  and realremark != ''">realremark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="createby != null ">createby,</if>
+            <if test="lastUpDateTime != null ">LastUpDateTime,</if>
+            <if test="workType != null ">WorkType,</if>
+            <if test="surplierType != null ">surplier_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierBranchID != null ">#{supplierBranchID},</if>
+            <if test="bankType != null  and bankType != ''">#{bankType},</if>
+            <if test="clientName != null  and clientName != ''">#{clientName},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="identity != null  and identity != ''">#{identity},</if>
+            <if test="bankAccount != null  and bankAccount != ''">#{bankAccount},</if>
+            <if test="logoutMsg != null  and logoutMsg != ''">#{logoutMsg},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="realremark != null  and realremark != ''">#{realremark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="createby != null ">#{createby},</if>
+            <if test="lastUpDateTime != null ">#{lastUpDateTime},</if>
+            <if test="workType != null ">#{workType},</if>
+            <if test="surplierType != null ">#{surplierType},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBankClient" parameterType="BankClient">
+        update t_bankclient
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierBranchID != null ">SupplierBranchID = #{supplierBranchID},</if>
+            <if test="bankType != null  and bankType != ''">BankType = #{bankType},</if>
+            <if test="clientName != null  and clientName != ''">ClientName = #{clientName},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="identity != null  and identity != ''">Identity = #{identity},</if>
+            <if test="bankAccount != null  and bankAccount != ''">BankAccount = #{bankAccount},</if>
+            <if test="logoutMsg != null  and logoutMsg != ''">LogoutMsg = #{logoutMsg},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="realremark != null  and realremark != ''">realremark = #{realremark},</if>
+            <if test="createTime != null ">CreateTime = #{createTime},</if>
+            <if test="lastUpDateTime != null ">LastUpDateTime = #{lastUpDateTime},</if>
+            <if test="workType != null ">WorkType = #{workType},</if>
+            <if test="updatetime != null ">updatetime = #{updatetime},</if>
+            <if test="updateby != null ">updateby = #{updateby},</if>
+        </trim>
+        where ClientID = #{clientId}
+    </update>
+
+    <update id="deleteBankClientById" parameterType="Long">
+        UPDATE t_bankclient
+        SET status = -1
+        WHERE ClientID = #{clientId}
+    </update>
+
+    <update id="deleteBankClientByIds" parameterType="String">
+        update t_bankclient set status = -1 where ClientID in
+        <foreach item="clientId" collection="array" open="(" separator="," close=")">
+            #{clientId}
+        </foreach>
+    </update>
+
+    <update id="updateStatusByIds" parameterType="String">
+        update t_bankclient set status = 1 where ClientID in
+        <foreach item="clientId" collection="array" open="(" separator="," close=")">
+            #{clientId}
+        </foreach>
+    </update>
+
+    <update id="batchUpdateClient" parameterType="String">
+        update t_bankclient set status = #{status} where BankAccount in
+        <foreach item="bankcode" collection="bankcodes" open="(" separator="," close=")">
+            #{bankcode}
+        </foreach>
+
+
+    </update>
+
+</mapper>

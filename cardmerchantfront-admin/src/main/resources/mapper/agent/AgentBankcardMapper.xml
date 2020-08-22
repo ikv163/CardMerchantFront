@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.agent.mapper.AgentBankcardMapper">
+
+    <resultMap type="AgentBankcard" id="AgentBankcardResult">
+        <result property="bankid" column="bankid"/>
+        <result property="supplierbranchid" column="supplierbranchid"/>
+        <result property="banknum" column="banknum"/>
+        <result property="bankcode" column="bankcode"/>
+        <result property="banktype" column="banktype"/>
+        <result property="address" column="address"/>
+        <result property="depositaddress" column="depositaddress"/>
+        <result property="ownername" column="ownername"/>
+        <result property="ownerphone" column="ownerphone"/>
+        <result property="owneridentity" column="owneridentity"/>
+        <result property="worktype" column="worktype"/>
+        <result property="balance" column="balance"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createtime" column="createtime"/>
+        <result property="lasttime" column="lastupdatetime"/>
+        <result property="cardindex" column="cardindex"/>
+        <result property="createby" column="createby"/>
+        <result property="password" column="password"/>
+        <result property="time" column="updatetime"/>
+    </resultMap>
+
+    <sql id="selectAgentBankcardVo">
+        SELECT bankid,
+               supplierbranchid,
+               banknum,
+               bankcode,
+               banktype,
+               address,
+               depositaddress,
+               ownername,
+               ownerphone,
+               owneridentity,
+               worktype,
+               balance,
+               status,
+               remark,
+               createtime,
+               lastupdatetime,
+               cardindex,
+               createby,
+               updatetime,
+               password
+        FROM t_agentbankcard
+    </sql>
+
+    <select id="selectAgentBankcardList" parameterType="AgentBankcard" resultMap="AgentBankcardResult">
+        <include refid="selectAgentBankcardVo"/>
+        <where>
+            <if test="bankid != null ">and bankid = #{bankid}</if>
+            <if test="banknum != null and banknum!='' ">and banknum = #{banknum}</if>
+            <if test="bankcode != null ">and bankcode like concat('%',#{bankcode},'%')</if>
+            <if test="createby != null ">and createby = #{createby}</if>
+            <if test="supplierbranchid != null ">and supplierbranchid = #{supplierbranchid}</if>
+            <if test="ownername != null ">and ownername = #{ownername}</if>
+            <if test="createtime != null ">and createtime = #{createtime}</if>
+        </where>
+    </select>
+
+    <select id="selectAgentBankcardById" resultMap="AgentBankcardResult">
+        <include refid="selectAgentBankcardVo"/>
+        where bankid = #{param1} and supplierbranchid = #{param2}
+    </select>
+
+    <select id="selectAgentBankcardByBankCode" parameterType="String" resultMap="AgentBankcardResult">
+        <include refid="selectAgentBankcardVo"/>
+        where bankcode = #{bankcode}
+    </select>
+
+    <insert id="insertAgentBankcard" parameterType="AgentBankcard">
+        insert into t_agentbankcard
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">bankid,</if>
+            <if test="supplierbranchid != null ">supplierbranchid,</if>
+            <if test="banknum != null  and banknum != ''">banknum,</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode,</if>
+            <if test="banktype != null  and banktype != ''">banktype,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="depositaddress != null  and depositaddress != ''">depositaddress,</if>
+            <if test="ownername != null  and ownername != ''">ownername,</if>
+            <if test="ownerphone != null  and ownerphone != ''">ownerphone,</if>
+            <if test="owneridentity != null  and owneridentity != ''">owneridentity,</if>
+            <if test="worktype != null ">worktype,</if>
+            <if test="balance != null ">balance,</if>
+            <if test="status != null ">status,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="createtime != null ">createtime,</if>
+            <if test="lasttime != null ">lastupdatetime,</if>
+            <if test="cardindex != null  and cardindex != ''">cardindex,</if>
+            <if test="createby != null ">createby,</if>
+            <if test="time != null ">updatetime,</if>
+            <if test="agentId != null and agentId != ''">agent_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="banknum != null  and banknum != ''">#{banknum},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="banktype != null  and banktype != ''">#{banktype},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="depositaddress != null  and depositaddress != ''">#{depositaddress},</if>
+            <if test="ownername != null  and ownername != ''">#{ownername},</if>
+            <if test="ownerphone != null  and ownerphone != ''">#{ownerphone},</if>
+            <if test="owneridentity != null  and owneridentity != ''">#{owneridentity},</if>
+            <if test="worktype != null ">#{worktype},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lasttime != null ">#{lasttime},</if>
+            <if test="cardindex != null  and cardindex != ''">#{cardindex},</if>
+            <if test="createby != null ">#{createby},</if>
+            <if test="time != null ">#{time},</if>
+            <if test="agentId != null and agentId != ''">#{agentId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAgentBankcard" parameterType="AgentBankcard">
+        update t_agentbankcard
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">supplierbranchid = #{supplierbranchid},</if>
+            <if test="banknum != null  and banknum != ''">banknum = #{banknum},</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode = #{bankcode},</if>
+            <if test="banktype != null  and banktype != ''">banktype = #{banktype},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="depositaddress != null  and depositaddress != ''">depositaddress = #{depositaddress},</if>
+            <if test="ownername != null  and ownername != ''">ownername = #{ownername},</if>
+            <if test="ownerphone != null  and ownerphone != ''">ownerphone = #{ownerphone},</if>
+            <if test="owneridentity != null  and owneridentity != ''">owneridentity = #{owneridentity},</if>
+            <if test="worktype != null ">worktype = #{worktype},</if>
+            <if test="balance != null ">balance = #{balance},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="createtime != null ">createtime = #{createtime},</if>
+            <if test="lasttime != null ">lastupdatetime = #{lasttime},</if>
+            <if test="cardindex != null  and cardindex != ''">cardindex = #{cardindex},</if>
+            <if test="createby != null ">createby = #{createby},</if>
+            <if test="time != null ">updatetime = #{time},</if>
+        </trim>
+        where bankid = #{bankid}
+    </update>
+
+    <delete id="deleteAgentBankcardById" parameterType="Long">
+        DELETE
+        FROM t_agentbankcard
+        WHERE bankid = #{bankid}
+    </delete>
+
+    <delete id="deleteAgentBankcardByIds" parameterType="String">
+        delete from t_agentbankcard where bankid in
+        <foreach item="bankid" collection="array" open="(" separator="," close=")">
+            #{bankid}
+        </foreach>
+    </delete>
+
+</mapper>

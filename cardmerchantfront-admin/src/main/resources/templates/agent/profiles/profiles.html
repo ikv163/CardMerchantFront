@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('代理银行卡列表')"/>
+</head>
+<body class="gray-bg">
+
+<div class="container-div">
+    <div class="row" >
+        <div class="col-sm-12 select-table table-striped" th:if="${@permission.hasRole('代理')} != 'hidden'">
+<!--            <button class="btn-danger btn" shiro:hasRole="普通角色" onclick="transfermoney()">额度转换</button>-->
+            <button class="btn-success btn" onclick="resetPwd()" >更改登录密码</button>
+            <button class="btn-success btn" onclick="editPayCode()"> 更改支付密码</button>
+<!--            <button class="btn-success btn" onclick="alert('暂未开放')">更改谷歌秘钥</button>-->
+        </div>
+
+    </div>
+    <div class="row"  th:if="${@permission.hasRole('代理')} != 'hidden'"  >
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table-profiles"></table>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="btn-group-sm" id="toolbar-agentbankcard" role="group">
+            <h2>提款银行卡</h2>
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="agent:profiles:add" th:if="${@permission.hasRole('代理')} != 'hidden'">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table-agentbankcard"></table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <h2>代理充值</h2>
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">订单号：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">支付帐号：</p>
+                            <input type="text" name="banknum"/>
+                        </li>
+                        <li class="select-time">
+                            <p class="mylabeltitle">金额：</p>
+                            <input type="number"  name="minaccountAmount"/>
+                            <span>-</span>
+                            <input type="number" name="maxaccountAmount"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('formId','bootstrap-table-agentdepositorder')"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="btn-group-sm" id="toolbar-agentdepositorder" role="group" th:if="!${@permission.isAdmin()} ">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="agent:profiles:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:haspermission="agent:profiles:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table-agentdepositorder"></table>
+        </div>
+    </div>
+</div>
+<style>
+    .container-div .row {
+        height: auto;
+    }
+</style>
+<style>
+    .totalClass{
+        float: right;
+        text-align: right;
+        display: inline-block;
+    }
+
+    .totalClass span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .totalClass span em {
+        color: red;
+    }
+
+</style>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('agent:profiles:edit')}]];
+    var proviewFlag = [[${@permission.hasPermi('agent:profiles:proview')}]];
+    var removeFlag = [[${@permission.hasPermi('agent:profiles:remove')}]];
+
+    var resetPwdFlag = [[${@permission.hasPermi('agent:profiles:resetPwd')}]];
+    var sndisplayFlag = [[${@permission.hasPermi('agent:profiles:sndisplay')}]];
+
+    var prefix = ctx + "agent/profiles";
+    var orderstatusDict = [[${@dict.getType('depositestatus')}]];
+    var agent_level = [[${@dict.getType('agent_level')}]];
+
+    function transfermoney() {
+        $.modal.open("额度转换",prefix + "/transmoney",1000,350);
+    }
+
+    /**
+     * 修改支付密码
+     */
+    function editPayCode()
+    {
+        $.modal.open("更改支付密码",prefix + "/editPayCodeView",1000,350);
+    }
+
+    function sndisplay(userId) {
+        var url = prefix + '/sndisplay/' + userId;
+        $.modal.open("修改密钥", url, '800', '300');
+
+    }
+
+    $(function () {
+        var options = {
+            id: "bootstrap-table-profiles",
+            url: "/reports/reportdalily/profilesinfo",
+            modalName: "代理银行卡",
+            pagination:false,
+            responseHandler:responseHandler,
+            columns: [
+                {
+                    field: 'agentName',
+                    title: '<em data-i18name="">代理账号</em>'
+                },
+                {
+                    field: 'levelRatio',
+                    title: '<em data-i18name="">级别/费率</em>'
+                },
+                {
+                    field: 'successRate',
+                    title: '<em data-i18name="">成功率</em>',
+                    formatter:function (value,row,index) {
+                        return `${Math.round(value * 10000) / 100}%`;
+                    }
+                },
+                {
+                    field: 'totalCount',
+                    title: '<em data-i18name="">交易笔数</em>'
+                },
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="">账户金额</em>'
+                },
+                {
+                    field: 'transToday',
+                    title: '<em data-i18name="">今日交易</em>'
+                },
+                {
+                    field: 'profit_balance',
+                    title: '<em data-i18name="">利润</em>'
+                },
+                {
+                    field: 'available_Balance',
+                    title: '<em data-i18name="">可用金额</em>'/*,
+                    formatter:function (value,row,index) {
+                        return `${row.depositAmount - row.withdrawAmount}`;
+                    }*/
+                },
+                {
+                    field: 'withdrawAmount',
+                    title: '<em data-i18name="">已提金额</em>'
+                }
+                // {
+                //     field:'caozuo',
+                //     title: '<em data-i18name="t.operto">操作</em>',
+                //     align: 'left',
+                //     formatter: function (value, row, index) {
+                //         var actions = [];
+                //         actions.push('<a class="btn btn-info btn-xs ' + resetPwdFlag + '" href="javascript:void(0)" onclick="resetPwd(\'' + row.userId + '\')"><i class="fa fa-key"></i>修改密码</a>');
+                //         actions.push('<a class="btn btn-success btn-xs ' + sndisplayFlag + '" href="javascript:void(0)" onclick="sndisplay(\'' + row.userId + '\')"><i class="fa fa-check-square-o"></i>修改密钥</a> ');
+                //         return actions.join('');
+                //     }
+                // }
+                ]
+        };
+        $.table.init(options);
+    });
+    $(function () {
+
+        var options = {
+            id: "bootstrap-table-agentbankcard",
+            toolbar: "toolbar-agentbankcard",
+            url: prefix + "/agentbankcard/list",
+            createUrl: prefix + "/agentbankcard/add",
+            updateUrl: prefix + "/agentbankcard/edit/{id}",
+            popupdateUrl: prefix + "/agentbankcard/edit/{id}",
+            removeUrl: prefix + "/agentbankcard/remove",
+            exportUrl: prefix + "/agentbankcard/export",
+            proviewUrl: prefix + '/agentbankcard/proview/{id}',
+            modalName: "代理银行卡",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            responseHandler:responseHandler,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'bankid',
+                    title: '银行卡id',
+                    visible: false
+                },
+                {
+                    field: 'bankcode',
+                    title: '提款卡简码'
+                },
+                {
+                    field: 'createby',
+                    title: '代理账号'
+                },
+                {
+                    field: 'createtime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'lasttime',
+                    title: '更新时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.bankid + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.bankid + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+    $(function () {
+        var options = {
+            id: "bootstrap-table-agentdepositorder",
+            toolbar: "toolbar-agentdepositorder",
+            url: prefix + "/agentdepositorder/list",
+            createUrl: prefix + "/agentdepositorder/add",
+            updateUrl: prefix + "/agentdepositorder/edit/{id}",
+            popupdateUrl: prefix + "/agentdepositorder/edit/{id}",
+            removeUrl: prefix + "/agentdepositorder/remove",
+            exportUrl: prefix + "/agentdepositorder/export",
+            proviewUrl: prefix + "/agentdepositorder/proview/{id}",
+            modalName: "代理充值",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            responseHandler:responseHandler,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'orderindex',
+                    title: '订单索引',
+                    visible: false
+                },
+                {
+                    field: 'orderid',
+                    title: '充值订单号'
+                },
+
+                {
+                    field: 'payamount',
+                    title: '订单金额'
+                },
+                {
+                    field: 'paidamount',
+                    title: '实际到账'
+                },
+                // {
+                //     field:'bankcode',
+                //     title:'支付银行',
+                // },
+                {
+                    field:'banknum',
+                    title:'充值银行卡号',
+                },
+                {
+                    field:'name',
+                    title:'付款人',
+                },
+                {
+                    field: 'orderstatus',
+                    title: '订单状态',
+                    formatter: function (v) {
+                        var status = {
+                            4: true,
+                            5: true,
+                            6: true,
+                            7: true
+                        }
+
+                        let dictVale = getDictVale(v, orderstatusDict);
+                        if (status[v]) {
+                            return `<a class="badge badge-danger">${dictVale}</i>`;
+                        } else {
+                            return `<a class="badge badge-primary">${dictVale}</i>`;
+                        }
+                    }
+                },
+                {
+                    field: 'createtime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'lasttime',
+                    title: '更新时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        var statusmap = {
+                            //处理中
+                            1: true,
+                            //创建
+                            0: true
+                        }
+                        actions.push('<a class="btn btn-success btn-xs ' + proviewFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.orderindex + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        if (statusmap[row.orderstatus]) {
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="canceldepositeOrder(\'' + row.orderindex + '\')"><i class="fa fa-edit"></i>取消</a> ');
+                        }
+                        return actions.join('');
+                    }
+                }
+                ]
+        };
+        $.table.init(options);
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function canceldepositeOrder(orderindex) {
+        $.modal.confirm("确认要取消订单？", function () {
+            $.operate.save(prefix + "/agentdepositorder/edit", {orderindex: orderindex, orderstatus: 7});
+        })
+    }
+
+    function onDblClickRow(row, $element) {
+
+    }
+
+    responseHandler = function (res) {
+        calc(res);
+    };
+
+    /**
+     * 总计  小计
+     * @param res
+     */
+    function calc(res) {
+        if(res.total > 0){
+            $("#bootstrap-table-agentdepositorder").parent().find(".totalClass").remove();
+            let cur = Math.round(res.curPageTotal * 100) / 100;
+            let total = Math.round(res.totalAmount * 100) / 100;
+            let content = `<p class="totalClass">
+            <span>小计</span><b></b><span style="color:red;" id="pagePayAmount">${cur || '0.00'}</span>
+            <span >总计</span><b></b><span style="color:red;" id="payAmountTotal">${total || '0.00'}</span>`;
+            $("#bootstrap-table-agentdepositorder").parent().prepend(content);
+        }
+    }
+
+</script>
+</body>
+</html>

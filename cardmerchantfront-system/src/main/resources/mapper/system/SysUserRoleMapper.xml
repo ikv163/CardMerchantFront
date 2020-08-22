@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.system.mapper.SysUserRoleMapper">
+
+    <resultMap type="SysUserRole" id="SysUserRoleResult">
+        <result property="userId" column="user_id"/>
+        <result property="roleId" column="role_id"/>
+    </resultMap>
+
+    <delete id="deleteUserRoleByUserId" parameterType="Long">
+        DELETE
+        FROM cardmerchantfront.sys_user_role
+        WHERE user_id = #{userId}
+    </delete>
+
+    <select id="countUserRoleByRoleId" resultType="Integer">
+        SELECT count(1)
+        FROM sys_user_role
+        WHERE role_id = #{roleId}
+    </select>
+    <resultMap type="com.pay.typay.common.core.domain.Ztree" id="roleTreeData">
+        <result property="id" column="id"/>
+        <result property="pId" column="pId"/>
+        <result property="name" column="name"/>
+        <result property="title" column="title"/>
+        <result property="checked" column="checked"/>
+        <result property="open" column="open"/>
+        <result property="nocheck" column="nocheck"/>
+    </resultMap>
+    <select id="userRoleTreeMultiple" parameterType="SysUserRole" resultMap="roleTreeData">
+        SELECT DISTINCT sr.role_id AS id,
+        0 AS pId,
+        sr.role_name AS name,
+        sr.role_key AS title,
+        FALSE AS checked,
+        FALSE AS open,
+        FALSE AS nocheck
+        FROM sys_role sr
+        LEFT JOIN sys_user_role sur ON sur.role_id = sr.role_id
+        <where>
+            and sr.del_flag = '0'
+            <if test="userId !=null and userId !=0">
+                and sur.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="userRoleTree" parameterType="SysUserRole" resultMap="roleTreeData">
+        SELECT DISTINCT sr.role_id AS id,
+        0 as pId,
+        sr.role_name AS name,
+        sr.role_key AS title,
+        FALSE AS checked,
+        FALSE AS open,
+        FALSE AS nocheck
+        FROM sys_role sr
+        LEFT JOIN sys_user_role sur ON sur.role_id = sr.role_id
+
+        <where>
+            and sr.del_flag = '0' AND sr.role_id !=1 and sr.role_id !=3
+            <if test="userId !=null and userId !=0">
+                and sur.user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteUserRole" parameterType="Long">
+        delete from sys_user_role where user_id in
+        <foreach collection="array" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+    <insert id="batchUserRole">
+        insert into cardmerchantfront.sys_user_role(user_id, role_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.userId},#{item.roleId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteUserRoleInfo" parameterType="SysUserRole">
+        DELETE
+        FROM sys_user_role
+        WHERE user_id = #{userId}
+          AND role_id = #{roleId}
+    </delete>
+
+    <delete id="deleteUserRoleInfos">
+        delete from sys_user_role where role_id=#{roleId} and user_id in
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>

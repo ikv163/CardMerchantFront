@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('额度转换')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-transmoney">
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">流水交易时间 ：</label>
+            <div class="col-sm-8">
+                <input type="text" class="time-input form-control" id="startTime" placeholder="开始时间" name="transtime"/>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">流水类型 ：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="transtype" readonly="">
+                    <option value="0" th:if="${type} eq 1">支出</option>
+                    <option value="1" th:if="${type} eq 2">收入</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6"  th:if="${type} eq 1">
+            <label class="col-sm-4 control-label is-required">银行卡简码 ：</label>
+            <div class="col-sm-8">
+                <select class="form-control"  name="bankaccount"
+                        th:with="type=${bankcard}">
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBankcode()}"
+                            th:text="${dict.getBankcode()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6"  th:if="${type} eq 2">
+            <label class="col-sm-4 control-label is-required">银行卡号码 ：</label>
+            <div class="col-sm-8">
+                <select class="form-control"  name="transaccount"
+                        th:with="type=${bankcard}">
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanknum()}"
+                            th:text="${dict.getBanknum()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">流水状态 ：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="status">
+                    <option value="0">创建</option>
+                    <option value="1">处理中</option>
+                    <option value="2">成功</option>
+                    <option value="3">超时失败</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">流水金额 ：</label>
+            <div class="col-sm-8">
+                <input name="transamount"  class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">备注 ：</label>
+            <div class="col-sm-8">
+                <input name="remark" class="form-control" type="text">
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script  th:inline="javascript">
+    var prefix = ctx + "bankcard/statementcenter"
+    var enableMoney = $('#availableBalance').val();
+    $("#form-transmoney").validate({
+        focusCleanup: true,
+        rules: {
+            transTimes: {
+                required: true
+            },
+            transType:{
+                required: true
+            },
+            transMoney:{
+                min:1,
+                required: true
+            },
+            payCode:{
+                required:true
+            },
+        },
+        messages: {
+            transType: {
+                required: '<i class="fa fa-times-circle"></i> 必选'
+            },
+        }
+    });
+    function submitHandler(){
+
+        console.log($('#form-transmoney').serialize());
+        if($.validate.form()){
+            $.operate.save(prefix + '/create-trans-save',$('#form-transmoney').serialize())
+        }
+    }
+</script>
+</body>
+</html>

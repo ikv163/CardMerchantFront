@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看中转订单')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">查看中转订单基本信息</h4>
+    <form class="form-horizontal m">
+
+    </form>
+</div>
+<div class="row">
+    <div class="col-sm-offset-5 col-sm-10">
+
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var data = [[${agentwithdraworder}]];
+    var orderstatusDatas = [[${@dict.getType('depositestatus')}]];
+    $(function () {
+        var options = {
+            columns: [
+                {
+                    field: 'orderid',
+                    title: '订单号'
+                },
+                {
+                    field: 'userName',
+                    title: '代理账号'
+                },
+                {
+                    field: 'bankcode',
+                    title: '卡简码'
+                },
+                {
+                    field: 'remark',
+                    title: '附言'
+                },
+                {
+                    field: 'payamount',
+                    title: '申请金额'
+                },
+                {
+                    field: 'paidamount',
+                    title: '充值金额'
+                },
+                {
+                    field: 'loginame',
+                    title: '用户账号'
+                },
+                {
+                    field: 'profit',
+                    title: '利润'
+                },
+                {
+                    field: 'orderstatus',
+                    title: '状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(orderstatusDatas, value);
+                    }
+                },
+                {
+                    field: 'createtime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'lasttime',
+                    title: '更新时间'
+                }
+            ]
+        };
+
+        var html = '';
+        let myoptions = options.columns;
+        for (let item of myoptions) {
+            let field = item.field;
+            let value = data[field] || '';
+            if (item.formatter) {
+                value = item.formatter(value, data);
+            }
+            html += `
+        <div class="form-group col-sm-6">
+            <label class="col-sm-3 control-label">${item.title}：</label>
+            <div class="col-sm-8">
+                <span class="form-control" disabled="disabled">${value}</span>
+            </div>
+        </div>
+            `;
+        }
+        $('.form-horizontal').html(html);
+
+    });
+
+</script>
+</body>
+</html>

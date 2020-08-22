@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('卡商代理列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+
+
+                <div class="select-list">
+                    <ul>
+
+                        <li>
+                            <p class="mylabeltitle">代理名称：</p>
+                            <input type="text" name="agentName"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">代理账号：</p>
+                            <input type="text" name="agentCode"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">代理级别：</p>
+                            <select name="agentLevel" th:with="type=${@dict.getType('agent_level')}"
+                                    class="form-control m-b">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">状态：</p>
+                            <select name="status" th:with="type=${@dict.getType('agent_status')}"
+                                    class="form-control m-b">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+
+                        <!--<li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>-->
+                    </ul>
+                </div>
+
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" id="addBtn" onclick="$.operate.add()" shiro:hasPermission="agent:agentcenter:add" shiro:hasRole="admin">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+<!--            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"-->
+<!--               shiro:hasPermission="agent:agentcenter:edit">-->
+<!--                <i class="fa fa-edit"></i> 修改-->
+<!--            </a>-->
+            <a class="btn btn-danger multiple disabled" id="deleteBtn" onclick="$.operate.removeAll()"
+               shiro:hasPermission="agent:agentcenter:remove" shiro:hasRole="admin">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<style>
+    .container-div .row {
+        height: auto;
+    }
+    .totalClass{
+        float: right;
+        text-align: right;
+        display: inline-block;
+    }
+
+    .totalClass span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .totalClass span em {
+        color: red;
+    }
+</style>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('agent:agentcenter:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('agent:agentcenter:remove')}]];
+    var prefix = ctx + "agent/agentcenter";
+    var agent_level = [[${@dict.getType('agent_level')}]];
+    function loadTotal(res) {
+        $(".fixed-table-body").find(".totalClass").remove();
+        let content = '<p class="totalClass">';
+        if (res) {
+            let pagetcount = res.rows;
+            let balance = pagetcount.reduce(function (a, b) {
+                return a + b.balance;
+            }, 0)
+            content += '<span>账户余额(本页)</span><b></b><span style="color:red;" id="pagePayAmount">' + res.sumBalance + '</span>'
+            content += '<span >账户余额(总计)</span><b></b><span style="color:red;" id="payAmountTotal">' + balance + '</span>';
+            $(".fixed-table-body").prepend(content);
+        } else {
+            let content = '<p class="totalClass">';
+            content += '<span>账户余额(本页)</span><b></b><span style="color:red;" id="pagePayAmount">0.00</span>'
+            content += '<span >账户余额(总计)</span><b></b><span style="color:red;" id="payAmountTotal">0.00</span>';
+            $(".fixed-table-body").prepend(content);
+        }
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            popupdateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + '/proview/{id}',
+            modalName: "卡商代理",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            responseHandler:responseHandler,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '代理ID',
+                    visible: false
+                },
+                {
+                    field: 'agentCode',
+                    title: '代理账号'
+                },
+                {
+                    field: 'agentName',
+                    title: '代理名称'
+                },
+                {
+                    field: 'agentLevel',
+                    title: '级别/费率',
+                    formatter: function (v,row) {
+                        if(v == 0){
+                            return "总代理/"+row.ratio;
+                        }
+                        return getDictVale(row.agentLevel, agent_level)+"/"+row.ratio;
+                    }
+                },
+                {
+                    field: 'balance',
+                    title: '帐户金额'
+                },
+
+                {
+                    field: 'availableBalance',
+                    title: '可用余额'
+                },
+
+                {
+                    field: 'fronzenBalance',
+                    title: '冻结金额'
+                },
+                {
+                    field: 'profitBalance',
+                    title: '收益金额（总计）'
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    formatter: function (value) {
+                        return {
+                            "0": '<a class="badge badge-danger ">停用</a>',
+                            "1": ` <a class="badge badge-success ">启用</a>`
+                        }[value];
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        if(row.status !=="-1") {
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        }
+                        if (row.status !== '1'){
+                            actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        }
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+        if(row.status === '1'){
+            $("#deleteBtn").addClass('disabled');
+        }
+        $("#addBtn").addClass('disabled',!$("#addBtn").hasClass('disabled'));
+    }
+
+    responseHandler = function (res) {
+        $("#addBtn").toggleClass('disabled',res.total > 0);
+        subTotal(res.subtotal,res.totalEntity);
+    }
+
+    function onDblClickRow(row, $element) {
+
+    }
+
+
+    //小计 - 总计
+    function subTotal(subtotal,total) {
+        $(".fixed-table-body").find(".totalClass").remove();
+        $(".fixed-table-body").prepend(buildContent(subtotal,1));
+
+        $(".fixed-table-body").append(buildContent(total,0));
+    }
+
+    function buildContent(subtotal,type) {
+        return `<p class="totalClass">
+                            <span>${type === 1 ? '本页' : '总计'} 代理：</span><b></b><span style="color:red;">${subtotal.agentNum}</span>
+                            <span>账户余额：</span><b></b><span style="color:red;">${subtotal.balance}</span>
+                            <span>可用余额：</span><b></b><span style="color:red;">${subtotal.availableBalance}</span>
+                            <span>冻结余额：</span><b></b><span style="color:red;">${subtotal.fronzenBalance}</span>
+                            <span>利润：</span><b></b><span style="color:red;">${subtotal.profit}</span>`;
+    }
+</script>
+</body>
+</html>

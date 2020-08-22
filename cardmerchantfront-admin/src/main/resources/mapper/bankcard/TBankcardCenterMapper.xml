@@ -1,0 +1,736 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBankcardCenterMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.TBankcardcenter" id="TBankcardResult">
+        <result property="bankid" column="bankid"/>
+        <result property="authestr" column="authes"/>
+        <result property="supplierbranchid" column="supplierbranchid"/>
+        <result property="banknum" column="banknum"/>
+        <result property="loginaccount" column="loginaccount"/>
+        <result property="bankcode" column="bankcode"/>
+        <result property="poolid" column="poolid"/>
+        <result property="bankpoolname" column="bankpoolname"/>
+        <result property="auth" column="auth"/>
+        <result property="authname" column="authname"/>
+        <result property="banktype" column="banktype"/>
+        <result property="address" column="address"/>
+        <result property="depositaddress" column="depositaddress"/>
+        <result property="ownername" column="ownername"/>
+        <result property="ownerphone" column="ownerphone"/>
+        <result property="owneridentity" column="owneridentity"/>
+        <result property="worktype" column="worktype"/>
+        <result property="balance" column="balance"/>
+        <result property="maxbalance" column="maxbalance"/>
+        <result property="minbalance" column="minbalance"/>
+        <result property="initbalance" column="initbalance"/>
+        <result property="sumamountperdaytrans" column="sumamountperdaytrans"/>
+        <result property="sumtimesperdaytrans" column="sumtimesperdaytrans"/>
+        <result property="minamountpertrans" column="minamountpertrans"/>
+        <result property="maxamountpertrans" column="maxamountpertrans"/>
+        <result property="alisumtimesperdaytrans" column="alisumtimesperdaytrans"/>
+        <result property="alisumamountperdaytrans" column="alisumamountperdaytrans"/>
+        <result property="aliminamountpertrans" column="aliminamountpertrans"/>
+        <result property="alimaxamountpertrans" column="alimaxamountpertrans"/>
+        <result property="status" column="status"/>
+        <result property="comments" column="comments"/>
+        <result property="remark" column="remark"/>
+        <result property="version" column="version"/>
+        <result property="uloginpwd" column="uloginpwd"/>
+        <result property="ukeypwd" column="ukeypwd"/>
+        <result property="loginpwd" column="loginpwd"/>
+        <result property="paypwd" column="paypwd"/>
+        <result property="ucode" column="ucode"/>
+        <result property="tagid" column="tagid"/>
+        <result property="phoneid" column="phoneid"/>
+        <result property="lastloginclientname" column="lastloginclientname"/>
+        <result property="createtime" column="createtime"/>
+        <result property="updatetime" column="updatetime"/>
+        <result property="createbyname" column="createbyname"/>
+        <result property="createby" column="createby"/>
+        <result property="updatebyname" column="updatebyname"/>
+        <result property="updateby" column="updateby"/>
+        <result property="lastupdatetime" column="lastupdatetime"/>
+        <result property="cardindex" column="cardindex"/>
+        <result property="withdrawamount" column="withdrawamount"/>
+        <result property="depositamount" column="depositamount"/>
+        <result property="clientid" column="clientid"/>
+        <result property="channelid" column="paychannelid"/>
+        <result property="surplier_type" column="surplier_type"/>
+<!--        <result property="historydepositamount" column="historydepositamount"/>-->
+        <result property="agentId" column="agent_id"/>
+    </resultMap>
+
+    <sql id="selectTBankcardVo">
+        SELECT u.bankid,
+               u.supplierbranchid,
+               banknum,
+               loginaccount,
+               bankcode,
+               worktype,
+               balance,
+               maxbalance,
+               minbalance,
+               initbalance,
+               sumamountperdaytrans,
+               sumtimesperdaytrans,
+               minamountpertrans,
+               maxamountpertrans,
+               status,
+               lastloginclientname,
+               createtime,
+               updatetime,
+               u.lastupdatetime,
+               cardindex,
+               ownername,
+               banktype,
+               u.bankid,
+               banknum,
+               ownername,
+               banktype,
+               bankcode,
+               ucode,
+               address,
+               ownerphone,
+               owneridentity,
+               depositaddress,
+               initbalance,
+               status,
+               tagid,
+               sumamountperdaytrans,
+               sumtimesperdaytrans,
+               minamountpertrans,
+               maxamountpertrans,
+               alisumamountperdaytrans,
+               alisumtimesperdaytrans,
+               aliminamountpertrans,
+               alimaxamountpertrans,
+               balance,
+               maxbalance,
+               minbalance,
+               worktype,
+               poolid,
+               loginaccount,
+               agent_id,
+               PayPWD,
+               LoginPWD,
+               ReMark,
+                  (SELECT  DepositAmount FROM t_bankcardsummary WHERE  Calendar=CURRENT_DATE AND t_bankcardsummary.BankID=u.BankID) depositamount,
+                   (SELECT  WithdrawAmount FROM t_bankcardsummary WHERE  Calendar=CURRENT_DATE AND t_bankcardsummary.BankID=u.BankID) withdrawamount,
+               (SELECT historyDepositAmount
+                FROM t_bankcardsummary
+                WHERE Calendar = CURRENT_DATE AND t_bankcardsummary.BankID = u.BankID) historydepositamount
+--                t_bankcardsummary.DepositAmount depositamount,
+--                t_bankcardsummary.HistoryDepositAmount historyDepositAmount
+        FROM t_bankcard u
+--         left join t_bankcardsummary on t_bankcardsummary.BankID = u.BankID and Calendar = CURRENT_DATE
+    </sql>
+
+
+    <select id="selectTBankcardList" parameterType="TBankcardcenter" resultMap="TBankcardResult">
+        <include refid="selectTBankcardVo"/>
+
+        <where>
+            status != -1
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="surplier_type != null ">and surplier_type = #{surplier_type}</if>
+            <if test="loginaccount != null  and loginaccount != ''">and LoginAccount = #{loginaccount}</if>
+            <if test="bankcode != null  and bankcode != ''">and BankCode like '%${bankcode}%'</if>
+            <if test="banknum != null  and banknum != ''">and banknum like '%${banknum}%'</if>
+            <if test="poolid != null ">and PoolID = #{poolid}</if>
+            <if test="auth != null ">and authes = #{auth}</if>
+            <if test="banktype != null  and banktype != ''">and BankType = #{banktype}</if>
+            <if test="address != null  and address != ''">and Address = #{address}</if>
+            <if test="depositaddress != null  and depositaddress != ''">and DepositAddress = #{depositaddress}</if>
+            <if test="ownername != null  and ownername != ''">and OwnerName like concat('%', #{ownername}, '%')</if>
+            <if test="ownerphone != null  and ownerphone != ''">and OwnerPhone = #{ownerphone}</if>
+            <if test="owneridentity != null  and owneridentity != ''">and OwnerIdentity = #{owneridentity}</if>
+            <if test="worktype != null ">and WorkType = #{worktype}</if>
+            <if test="balance != null ">and Balance = #{balance}</if>
+            <if test="maxbalance != null ">and MaxBalance = #{maxbalance}</if>
+            <if test="minbalance != null ">and MinBalance = #{minbalance}</if>
+            <if test="initbalance != null ">and InitBalance = #{initbalance}</if>
+            <if test="sumamountperdaytrans != null ">and SumAmountPerDayTrans = #{sumamountperdaytrans}</if>
+            <if test="sumtimesperdaytrans != null ">and SumTimesPerDayTrans = #{sumtimesperdaytrans}</if>
+            <if test="minamountpertrans != null ">and MinAmountPerTrans = #{minamountpertrans}</if>
+            <if test="maxamountpertrans != null ">and MaxAmountPerTrans = #{maxamountpertrans}</if>
+            <if test="alisumtimesperdaytrans != null ">and AliSumTimesPerDayTrans = #{alisumtimesperdaytrans}</if>
+            <if test="alisumamountperdaytrans != null ">and AliSumAmountPerDayTrans = #{alisumamountperdaytrans}</if>
+            <if test="aliminamountpertrans != null ">and AliMinAmountPerTrans = #{aliminamountpertrans}</if>
+            <if test="alimaxamountpertrans != null ">and AliMaxAmountPerTrans = #{alimaxamountpertrans}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="comments != null  and comments != ''">and Comments = #{comments}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="version != null ">and Version = #{version}</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">and ULoginPWD = #{uloginpwd}</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">and UkeyPWD = #{ukeypwd}</if>
+            <if test="loginpwd != null  and loginpwd != ''">and LoginPWD = #{loginpwd}</if>
+            <if test="paypwd != null  and paypwd != ''">and PayPWD = #{paypwd}</if>
+            <if test="ucode != null  and ucode != ''">and UCode = #{ucode}</if>
+            <if test="tagid != null ">and TagID = #{tagid}</if>
+            <if test="phoneid != null ">and PhoneID = #{phoneid}</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">and LastLoginClientName like
+                concat('%', #{lastloginclientname}, '%')
+            </if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+            <if test="cardindex != null  and cardindex != ''">and CardIndex = #{cardindex}</if>
+            <if test="unassigned != null and unassigned != ''">and (u.PoolID IS NULL OR u.PoolID=0)</if>
+            <if test="statuses != null  and statuses     != ''">and Status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="worktypes != null  and worktypes     != ''">and worktype in
+                <foreach collection="worktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="poolids != null  and poolids     != ''">and poolid in
+                <foreach collection="poolids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="banktypes != null  and banktypes     != ''">and banktype in
+                <foreach collection="banktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND CreateTime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND CreateTime &lt;= #{params.endTime}
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by status desc, createTime desc
+    </select>
+
+    <select id="selectListByWorktype" parameterType="TBankcardcenter" resultMap="TBankcardResult">
+        <include refid="selectTBankcardVo"/>
+        LEFT JOIN t_bankinchannel b on u.BankID = b.BankID
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="statusfilter != null ">and Status != #{statusfilter}</if>
+            <if test="bankcode != null  and bankcode != ''">and BankCode like concat('%',#{bankcode},'%')</if>
+            <if test="poolid != null ">and (PoolID=#{poolid})</if>
+            <if test="worktype != null">and WorkType = #{worktype}</if>
+            <if test="ownername != null and ownername !=''">and ownername = #{ownername}</if>
+            <if test="banktype != null and banktype !=''">and banktype = #{banktype}</if>
+            <if test="channelid != null and channelid !=''">and b.ChannelID = #{channelid}</if>
+            <if test="surplier_type != null">and u.surplier_type = #{surplier_type}</if>
+            <if test="statuses != null  and statuses != ''">and Status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by poolid,bankcode asc
+    </select>
+
+
+    <select id="selectTBankcardListsum" parameterType="TBankcardcenter" resultMap="TBankcardResult">
+
+        SELECT t.BankID,
+        t.BankCode,
+        PoolID,
+        t.BankType,
+        t.authes,
+        t.WorkType,
+        t.Balance,
+        t.Status,
+        tb.depositamount,
+        tb.withdrawamount
+        FROM t_bankcard t
+        LEFT JOIN t_bankcardsummary tb ON tb.BankID = t.BankID AND tb.Calendar &gt;= DATE(curdate())
+        AND tb.Calendar &lt;= date_add(curdate(), INTERVAL 1 DAY)
+        <where>
+            <if test="supplierbranchid != null ">and t.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="bankcode != null  and bankcode != ''">and t.BankCode = #{bankcode}</if>
+            <if test="poolid != null ">and t.PoolID = #{poolid}</if>
+            <if test="banktype != null  and banktype != ''">and t.BankType = #{banktype}</if>
+            <if test="worktype != null ">and t.WorkType = #{worktype}</if>
+            <if test="status != null ">and t.Status = #{status}</if>
+            <if test="statusfilter != null ">and t.Status != #{statusfilter}</if>
+            ${params.dataScope}
+        </where>
+
+    </select>
+
+    <select id="selectTBankcardById" resultMap="TBankcardResult">
+        <include refid="selectTBankcardVo"/>
+        where BankID = #{param1} and u.supplierbranchid = #{param2}
+    </select>
+    <select id="selectTBankcardListByPool" resultType="com.pay.typay.biz.domain.TBankcardcenter">
+        SELECT t_bankcard.BankCode,
+               t_bankcard.BankNum,
+               t_bankcard.UCode,
+               t_bankclient.ClientID,
+               t_bankclient.ReMark,
+               t_bankcard.BankID,
+               t_bankcard.BankCode
+        FROM t_bankcard
+                 LEFT JOIN tyadmin.t_bankclient ON t_bankcard.BankCode = t_bankclient.BankAccount
+        WHERE t_bankcard.PoolID = #{poolid}
+            ${params.dataScope}
+    </select>
+    <select id="getBankcardTotal" resultType="com.pay.typay.biz.domain.TBankcardcenter" parameterType="TBankcardcenter">
+        SELECT COUNT(u.Status) as parentId, u.Status from t_bankcard u
+        <where>
+            u.status != -1 <!--过滤掉软删除数据-->
+            <if test="supplierbranchid != null ">and u.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+
+
+            <if test="surplier_type != null ">and u.surplier_type = #{surplier_type}</if>
+            <if test="banknum != null  and banknum != ''">and u.BankNum = #{banknum}</if>
+            <if test="loginaccount != null  and loginaccount != ''">and u.LoginAccount = #{loginaccount}</if>
+            <if test="bankcode != null  and bankcode != ''">and u.BankCode = #{bankcode}</if>
+            <if test="poolid != null ">and u.PoolID = #{poolid}</if>
+            <if test="auth != null ">and auth = #{auth}</if>
+            <if test="banktype != null  and banktype != ''">and u.BankType = #{banktype}</if>
+            <if test="address != null  and address != ''">and u.Address = #{address}</if>
+            <if test="depositaddress != null  and depositaddress != ''">and u.DepositAddress = #{depositaddress}</if>
+            <if test="ownername != null  and ownername != ''">and u.OwnerName like concat('%', #{ownername}, '%')</if>
+            <if test="ownerphone != null  and ownerphone != ''">and u.OwnerPhone = #{ownerphone}</if>
+            <if test="owneridentity != null  and owneridentity != ''">and u.OwnerIdentity = #{owneridentity}</if>
+            <if test="worktype != null ">and u.WorkType = #{worktype}</if>
+            <if test="balance != null ">and u.Balance = #{balance}</if>
+            <if test="maxbalance != null ">and u.MaxBalance = #{maxbalance}</if>
+            <if test="minbalance != null ">and u.MinBalance = #{minbalance}</if>
+            <if test="initbalance != null ">and u.InitBalance = #{initbalance}</if>
+            <if test="sumamountperdaytrans != null ">and u.SumAmountPerDayTrans = #{sumamountperdaytrans}</if>
+            <if test="sumtimesperdaytrans != null ">and u.SumTimesPerDayTrans = #{sumtimesperdaytrans}</if>
+            <if test="minamountpertrans != null ">and u.MinAmountPerTrans = #{minamountpertrans}</if>
+            <if test="maxamountpertrans != null ">and u.MaxAmountPerTrans = #{maxamountpertrans}</if>
+            <if test="alisumtimesperdaytrans != null ">and u.AliSumTimesPerDayTrans = #{alisumtimesperdaytrans}</if>
+            <if test="alisumamountperdaytrans != null ">and u.AliSumAmountPerDayTrans = #{alisumamountperdaytrans}</if>
+            <if test="aliminamountpertrans != null ">and u.AliMinAmountPerTrans = #{aliminamountpertrans}</if>
+            <if test="alimaxamountpertrans != null ">and u.AliMaxAmountPerTrans = #{alimaxamountpertrans}</if>
+            <if test="status != null ">and u.Status = #{status}</if>
+            <if test="comments != null  and comments != ''">and u.Comments = #{comments}</if>
+            <if test="remark != null  and remark != ''">and u.ReMark = #{remark}</if>
+            <if test="version != null ">and u.Version = #{version}</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">and u.ULoginPWD = #{uloginpwd}</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">and u.UkeyPWD = #{ukeypwd}</if>
+            <if test="loginpwd != null  and loginpwd != ''">and u.LoginPWD = #{loginpwd}</if>
+            <if test="paypwd != null  and paypwd != ''">and u.PayPWD = #{paypwd}</if>
+            <if test="ucode != null  and ucode != ''">and u.UCode = #{ucode}</if>
+            <if test="tagid != null ">and u.TagID = #{tagid}</if>
+            <if test="phoneid != null ">and u.PhoneID = #{phoneid}</if>
+            <if test="unassigned != null and unassigned != ''">and (u.PoolID IS NULL OR u.PoolID=0)</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">and u.LastLoginClientName like
+                concat('%', #{lastloginclientname}, '%')
+            </if>
+            <if test="createtime != null ">and u.CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and u.LastUpDateTime = #{lastupdatetime}</if>
+            <if test="cardindex != null  and cardindex != ''">and u.CardIndex = #{cardindex}</if>
+            <if test="statuses != null  and statuses     != ''">and Status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="worktypes != null  and worktypes     != ''">and worktype in
+                <foreach collection="worktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="poolids != null  and poolids     != ''">and poolid in
+                <foreach collection="poolids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="banktypes != null  and banktypes     != ''">and banktype in
+                <foreach collection="banktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND CreateTime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND CreateTime &lt;= #{params.endTime}
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        group by u.Status
+
+    </select>
+
+    <select id="getSummary" resultType="com.pay.typay.biz.domain.TBankcardcenter" parameterType="TBankcardcenter">
+        SELECT sum(balance) balance,sum(s.DepositAmount) DepositAmount,sum(s.HistoryDepositAmount) historyDepositAmount,sum(s.WithdrawAmount) withdrawamount
+        from t_bankcard u
+        left join t_bankcardsummary s on (s.BankID = u.BankID)
+        <where>
+            u.status != -1 <!--过滤掉软删除数据-->
+            <if test="supplierbranchid != null ">and u.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="surplier_type != null ">and u.surplier_type = #{surplier_type}</if>
+            <if test="banknum != null  and banknum != ''">and u.BankNum = #{banknum}</if>
+            <if test="loginaccount != null  and loginaccount != ''">and u.LoginAccount = #{loginaccount}</if>
+            <if test="bankcode != null  and bankcode != ''">and u.BankCode = #{bankcode}</if>
+            <if test="poolid != null ">and u.PoolID = #{poolid}</if>
+            <if test="auth != null ">and auth = #{auth}</if>
+            <if test="banktype != null  and banktype != ''">and u.BankType = #{banktype}</if>
+            <if test="address != null  and address != ''">and u.Address = #{address}</if>
+            <if test="depositaddress != null  and depositaddress != ''">and u.DepositAddress = #{depositaddress}</if>
+            <if test="ownername != null  and ownername != ''">and u.OwnerName like concat('%', #{ownername}, '%')</if>
+            <if test="ownerphone != null  and ownerphone != ''">and u.OwnerPhone = #{ownerphone}</if>
+            <if test="owneridentity != null  and owneridentity != ''">and u.OwnerIdentity = #{owneridentity}</if>
+            <if test="worktype != null ">and u.WorkType = #{worktype}</if>
+            <if test="balance != null ">and u.Balance = #{balance}</if>
+            <if test="maxbalance != null ">and u.MaxBalance = #{maxbalance}</if>
+            <if test="minbalance != null ">and u.MinBalance = #{minbalance}</if>
+            <if test="initbalance != null ">and u.InitBalance = #{initbalance}</if>
+            <if test="sumamountperdaytrans != null ">and u.SumAmountPerDayTrans = #{sumamountperdaytrans}</if>
+            <if test="sumtimesperdaytrans != null ">and u.SumTimesPerDayTrans = #{sumtimesperdaytrans}</if>
+            <if test="minamountpertrans != null ">and u.MinAmountPerTrans = #{minamountpertrans}</if>
+            <if test="maxamountpertrans != null ">and u.MaxAmountPerTrans = #{maxamountpertrans}</if>
+            <if test="alisumtimesperdaytrans != null ">and u.AliSumTimesPerDayTrans = #{alisumtimesperdaytrans}</if>
+            <if test="alisumamountperdaytrans != null ">and u.AliSumAmountPerDayTrans = #{alisumamountperdaytrans}</if>
+            <if test="aliminamountpertrans != null ">and u.AliMinAmountPerTrans = #{aliminamountpertrans}</if>
+            <if test="alimaxamountpertrans != null ">and u.AliMaxAmountPerTrans = #{alimaxamountpertrans}</if>
+            <if test="status != null ">and u.Status = #{status}</if>
+            <if test="comments != null  and comments != ''">and u.Comments = #{comments}</if>
+            <if test="remark != null  and remark != ''">and u.ReMark = #{remark}</if>
+            <if test="version != null ">and u.Version = #{version}</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">and u.ULoginPWD = #{uloginpwd}</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">and u.UkeyPWD = #{ukeypwd}</if>
+            <if test="loginpwd != null  and loginpwd != ''">and u.LoginPWD = #{loginpwd}</if>
+            <if test="paypwd != null  and paypwd != ''">and u.PayPWD = #{paypwd}</if>
+            <if test="ucode != null  and ucode != ''">and u.UCode = #{ucode}</if>
+            <if test="tagid != null ">and u.TagID = #{tagid}</if>
+            <if test="phoneid != null ">and u.PhoneID = #{phoneid}</if>
+            <if test="unassigned != null and unassigned != ''">and (u.PoolID IS NULL OR u.PoolID=0)</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">and u.LastLoginClientName like
+                concat('%', #{lastloginclientname}, '%')
+            </if>
+            <if test="createtime != null ">and u.CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and u.LastUpDateTime = #{lastupdatetime}</if>
+            <if test="cardindex != null  and cardindex != ''">and u.CardIndex = #{cardindex}</if>
+            <if test="statuses != null  and statuses     != ''">and Status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="worktypes != null  and worktypes     != ''">and worktype in
+                <foreach collection="worktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="poolids != null  and poolids     != ''">and poolid in
+                <foreach collection="poolids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="banktypes != null  and banktypes     != ''">and banktype in
+                <foreach collection="banktypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND CreateTime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND CreateTime &lt;= #{params.endTime}
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+    </select>
+
+
+
+
+
+    <select id="selectListByPool" resultType="com.pay.typay.biz.domain.TBankcardcenter">
+        <include refid="selectTBankcardVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="statusfilter != null ">and Status != #{statusfilter}</if>
+            <if test="bankcode != null  and bankcode != ''">and BankCode like concat('%',#{bankcode},'%')</if>
+            <if test="poolid != null ">and (PoolID=#{poolid})</if>
+            <if test="worktype != null">and WorkType = #{worktype}</if>
+            <if test="ownername != null and ownername !=''">and ownername = #{ownername}</if>
+            <if test="banktype != null and banktype !=''">and banktype = #{banktype}</if>
+            <if test="channelid != null and channelid !=''">and b.ChannelID = #{channelid}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by poolid,bankcode asc
+    </select>
+
+    <insert id="insertTBankcard" parameterType="TBankcardcenter">
+        insert into t_bankcard
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">BankID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="surplier_type != null ">surplier_type,</if>
+            <if test="banknum != null  and banknum != ''">BankNum,</if>
+            <if test="loginaccount != null  and loginaccount != ''">LoginAccount,</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode,</if>
+            <if test="poolid != null ">PoolID,</if>
+            <if test="auth != null ">Auth,</if>
+            <if test="authestr != null ">authes,</if>
+            <if test="banktype != null  and banktype != ''">BankType,</if>
+            <if test="address != null  and address != ''">Address,</if>
+            <if test="depositaddress != null  and depositaddress != ''">DepositAddress,</if>
+            <if test="ownername != null  and ownername != ''">OwnerName,</if>
+            <if test="ownerphone != null  and ownerphone != ''">OwnerPhone,</if>
+            <if test="owneridentity != null  and owneridentity != ''">OwnerIdentity,</if>
+            <if test="worktype != null ">WorkType,</if>
+            <if test="balance != null ">Balance,</if>
+            <if test="maxbalance != null ">MaxBalance,</if>
+            <if test="minbalance != null ">MinBalance,</if>
+            <if test="initbalance != null ">InitBalance,</if>
+            <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans,</if>
+            <if test="sumtimesperdaytrans != null ">SumTimesPerDayTrans,</if>
+            <if test="minamountpertrans != null ">MinAmountPerTrans,</if>
+            <if test="maxamountpertrans != null ">MaxAmountPerTrans,</if>
+            <if test="alisumtimesperdaytrans != null ">AliSumTimesPerDayTrans,</if>
+            <if test="alisumamountperdaytrans != null ">AliSumAmountPerDayTrans,</if>
+            <if test="aliminamountpertrans != null ">AliMinAmountPerTrans,</if>
+            <if test="alimaxamountpertrans != null ">AliMaxAmountPerTrans,</if>
+            <if test="status != null ">Status,</if>
+            <if test="comments != null  and comments != ''">Comments,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="version != null ">Version,</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">ULoginPWD,</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">UkeyPWD,</if>
+            <if test="loginpwd != null  and loginpwd != ''">LoginPWD,</if>
+            <if test="paypwd != null  and paypwd != ''">PayPWD,</if>
+            <if test="ucode != null  and ucode != ''">UCode,</if>
+            <if test="tagid != null ">TagID,</if>
+            <if test="phoneid != null ">PhoneID,</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">LastLoginClientName,</if>
+            <if test="createtime != null ">CreateTime,</if>
+
+            <if test="createby != null ">createby,</if>
+            <if test="agentId != null ">agent_id,</if>
+            <if test="updateby != null ">updateby,</if>
+            <if test="updatetime != null ">updatetime,</if>
+
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+            <if test="cardindex != null  and cardindex != ''">CardIndex,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="surplier_type != null ">#{surplier_type},</if>
+            <if test="banknum != null  and banknum != ''">#{banknum},</if>
+            <if test="loginaccount != null  and loginaccount != ''">#{loginaccount},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="poolid != null ">#{poolid},</if>
+            <if test="authestr != null ">#{authestr},</if>
+            <if test="banktype != null  and banktype != ''">#{banktype},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="depositaddress != null  and depositaddress != ''">#{depositaddress},</if>
+            <if test="ownername != null  and ownername != ''">#{ownername},</if>
+            <if test="ownerphone != null  and ownerphone != ''">#{ownerphone},</if>
+            <if test="owneridentity != null  and owneridentity != ''">#{owneridentity},</if>
+            <if test="worktype != null ">#{worktype},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="maxbalance != null ">#{maxbalance},</if>
+            <if test="minbalance != null ">#{minbalance},</if>
+            <if test="initbalance != null ">#{initbalance},</if>
+            <if test="sumamountperdaytrans != null ">#{sumamountperdaytrans},</if>
+            <if test="sumtimesperdaytrans != null ">#{sumtimesperdaytrans},</if>
+            <if test="minamountpertrans != null ">#{minamountpertrans},</if>
+            <if test="maxamountpertrans != null ">#{maxamountpertrans},</if>
+            <if test="alisumtimesperdaytrans != null ">#{alisumtimesperdaytrans},</if>
+            <if test="alisumamountperdaytrans != null ">#{alisumamountperdaytrans},</if>
+            <if test="aliminamountpertrans != null ">#{aliminamountpertrans},</if>
+            <if test="alimaxamountpertrans != null ">#{alimaxamountpertrans},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="comments != null  and comments != ''">#{comments},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="version != null ">#{version},</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">#{uloginpwd},</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">#{ukeypwd},</if>
+            <if test="loginpwd != null  and loginpwd != ''">#{loginpwd},</if>
+            <if test="paypwd != null  and paypwd != ''">#{paypwd},</if>
+            <if test="ucode != null  and ucode != ''">#{ucode},</if>
+            <if test="tagid != null ">#{tagid},</if>
+            <if test="phoneid != null ">#{phoneid},</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">#{lastloginclientname},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="createby != null ">#{createby},</if>
+            <if test="agentId != null ">#{agentId},</if>
+            <if test="updateby != null ">#{updateby},</if>
+            <if test="updatetime != null ">#{updatetime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+            <if test="cardindex != null  and cardindex != ''">#{cardindex},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTBankcard" parameterType="TBankcardcenter">
+        update t_bankcard
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="surplier_type != null ">surplier_type = #{surplier_type},</if>
+            <if test="authestr != null and authestr !=''">authes = #{authestr},</if>
+            <if test="banknum != null  and banknum != ''">BankNum = #{banknum},</if>
+            <if test="loginaccount != null  and loginaccount != ''">LoginAccount = #{loginaccount},</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode = #{bankcode},</if>
+            <if test="poolid != null ">PoolID = #{poolid},</if>
+            <if test="auth != null ">Auth = #{auth},</if>
+            <if test="banktype != null  and banktype != ''">BankType = #{banktype},</if>
+            <if test="address != null  and address != ''">Address = #{address},</if>
+            <if test="depositaddress != null  and depositaddress != ''">DepositAddress = #{depositaddress},</if>
+            <if test="ownername != null  and ownername != ''">OwnerName = #{ownername},</if>
+            <if test="ownerphone != null  and ownerphone != ''">OwnerPhone = #{ownerphone},</if>
+            <if test="owneridentity != null  and owneridentity != ''">OwnerIdentity = #{owneridentity},</if>
+            <if test="worktype != null ">WorkType = #{worktype},</if>
+            <if test="balance != null ">Balance = #{balance},</if>
+            <if test="maxbalance != null ">MaxBalance = #{maxbalance},</if>
+            <if test="minbalance != null ">MinBalance = #{minbalance},</if>
+            <if test="initbalance != null ">InitBalance = #{initbalance},</if>
+            <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans = #{sumamountperdaytrans},</if>
+            <if test="sumtimesperdaytrans != null ">SumTimesPerDayTrans = #{sumtimesperdaytrans},</if>
+            <if test="minamountpertrans != null ">MinAmountPerTrans = #{minamountpertrans},</if>
+            <if test="maxamountpertrans != null ">MaxAmountPerTrans = #{maxamountpertrans},</if>
+            <if test="alisumtimesperdaytrans != null ">AliSumTimesPerDayTrans = #{alisumtimesperdaytrans},</if>
+            <if test="alisumamountperdaytrans != null ">AliSumAmountPerDayTrans = #{alisumamountperdaytrans},</if>
+            <if test="aliminamountpertrans != null ">AliMinAmountPerTrans = #{aliminamountpertrans},</if>
+            <if test="alimaxamountpertrans != null ">AliMaxAmountPerTrans = #{alimaxamountpertrans},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="comments != null">Comments = #{comments},</if>
+            <if test="remark != null">ReMark = #{remark},</if>
+            <if test="version != null ">Version = #{version},</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">ULoginPWD = #{uloginpwd},</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">UkeyPWD = #{ukeypwd},</if>
+            <if test="loginpwd != null  and loginpwd != ''">LoginPWD = #{loginpwd},</if>
+            <if test="paypwd != null  and paypwd != ''">PayPWD = #{paypwd},</if>
+            <if test="ucode != null  and ucode != ''">UCode = #{ucode},</if>
+            <if test="tagid != null ">TagID = #{tagid},</if>
+            <if test="phoneid != null ">PhoneID = #{phoneid},</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">LastLoginClientName =
+                #{lastloginclientname},
+            </if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="createby != null ">createby = #{createby},</if>
+            <if test="updateby != null ">updateby = #{updateby},</if>
+            <if test="updatetime != null ">updatetime = #{updatetime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+            <if test="cardindex != null  and cardindex != ''">CardIndex = #{cardindex},</if>
+        </trim>
+        where BankID = #{bankid}
+    </update>
+    <update id="updateTBankcardmutiple" parameterType="TBankcardcenter">
+        update t_bankcard
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="surplier_type != null ">surplier_type = #{surplier_type},</if>
+            <if test="authestr != null and authestr !=''">authes = #{authestr},</if>
+            <if test="banknum != null  and banknum != ''">BankNum = #{banknum},</if>
+            <if test="loginaccount != null  and loginaccount != ''">LoginAccount = #{loginaccount},</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode = #{bankcode},</if>
+            <if test="poolid != null ">PoolID = #{poolid},</if>
+            <if test="auth != null and auth != '' ">authes = #{auth},</if>
+            <if test="banktype != null  and banktype != ''">BankType = #{banktype},</if>
+            <if test="address != null  and address != ''">Address = #{address},</if>
+            <if test="depositaddress != null  and depositaddress != ''">DepositAddress = #{depositaddress},</if>
+            <if test="ownername != null  and ownername != ''">OwnerName = #{ownername},</if>
+            <if test="ownerphone != null  and ownerphone != ''">OwnerPhone = #{ownerphone},</if>
+            <if test="owneridentity != null  and owneridentity != ''">OwnerIdentity = #{owneridentity},</if>
+            <if test="worktype != null ">WorkType = #{worktype},</if>
+            <if test="balance != null ">Balance = #{balance},</if>
+            <if test="maxbalance != null ">MaxBalance = #{maxbalance},</if>
+            <if test="minbalance != null ">MinBalance = #{minbalance},</if>
+            <if test="initbalance != null ">InitBalance = #{initbalance},</if>
+            <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans = #{sumamountperdaytrans},</if>
+            <if test="sumtimesperdaytrans != null ">SumTimesPerDayTrans = #{sumtimesperdaytrans},</if>
+            <if test="minamountpertrans != null ">MinAmountPerTrans = #{minamountpertrans},</if>
+            <if test="maxamountpertrans != null ">MaxAmountPerTrans = #{maxamountpertrans},</if>
+            <if test="alisumtimesperdaytrans != null ">AliSumTimesPerDayTrans = #{alisumtimesperdaytrans},</if>
+            <if test="alisumamountperdaytrans != null ">AliSumAmountPerDayTrans = #{alisumamountperdaytrans},</if>
+            <if test="aliminamountpertrans != null ">AliMinAmountPerTrans = #{aliminamountpertrans},</if>
+            <if test="alimaxamountpertrans != null ">AliMaxAmountPerTrans = #{alimaxamountpertrans},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="comments != null">Comments = #{comments},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="version != null ">Version = #{version},</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">ULoginPWD = #{uloginpwd},</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">UkeyPWD = #{ukeypwd},</if>
+            <if test="loginpwd != null  and loginpwd != ''">LoginPWD = #{loginpwd},</if>
+            <if test="paypwd != null  and paypwd != ''">PayPWD = #{paypwd},</if>
+            <if test="ucode != null  and ucode != ''">UCode = #{ucode},</if>
+            <if test="tagid != null ">TagID = #{tagid},</if>
+            <if test="phoneid != null ">PhoneID = #{phoneid},</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">LastLoginClientName =
+                #{lastloginclientname},
+            </if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+            <if test="cardindex != null  and cardindex != ''">CardIndex = #{cardindex},</if>
+        </trim>
+        where BankID in
+        <foreach collection="bankids.split(',')" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <update id="deleteTBankcardById" parameterType="Long">
+        UPDATE t_bankcard
+        SET Status = -1
+        WHERE BankID = #{bankid}
+    </update>
+
+    <update id="deleteTBankcardByIds" parameterType="String">
+        update t_bankcard SET Status = -1 where BankID in
+        <foreach item="bankid" collection="array" open="(" separator="," close=")">
+            #{bankid}
+        </foreach>
+    </update>
+
+    <update id="updateCardSupplierBranch" parameterType="TBankcardcenter">
+        update t_bankcard
+        <trim prefix="SET" suffixOverrides=",">
+            SupplierBranchID = #{supplierbranchid},
+            PoolID = NULL,
+            updateby = #{updateby},
+            LastUpDateTime =updatetime,
+            updatetime = #{updateTime}
+        </trim>
+        where Status = 0 and BankID in
+        <foreach collection="bankids.split(',')" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </update>
+    <update id="resetBankcardPool">
+        UPDATE t_bankcard
+        SET PoolID=NULL
+        WHERE PoolID = #{poolid}
+    </update>
+
+    <update id="updateCardDepositAmount" parameterType="TBankcardcenter">
+        UPDATE t_bankcardsummary
+        SET DepositAmount = 0
+        WHERE BankID = #{bankid}
+    </update>
+
+</mapper>

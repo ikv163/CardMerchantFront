@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.PaychannelMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.Paychannel" id="PaychannelResult">
+        <result property="paychannelid" column="PayChannelID"/>
+        <result property="paypoolid" column="PayPoolID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="paychannelname" column="PayChannelName"/>
+        <result property="paytype" column="PayType"/>
+        <result property="worktype" column="WorkType"/>
+        <result property="sumamountperdaytrans" column="SumAmountPerDayTrans"/>
+        <result property="minamountpertrans" column="MinAmountPerTrans"/>
+        <result property="maxamountpertrans" column="MaxAmountPerTrans"/>
+        <result property="riskybalance" column="RiskyBalance"/>
+        <result property="balance" column="Balance"/>
+        <result property="withdrawbalance" column="WithdrawBalance"/>
+        <result property="withdrawsummary" column="WithdrawSummary"/>
+        <result property="depositrate" column="DepositRate"/>
+        <result property="withdrawrate" column="WithdrawRate"/>
+        <result property="clienttype" column="ClientType"/>
+        <result property="status" column="Status"/>
+        <result property="channellevel" column="ChannelLevel"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="channelmerchantid" column="ChannelMerchantID"/>
+        <result property="thirdmerchantkey" column="ThirdMerchantKey"/>
+        <result property="thirdmerchantpublickeys" column="ThirdMerchantPublicKeys"/>
+        <result property="merchantid" column="MerchantID"/>
+        <result property="paymenturl" column="PaymentUrl"/>
+        <result property="unavailabletime" column="UnAvailableTime"/>
+        <result property="version" column="Version"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="remark" column="ReMark"/>
+        <result property="writethirdtable" column="WriteThirdTable"/>
+        <result property="maxBalance" column="MaxBalance"/>
+        <result property="minBalance" column="MinBalance"/>
+        <result property="withdrawbankpoolid" column="WithdrawBankPoolID"/>
+        <result property="depositbankpoolid" column="DepositBankPoolID"/>
+        <result property="depositstatus" column="DepositStatus"/>
+        <result property="withdrawstatus" column="WithdrawStatus"/>
+        <result property="bankids" column="bankids"/>
+
+        <result property="surplierType" column="surplier_type"/>
+
+    </resultMap>
+
+    <sql id="selectPaychannelVo">
+        SELECT PayChannelID,
+               PayPoolID,
+               SupplierBranchID,
+               PayChannelName,
+               PayType,
+               WorkType,
+               SumAmountPerDayTrans,
+               MinAmountPerTrans,
+               MaxAmountPerTrans,
+               RiskyBalance,
+               Balance,
+               WithdrawBalance,
+               WithdrawSummary,
+               DepositRate,
+               WithdrawRate,
+               ClientType,
+               Status,
+               ChannelLevel,
+               BankCode,
+               ChannelMerchantID,
+               ThirdMerchantKey,
+               ThirdMerchantPublicKeys,
+               MerchantID,
+               PaymentUrl,
+               UnAvailableTime,
+               Version,
+               CreateTime,
+               LastUpDateTime,
+               ReMark,
+               WriteThirdTable
+        FROM t_paychannel
+    </sql>
+
+    <sql id="payChannel">
+        select kkk.*, ifnull(lll.successOrderCount,0) as successOrderCount,
+        ifnull(lll.allOrderCount,0) as allOrderCount,ifnull((successOrderCount/allOrderCount)*100,0) as successRate
+        from (select tt.*, ifnull(kk.DepositAmount,0) as depositAmount, ifnull(kk.WithdrawAmount,0) as withdrawAmount
+        from (SELECT tp.PayChannelID,
+        tp.SupplierBranchID,
+        tp.PayChannelName,
+        tp.PayType,
+        tp.WorkType,
+        tp.SumAmountPerDayTrans,
+        tp.MinAmountPerTrans,
+        tp.MaxAmountPerTrans,
+        tp.RiskyBalance,
+        tp.Balance,
+        ifnull(tp.WithdrawBalance,0) as WithdrawBalance,
+        ifnull(tp.WithdrawSummary,0) as WithdrawSummary,
+        ifnull((WithdrawBalance - WithdrawSummary),0) as withdrawBalanceOk,
+        tp.Status,
+        tp.ChannelLevel,
+        tp.BankCode,
+        tp.MerchantID,
+        tp.CreateTime,
+        tp.LastUpDateTime,
+        tp.ReMark,
+        tp.WriteThirdTable
+        FROM t_paychannel tp
+        LEFT JOIN t_paychannelsetting t ON tp.PayChannelID = t.PayChannelID
+        <where>
+            <if test="supplierbranchid != null ">and tp.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="paychannelname != null  and paychannelname != ''">and tp.PayChannelName like concat('%',
+                #{paychannelname}, '%')
+            </if>
+            <if test="paytype != null ">and tp.PayType = #{paytype}</if>
+            <if test="worktype != null ">and tp.WorkType = #{worktype}</if>
+            <if test="status != null ">and tp.Status = #{status}</if>
+            <if test="statusfilter != null ">and tp.Status != #{statusfilter}</if>
+            <if test="writethirdtable != null ">
+                <choose>
+                    <when test="writethirdtable == 2">and (tp.WriteThirdTable != 1 or tp.WriteThirdTable is null)</when>
+                    <otherwise>
+                        and tp.WriteThirdTable = #{writethirdtable}
+                    </otherwise>
+                </choose>
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        ) tt
+        left join
+        (select tpc.PayChannelID, sum(tpc.DepositAmount) as DepositAmount, sum(tpc.WithdrawAmount) as WithdrawAmount
+        from t_paychannelsummary tpc where DATE_FORMAT(tpc.Calendar, '%y-%m-%d') = DATE_FORMAT(NOW(), '%y-%m-%d')
+        group by tpc.PayChannelID) kk
+        on tt.PayChannelID = kk.PayChannelID) kkk
+        left join
+    </sql>
+
+    <sql id="thridPayChannelById">
+        ,t.MaxBalance AS maxBalance,
+        t.MinBalance AS minBalance,
+        t.DepositUrl AS depositUrl,
+        t.WithdrawUrl AS withdrawUrl
+    </sql>
+
+    <sql id="payChannelCommon">
+SELECT tp.PayChannelID,
+                                      tp.PayPoolID,
+                                      tp.SupplierBranchID,
+                                      tp.PayChannelName,
+                                      tp.PayType,
+                                      tp.WorkType,
+                                      tp.SumAmountPerDayTrans,
+                                      tp.MinAmountPerTrans,
+                                      tp.MaxAmountPerTrans,
+                                      tp.RiskyBalance,
+                                      tp.Balance,
+                                      ifnull(tp.WithdrawBalance,0) as WithdrawBalance,
+                                      ifnull(tp.WithdrawSummary,0) as WithdrawSummary,
+                                      ifnull((WithdrawBalance - WithdrawSummary),0) as withdrawBalanceOk,
+                                      tp.DepositRate,
+                                      tp.WithdrawRate,
+                                      tp.ClientType,
+                                      tp.Status,
+                                      tp.ChannelLevel,
+                                      tp.BankCode,
+                                      tp.ChannelMerchantID,
+                                      tp.ThirdMerchantKey,
+                                      tp.ThirdMerchantPublicKeys,
+                                      tp.MerchantID,
+                                      tp.PaymentUrl,
+                                      tp.UnAvailableTime,
+                                      tp.Version,
+                                      tp.CreateTime,
+                                      tp.LastUpDateTime,
+                                      tp.ReMark,
+                                      tp.WriteThirdTable
+    </sql>
+
+    <sql id="thridPayChannel">
+        ,
+        t_thirdmerchant.MerchantName as ThirdMerchantName,
+        (SELECT tb.BankPoolName FROM t_bankcardpool tb WHERE tb.BankPooID = t.WithdrawBankPoolID) AS withdrawBankPoolName,
+        ( SELECT tb.BankPoolName FROM t_bankcardpool tb WHERE tb.BankPooID = t.DepositBankPoolID ) AS depositBankPoolName
+    </sql>
+
+    <select id="selectBankPaychannelList" parameterType="Paychannel" resultMap="PaychannelResult">
+        <include refid="payChannelCommon"/>
+        from t_paychannel tp
+        left join t_bankinchannel tbc on tp.PayPoolID = tbc.ChannelID
+        left join t_bankcard tb using(BankID)
+        <where>
+            <if test="surplierType != null">and tp.surplier_type = #{surplierType}</if>
+            <if test="supplierbranchid != null ">and tp.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="paychannelname != null  and paychannelname != ''">and tp.PayChannelName like concat('%',
+                #{paychannelname}, '%')
+            </if>
+            <if test="paytype != null ">and tp.PayType = #{paytype}</if>
+            <if test="worktype != null ">and tp.WorkType = #{worktype}</if>
+            <if test="status != null ">and tp.Status = #{status}</if>
+            <if test="bankcode != null and bankcode != ''">and tb.bankcode like concat('%',#{bankcode},'%')</if>
+            <if test="statusfilter != null ">and tp.Status != #{statusfilter}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+    <select id="selectBankPaychannelListsetup" parameterType="Paychannel" resultMap="PaychannelResult">
+        <include refid="payChannelCommon"/>
+
+        from t_paychannel tp
+        <where>
+            <if test="supplierbranchid != null ">and tp.supplierbranchid = #{supplierbranchid}</if>
+            <if test="paychannelname != null  and paychannelname != ''">and tp.PayChannelName like concat('%',
+                #{paychannelname}, '%')
+            </if>
+            <if test="paytype != null ">and tp.PayType = #{paytype}</if>
+            <if test="worktype != null ">and tp.WorkType = #{worktype}</if>
+            <if test="status != null ">and tp.Status = #{status}</if>
+            <if test="statusfilter != null ">and tp.Status != #{statusfilter}</if>
+
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+    </select>
+    <select id="selectMonitorBankCardList" parameterType="Paychannel" resultMap="PaychannelResult">
+        <include refid="payChannel"/>
+        <choose>
+            <when test="writethirdtable == 1">
+                (select qq.PayChannelID,
+                COUNT(if(qq.OrderStatus in (3, 4), true, null)) as successOrderCount,
+                count(qq.OrderID) as allOrderCount
+                from (select tw.OrderID, tw.PayChannelID, tw.OrderStatus
+                from t_thirdwithdraworder tw where CreateTime > DATE_FORMAT(CURRENT_DATE,'%Y-%m-%d %H:%i:%s')
+                union all
+                select td.OrderID, td.PayChannelID, td.OrderStatus
+                from t_thirddepositorder td where CreateTime > DATE_FORMAT(CURRENT_DATE,'%Y-%m-%d %H:%i:%s')) qq
+                group by qq.PayChannelID) lll on kkk.PayChannelID = lll.PayChannelID
+            </when>
+            <otherwise>
+                (select qq.PayChannelID,
+                COUNT(if(qq.OrderStatus in (3, 4), true, null)) as successOrderCount,
+                count(qq.OrderID) as allOrderCount
+                from (select tw.OrderID, tw.PayChannelID, tw.CreateTime, tw.OrderStatus
+                from t_withdraworder tw where CreateTime > DATE_FORMAT(CURRENT_DATE,'%Y-%m-%d %H:%i:%s')
+                union all
+                select td.OrderID, td.PayChannelID, td.CreateTime,td.OrderStatus
+                from t_depositorder td) qq where CreateTime > DATE_FORMAT(CURRENT_DATE,'%Y-%m-%d %H:%i:%s')
+                group by qq.PayChannelID) lll on kkk.PayChannelID = lll.PayChannelID
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectPaychannelById" parameterType="Long" resultMap="PaychannelResult">
+        <choose>
+            <when test="type == 1">
+                <include refid="payChannelCommon"/>
+                <include refid="thridPayChannelById"/>
+                <include refid="thridPayChannel"/>
+                FROM
+                t_paychannel tp
+                LEFT JOIN t_paychannelsetting t ON tp.PayChannelID = t.PayChannelID
+                left Join t_thirdmerchant on tp.MerchantID=t_thirdmerchant.MerchantID
+            </when>
+            <when test="type == 3">
+                <include refid="payChannelCommon"/>,GROUP_CONCAT(",",bin.BankID) as bankids
+                FROM
+                t_paychannel tp
+                left join t_bankinchannel bin on tp.PayChannelID=bin.ChannelID
+            </when>
+            <otherwise>
+                <include refid="payChannelCommon"/>
+                FROM
+                t_paychannel tp
+            </otherwise>
+        </choose>
+        where tp.PayChannelID = #{paychannelid}  GROUP BY tp.PayChannelID
+    </select>
+
+    <select id="selectPayChannelByIds" resultMap="PaychannelResult">
+        <choose>
+            <when test="type == 1">
+                <include refid="payChannelCommon"/>
+                <include refid="thridPayChannelById"/>
+                <include refid="thridPayChannel"/>
+                FROM
+                t_paychannel tp
+                LEFT JOIN t_paychannelsetting t ON tp.PayChannelID = t.PayChannelID
+                left Join t_thirdmerchant on tp.MerchantID=t_thirdmerchant.MerchantID
+
+            </when>
+            <otherwise>
+                <include refid="payChannelCommon"/>
+                FROM
+                t_paychannel tp
+            </otherwise>
+        </choose>
+        where tp.PayChannelID in
+        <foreach collection="ids" close=")" item="item" index="index" separator="," open="(">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="insertBankInChannel">
+        insert into t_bankinchannel (BankID, ChannelID) VALUES
+        <foreach collection="bankIds" separator="," index="index" item="item">
+            (#{item},#{channelid})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByChannelId">
+        delete from t_bankinchannel where ChannelID = #{channelId}
+    </delete>
+    <delete id="deleteByBankId">
+        delete from t_bankinchannel where BankID in
+        <foreach collection="bankids" open="(" separator="," index="index" item="item" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectBankIdsByPoolId" resultType="java.lang.Long">
+        select distinct BankID from t_bankcard where PoolID = #{poolId}
+    </select>
+
+    <insert id="insertPaychannel" parameterType="Paychannel">
+        insert into t_paychannel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paychannelid != null ">PayChannelID,</if>
+            <if test="paypoolid != null ">PayPoolID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="paychannelname != null  and paychannelname != ''">PayChannelName,</if>
+            <if test="paytype != null ">PayType,</if>
+            <if test="worktype != null ">WorkType,</if>
+            <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans,</if>
+            <if test="minamountpertrans != null ">MinAmountPerTrans,</if>
+            <if test="maxamountpertrans != null ">MaxAmountPerTrans,</if>
+            <if test="riskybalance != null ">RiskyBalance,</if>
+            <if test="balance != null ">Balance,</if>
+            <if test="withdrawbalance != null ">WithdrawBalance,</if>
+            <if test="withdrawsummary != null ">WithdrawSummary,</if>
+            <if test="depositrate != null  and depositrate != ''">DepositRate,</if>
+            <if test="withdrawrate != null  and withdrawrate != ''">WithdrawRate,</if>
+            <if test="clienttype != null  and clienttype != ''">ClientType,</if>
+            <if test="status != null ">Status,</if>
+            <if test="channellevel != null ">ChannelLevel,</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode,</if>
+            <if test="channelmerchantid != null  and channelmerchantid != ''">ChannelMerchantID,</if>
+            <if test="thirdmerchantkey != null  and thirdmerchantkey != ''">ThirdMerchantKey,</if>
+            <if test="thirdmerchantpublickeys != null  and thirdmerchantpublickeys != ''">ThirdMerchantPublicKeys,</if>
+            <if test="merchantid != null ">MerchantID,</if>
+            <if test="paymenturl != null  and paymenturl != ''">PaymentUrl,</if>
+            <if test="unavailabletime != null  and unavailabletime != ''">UnAvailableTime,</if>
+            <if test="version != null ">Version,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="writethirdtable != null ">WriteThirdTable,</if>
+            <if test="surplierType != null ">surplier_type,</if>
+            <if test="agentId != null and agentId != ''">agent_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paychannelid != null ">#{paychannelid},</if>
+            <if test="paypoolid != null ">#{paypoolid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="paychannelname != null  and paychannelname != ''">#{paychannelname},</if>
+            <if test="paytype != null ">#{paytype},</if>
+            <if test="worktype != null ">#{worktype},</if>
+            <if test="sumamountperdaytrans != null ">#{sumamountperdaytrans},</if>
+            <if test="minamountpertrans != null ">#{minamountpertrans},</if>
+            <if test="maxamountpertrans != null ">#{maxamountpertrans},</if>
+            <if test="riskybalance != null ">#{riskybalance},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="withdrawbalance != null ">#{withdrawbalance},</if>
+            <if test="withdrawsummary != null ">#{withdrawsummary},</if>
+            <if test="depositrate != null  and depositrate != ''">#{depositrate},</if>
+            <if test="withdrawrate != null  and withdrawrate != ''">#{withdrawrate},</if>
+            <if test="clienttype != null  and clienttype != ''">#{clienttype},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="channellevel != null ">#{channellevel},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="channelmerchantid != null  and channelmerchantid != ''">#{channelmerchantid},</if>
+            <if test="thirdmerchantkey != null  and thirdmerchantkey != ''">#{thirdmerchantkey},</if>
+            <if test="thirdmerchantpublickeys != null  and thirdmerchantpublickeys != ''">#{thirdmerchantpublickeys},
+            </if>
+            <if test="merchantid != null ">#{merchantid},</if>
+            <if test="paymenturl != null  and paymenturl != ''">#{paymenturl},</if>
+            <if test="unavailabletime != null  and unavailabletime != ''">#{unavailabletime},</if>
+            <if test="version != null ">#{version},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="writethirdtable != null ">#{writethirdtable},</if>
+            <if test="surplierType != null ">#{surplierType},</if>
+            <if test="agentId != null and agentId != ''">#{agentId},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePayChannel" parameterType="Paychannel">
+        update t_paychannel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="paypoolid != null ">PayPoolID = #{paypoolid},</if>
+            <if test="paychannelname != null  and paychannelname != ''">PayChannelName = #{paychannelname},</if>
+            <if test="paytype != null ">PayType = #{paytype},</if>
+            <if test="worktype != null ">WorkType = #{worktype},</if>
+            <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans = #{sumamountperdaytrans},</if>
+            <if test="minamountpertrans != null ">MinAmountPerTrans = #{minamountpertrans},</if>
+            <if test="maxamountpertrans != null ">MaxAmountPerTrans = #{maxamountpertrans},</if>
+            <if test="riskybalance != null ">RiskyBalance = #{riskybalance},</if>
+            <if test="balance != null ">Balance = #{balance},</if>
+            <if test="withdrawbalance != null ">WithdrawBalance = #{withdrawbalance},</if>
+            <if test="withdrawsummary != null ">WithdrawSummary = #{withdrawsummary},</if>
+            <if test="depositrate != null  and depositrate != ''">DepositRate = #{depositrate},</if>
+            <if test="withdrawrate != null  and withdrawrate != ''">WithdrawRate = #{withdrawrate},</if>
+            <if test="clienttype != null  and clienttype != ''">ClientType = #{clienttype},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="channellevel != null ">ChannelLevel = #{channellevel},</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode like concat('%',#{bankcode},'%'),</if>
+            <if test="channelmerchantid != null  and channelmerchantid != ''">ChannelMerchantID =
+                #{channelmerchantid},
+            </if>
+            <if test="thirdmerchantkey != null  and thirdmerchantkey != ''">ThirdMerchantKey = #{thirdmerchantkey},</if>
+            <if test="thirdmerchantpublickeys != null  and thirdmerchantpublickeys != ''">ThirdMerchantPublicKeys =
+                #{thirdmerchantpublickeys},
+            </if>
+            <if test="merchantid != null ">MerchantID = #{merchantid},</if>
+            <if test="paymenturl != null  and paymenturl != ''">PaymentUrl = #{paymenturl},</if>
+            <if test="unavailabletime != null  and unavailabletime != ''">UnAvailableTime = #{unavailabletime},</if>
+            <if test="version != null ">Version = Version + 1,</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="writethirdtable != null ">WriteThirdTable = #{writethirdtable},</if>
+        </trim>
+        where PayChannelID = #{paychannelid} and Version = #{version}
+    </update>
+
+    <update id="updatePayChannels" parameterType="Paychannel">
+        <foreach collection="payChannels" open="" separator=";" index="index" item="item" close="">
+            update t_paychannel set Status = #{item.status},Version = Version + 1 where PayChannelID =
+            #{item.paychannelid} and Version = #{item.version}
+        </foreach>
+    </update>
+
+    <update id="updateRate" parameterType="Paychannel">
+        <foreach collection="payChannels" open="" separator=";" index="index" item="item" close="">
+            update t_paychannel set
+            <if test="item.depositrate != null  and item.depositrate != ''">DepositRate = #{item.depositrate},</if>
+            <if test="item.withdrawrate != null  and item.withdrawrate != ''">WithdrawRate = #{item.withdrawrate},</if>
+            Version = Version + 1 where PayChannelID = #{item.paychannelid} and Version = #{item.version}
+        </foreach>
+    </update>
+    <update id="updatePayChannelData">
+            update t_paychannel
+            set MinAmountPerTrans=#{minamountpertrans},
+            MaxAmountPerTrans=#{maxamountpertrans},
+            RiskyBalance=#{riskybalance},
+            Status = #{status},
+            Version = Version + 1,
+            Balance = #{balance},
+            ChannelLevel=#{channellevel},
+            Status=#{status},
+            Remark=#{remark},
+            LastUpDateTime=sysdate()
+            where PayChannelID =#{paychannelid}
+    </update>
+
+    <update id="updatePayChannelSetting">
+            update t_paychannelsetting
+            set MaxBalance=#{maxBalance},
+            MinBalance=#{minBalance},
+            WithdrawBankPoolID=#{withdrawbankpoolid},
+            DepositBankPoolID = #{depositbankpoolid},
+            DepositStatus = #{depositstatus},
+            WithdrawStatus=#{withdrawstatus}
+            where PayChannelID =#{paychannelid}
+    </update>
+
+    <select id="selectPayPoolChannelList" parameterType="Paychannel"  resultMap="PaychannelResult">
+        SELECT DISTINCT
+            tp.PayChannelID,
+            tp.SupplierBranchID,
+            tp.PayChannelName,
+            tp.PayType,
+            tp.WorkType,
+            tp.SumAmountPerDayTrans,
+            tp.MinAmountPerTrans,
+            tp.MaxAmountPerTrans,
+            tp.RiskyBalance,
+            tp.Balance,
+            tp.DepositRate,
+            tp.WithdrawRate,
+            tp.ClientType,
+            tp.Status,
+            tp.ChannelLevel,
+            tp.BankCode,
+            tp.ChannelMerchantID,
+            tp.ThirdMerchantKey,
+            tp.ThirdMerchantPublicKeys,
+            tp.MerchantID,
+            tp.PaymentUrl,
+            tp.UnAvailableTime,
+            tp.Version,
+            tp.CreateTime,
+            tp.LastUpDateTime,
+            tp.ReMark,
+            tp.WriteThirdTable
+        FROM t_paychannel tp
+        LEFT JOIN t_paypoolchannel pc ON tp.PayChannelID = pc.PayChannelID
+        left JOIN t_bankinchannel tb ON tb.ChannelID= tp.PayChannelID
+        LEFT JOIN t_bankcard b ON tb.BankID=b.BankID
+        <where>
+            <if test="supplierbranchid != null ">and tp.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="paychannelname != null  and paychannelname != ''">
+                and tp.PayChannelName like concat('%', #{paychannelname}, '%')
+            </if>
+            <if test="paytype != null ">and tp.PayType = #{paytype}</if>
+
+            <if test="worktype != null ">and tp.WorkType = #{worktype}</if>
+            <if test="paypoolid != null ">and  pc.PayPoolID = #{paypoolid}</if>
+            ${params.dataScope}
+            ORDER BY (FIND_IN_SET(
+            tp.PayChannelID,
+            (SELECT GROUP_CONCAT(p.PayChannelID)
+            FROM t_paypoolchannel p
+            WHERE p.PayPoolID = #{orderBy}
+            AND p.STATUS != - 1)
+            ))DESC,
+            tp.STATUS DESC
+
+        </where>
+    </select>
+    <select id="selectChannelAndSettingById" parameterType="Long" resultMap="PaychannelResult">
+        select t_paychannel.*,t_paychannelsetting.MaxBalance,t_paychannelsetting.MinBalance,t_paychannelsetting.WithdrawBankPoolID,t_paychannelsetting.DepositBankPoolID, t_paychannelsetting.DepositStatus,t_paychannelsetting.WithdrawStatus
+            from t_paychannel
+                left join  t_paychannelsetting on t_paychannel.PayChannelID = t_paychannelsetting.PayChannelID
+            where  t_paychannel.PayChannelID = #{paychannelids}
+    </select>
+    <select id="getMerchantWithdrawChannelFromBank" resultType="com.pay.typay.biz.domain.Paychannel">
+        SELECT pc.*,pcl.ChannelRate
+        FROM typayv2.t_merchantpaypool mpp
+        inner join typayv2.t_paypoolchannel pcl on mpp.PayPoolID=pcl.PayPoolID
+        inner join   typayv2.t_paychannel pc on pcl.PayChannelID=pc.PayChannelID
+        where pc.SupplierBranchID=#{SupplierBranchID}
+        and mpp.Status>0
+        and (pc.WorkType=2 or pc.WorkType=3 or  pc.WorkType=4 or pc.WorkType=7)
+        and pc.PayType=1
+        and pc.MinAmountPerTrans<![CDATA[<=]]> #{payAmount}
+        and pc.MaxAmountPerTrans>=#{payAmount}
+        and pc.Status>0
+        and pcl.Status>0
+        order by  pc.ChannelLevel ASC
+    </select>
+
+    <select id="getPayChannel" resultType="com.pay.typay.biz.domain.Paychannel">
+        SELECT pc.* FROM typayv2.t_merchantpaypool mpp
+        inner join typayv2.t_paypoolchannel pcl on mpp.PayPoolID=pcl.PayPoolID
+        inner join   typayv2.t_paychannel pc on pcl.PayChannelID=pc.PayChannelID
+        where mpp.Status>0
+        and pc.MinAmountPerTrans <![CDATA[<=]]> #{payAmount}
+        and pc.MaxAmountPerTrans >= #{payAmount}
+        and pcl.Status>0
+        and pc.Status>0
+        and pc.WorkType=1
+        and pc.PayType =1
+        and (pc.WriteThirdTable != 1 or pc.WriteThirdTable is null)
+        and pc.SupplierBranchID=#{SupplierBranchID}
+    </select>
+</mapper>

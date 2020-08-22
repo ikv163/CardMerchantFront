@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改密码')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-user-resetPwd">
+        <input name="userId" type="hidden" th:value="${user.userId}"/>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><em data-i18name="user.loginname">登录名称</em>：</label>
+            <div class="col-sm-6">
+                <input class="form-control" type="text" readonly="true" name="loginName" th:value="${user.loginName}"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><em data-i18name="t.googlekey">SN密钥</em>：</label>
+            <div class="col-sm-8">
+                <input id="geocode"  type="text" class="col-sm-6 btn btn-default copy-to-clipboard" th:value="${user.googlecode}"/>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+</body>
+<script th:inline="javascript">
+
+    $(document).on("click", ".copy-to-clipboard", function (ev) {
+        var Url2 = ev.currentTarget;
+        Url2.select(); // 选择对象
+        document.execCommand("Copy"); // 执行浏览器复制命令
+        $.modal.alert("已复制好，可贴粘。");
+        return false
+    })
+</script>
+</html>

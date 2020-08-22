@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.system.mapper.SysUserMapper">
+
+    <resultMap type="SysUser" id="SysUserResult">
+        <id property="userId" column="user_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="supplierbranchid" column="supplierbranchid"/>
+        <result property="supplierbranchidgroup" column="supplierbranchidgroup"/>
+        <result property="loginName" column="login_name"/>
+        <result property="userName" column="user_name"/>
+        <result property="userType" column="user_type"/>
+        <result property="avatar" column="avatar"/>
+        <result property="password" column="password"/>
+        <result property="googlecode" column="googlecode"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="loginIp" column="login_ip"/>
+        <result property="loginDate" column="login_date"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="roleId" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleparentId" column="roleparentId"/>
+        <result property="orderallotrule" column="orderallotrule"/>
+        <result property="agentId" column="agentId"/>
+        <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
+    </resultMap>
+
+    <resultMap id="RoleResult" type="SysRole">
+        <id property="roleId" column="role_id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleKey" column="role_key"/>
+        <result property="roleSort" column="role_sort"/>
+        <result property="datascopeId" column="datascopeId"/>
+        <result property="status" column="role_status"/>
+    </resultMap>
+
+    <sql id="selectUserVo">
+        SELECT u.user_id,
+        u.login_name,
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        u.orderallotrule,
+        u.user_name,
+        u.user_type,
+        u.avatar,
+        u.password,
+        u.googlecode,
+        u.status,
+        u.del_flag,
+        u.login_ip,
+        u.login_date,
+        u.create_time,
+        u.parent_id,
+        r.role_id,
+        r.role_name,
+        r.role_key,
+        r.role_sort,
+        r.data_scope AS datascopeId,
+        r.data_scope,
+        u.parent_id,
+        u.update_time,
+        r.status     AS role_status,
+        r.parent_id  AS roleparentId,
+        tba.id as agentId
+        FROM cardmerchantfront.sys_user u
+        LEFT JOIN cardmerchantfront.sys_user_role ur ON u.user_id = ur.user_id
+        LEFT JOIN cardmerchantfront.sys_role r ON r.role_id = ur.role_id
+        left join typayv2.t_bankcard_agent tba on tba.user_id = u.user_id
+        left join typayv2.t_surppilerbranch s on u.supplierbranchid = s.ID
+    </sql>
+
+    <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
+        select
+        sr.parent_id AS roleparentId,
+        sr.role_id,
+        sr.role_name,
+        u.parent_id,
+        u.user_id,
+        u.user_name,
+        u.user_type,
+        u.login_name,
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        u.avatar,
+        u.orderallotrule,
+        u.password,u.googlecode, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time
+        from cardmerchantfront.sys_user u
+        LEFT JOIN cardmerchantfront.sys_user_role sur ON sur.user_id = u.user_id
+        LEFT JOIN cardmerchantfront.sys_role sr ON sr.role_id = sur.role_id
+        where u.del_flag = '0'
+        <if test="loginName != null and loginName != ''">
+            AND u.login_name like concat('%', #{loginName}, '%')
+        </if>
+        <if test="userType != null and userType != ''">
+            AND  u.user_type = #{userType}
+        </if>
+        <if test="roleparentId != null">
+            AND sr.parent_Id =#{roleparentId}
+        </if>
+        <if test="roleId != null">
+            AND sr.role_Id =#{roleId}
+        </if>
+        <if test="status != null and status != ''">
+            AND u.status = #{status}
+        </if>
+        <if test="supplierbranchid != null ">and (u.SupplierBranchID = #{supplierbranchid} or FIND_IN_SET(#{supplierbranchid},u.supplierbranchidgroup))</if>
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+
+        ORDER BY sr.parent_id
+    </select>
+    <select id="selectUserListFront" parameterType="SysUser" resultMap="SysUserResult">
+        select
+        sr.parent_id AS roleparentId,
+        sr.role_id,
+        sr.role_name,
+        u.parent_id,
+        u.user_id,
+        u.user_name,
+        u.user_type,
+        u.login_name,
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        u.avatar,
+        u.orderallotrule,
+        u.password,u.googlecode, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time
+        from cardmerchantfront.sys_user u
+        LEFT JOIN cardmerchantfront.sys_user_role sur ON sur.user_id = u.user_id
+        LEFT JOIN cardmerchantfront.sys_role sr ON sr.role_id = sur.role_id
+        where u.del_flag = '0' and sr.role_id != 1
+        <if test="loginName != null and loginName != ''">
+            AND u.login_name like concat('%', #{loginName}, '%')
+        </if>
+          <if test="userType != null and userType != ''">
+            AND  u.user_type = #{userType}
+        </if>
+        <if test="roleparentId != null">
+            AND sr.parent_Id =#{roleparentId}
+        </if>
+        <if test="roleId != null">
+            AND sr.role_Id =#{roleId}
+        </if>
+        <if test="status != null and status != ''">
+            AND u.status = #{status}
+        </if>
+        <if test="supplierbranchid != null ">and u.SupplierBranchID = #{supplierbranchid}</if>
+        <!--<if test="supplierBranchIdGroupList != null and supplierbranchid != null ">
+            and (
+            u.supplierbranchid in
+            <foreach item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="("
+                     close=")" separator=",">
+                #{supplierBranchIdGroupList}
+            </foreach>
+
+
+             or u.supplierbranchidgroup in
+            <foreach item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="("
+                     close=")" separator=",">
+                #{supplierBranchIdGroupList}
+            </foreach>)
+        </if>-->
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+
+        ORDER BY sr.parent_id
+    </select>
+
+    <select id="generalselectUserList" parameterType="SysUser" resultMap="SysUserResult">
+        select
+        sr.parent_id AS roleparentId,
+        sr.role_id,
+        sr.role_name,
+        u.parent_id,
+        u.user_id,
+        u.user_name,
+        u.login_name,
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        u.orderallotrule,
+        u.avatar,
+        u.password,u.googlecode, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time
+        from cardmerchantfront.sys_user u
+        LEFT JOIN cardmerchantfront.sys_user_role sur ON sur.user_id = u.user_id
+        LEFT JOIN cardmerchantfront.sys_role sr ON sr.role_id = sur.role_id
+        where u.del_flag = '0'
+        <if test="loginName != null and loginName != ''">
+            AND u.login_name like concat('%', #{loginName}, '%')
+        </if>
+        <if test="roleparentId != null">
+            AND sr.parent_Id =#{roleparentId}
+        </if>
+        <if test="roleId != null">
+            AND sr.role_Id =#{roleId}
+        </if>
+        <if test="status != null and status != ''">
+            AND u.status = #{status}
+        </if>
+
+        <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+        </if>
+        <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+            AND date_format(u.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+        </if>
+
+        <!-- 数据范围过滤 -->
+        <!--        ${params.dataScope}-->
+
+        ORDER BY sr.parent_id
+    </select>
+
+    <select id="selectDatascopeUserList" parameterType="SysUser" resultMap="SysUserResult">
+        SELECT u.user_id,
+        u.login_name,
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        u.orderallotrule,
+        u.user_name,
+        u.avatar,
+        u.password,
+        u.googlecode,
+        u.status,
+        u.del_flag,
+        u.login_ip,
+        u.login_date,
+        u.create_by,
+        u.create_time,
+        u.user_id
+        FROM sys_user_datascope sud
+        LEFT JOIN sys_user u ON u.user_id = sud.user_id
+
+        <where>
+            u.del_flag=0
+            <if test="supplierbranchid != null ">and u.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="loginName != null and loginName != ''">
+                AND u.login_name like concat('%', #{loginName}, '%')
+            </if>
+            <if test="userId != null and userId != ''">
+                AND u.user_id != #{userId}
+            </if>
+            <if test="status != null and status != ''">
+                AND u.status = #{status}
+            </if>
+            <if test="parentId != null and parentId != ''">
+                AND u.parent_id = #{parentId}
+            </if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+
+    </select>
+
+    <select id="selectAllocatedList" parameterType="SysUser" resultMap="SysUserResult">
+        select distinct
+                        u.user_id, u.login_name,
+                        u.supplierbranchid,
+                        u.supplierbranchidgroup,
+                        u.user_name, u.avatar,
+        u.status,
+        u.orderallotrule,
+        u.create_time
+        from sys_user u
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on r.role_id = ur.role_id
+        where u.del_flag = '0' and r.role_id = #{roleId}
+        <if test="loginName != null and loginName != ''">
+            AND u.login_name like concat('%', #{loginName}, '%')
+        </if>
+
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectUnallocatedList" parameterType="SysUser" resultMap="SysUserResult">
+        select distinct u.user_id, u.login_name,
+                        u.supplierbranchid,
+                        u.supplierbranchidgroup,
+                        u.user_name, u.avatar,
+        u.status,
+        u.orderallotrule,
+        u.create_time
+        from sys_user u
+        left join sys_user_role ur on u.user_id = ur.user_id
+        left join sys_role r on r.role_id = ur.role_id
+        where u.del_flag = '0' and (r.role_id != #{roleId} or r.role_id IS NULL)
+        and u.user_id not in (select u.user_id from sys_user u inner join sys_user_role ur on u.user_id = ur.user_id and
+        ur.role_id = #{roleId})
+        <if test="loginName != null and loginName != ''">
+            AND u.login_name like concat('%', #{loginName}, '%')
+        </if>
+        <!-- 数据范围过滤 -->
+        ${params.dataScope}
+    </select>
+
+    <select id="selectUserByLoginName" parameterType="String" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where s.Status = 1 and u.login_name = #{userName}
+    </select>
+
+    <select id="selectAdminUserByLoginName" parameterType="String" resultMap="SysUserResult">
+        SELECT u.user_id,
+               u.login_name,
+               u.supplierbranchid,
+               u.supplierbranchidgroup,
+               u.orderallotrule,
+               u.user_name,
+               u.avatar,
+               u.password,
+               u.googlecode,
+               u.status,
+               u.del_flag,
+               u.login_ip,
+               u.login_date,
+               u.create_time,
+               u.parent_id,
+               r.role_id,
+               r.role_name,
+               r.role_key,
+               r.role_sort,
+               r.data_scope AS datascopeId,
+               r.data_scope,
+               u.parent_id,
+               u.update_time,
+               r.status     AS role_status,
+               r.parent_id  AS roleparentId
+        FROM cardmerchantfront.sys_user u
+                 LEFT JOIN cardmerchantfront.sys_user_role ur ON u.user_id = ur.user_id
+                 LEFT JOIN cardmerchantfront.sys_role r ON r.role_id = ur.role_id
+        where u.login_name = #{userName}
+    </select>
+
+    <select id="getGoogleCodeByLoginName" parameterType="String" resultType="String">
+        SELECT u.google_secret_key
+        FROM tyadmin.admin u
+        WHERE u.username = #{userName}
+    </select>
+
+    <select id="checkLoginNameUnique" parameterType="String" resultType="int">
+        SELECT count(1)
+        FROM sys_user
+        WHERE login_name = #{loginName}
+    </select>
+
+
+    <select id="selectUserById" parameterType="Long" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where u.user_id = #{userId}
+    </select>
+    <select id="selectUserByLoginname" parameterType="String" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where u.login_name = #{loginame}
+    </select>
+
+    <delete id="deleteUserById" parameterType="Long">
+        DELETE
+        FROM sys_user
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteUserByIds" parameterType="Long">
+        update sys_user set del_flag = '2' where user_id in
+        <foreach collection="array" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+
+    <update id="updateUser" parameterType="SysUser">
+        update cardmerchantfront.sys_user
+        <set>
+            <if test="loginName != null and loginName != ''">login_name = #{loginName},</if>
+            <if test="userName != null and userName != ''">user_name = #{userName},</if>
+            <if test="avatar != null and avatar != ''">avatar = #{avatar},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="parentId != null and parentId != ''">parent_id=#{parentId},</if>
+            <if test="googlecode != null and googlecode != ''">googlecode = #{googlecode},</if>
+            <if test="supplierbranchid != null ">supplierbranchid = #{supplierbranchid},</if>
+            <if test="supplierbranchidgroup != null ">supplierbranchidgroup = #{supplierbranchidgroup},</if>
+            <if test="orderallotrule != null ">orderallotrule = #{orderallotrule},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="loginIp != null and loginIp != ''">login_ip = #{loginIp},</if>
+            <if test="loginDate != null">login_date = #{loginDate},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = sysdate(),</if>
+
+
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <insert id="insertUser" parameterType="SysUser" useGeneratedKeys="true" keyProperty="userId">
+        insert into cardmerchantfront.sys_user(
+        <if test="userId != null and userId != 0">user_id,</if>
+        <if test="loginName != null and loginName != ''">login_name,</if>
+        <if test="userName != null and userName != ''">user_name,</if>
+        <if test="userType != null and userType != ''">user_type,</if>
+
+        <if test="avatar != null and avatar != ''">avatar,</if>
+        <if test="password != null and password != ''">password,</if>
+        <if test="parentId != null and parentId != ''">parent_id,</if>
+        <if test="googlecode != null and googlecode != ''">googlecode,</if>
+        <if test="supplierbranchid != null ">supplierbranchid,</if>
+        <if test="supplierbranchidgroup != null ">supplierbranchidgroup,</if>
+        <if test="orderallotrule != null ">orderallotrule,</if>
+        <if test="status != null and status != ''">status,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        <if test="updateTime != null ">update_time,</if>
+
+        create_time
+        )values(
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="loginName != null and loginName != ''">#{loginName},</if>
+        <if test="userName != null and userName != ''">#{userName},</if>
+        <if test="userType != null and userType != ''">#{userType},</if>
+
+        <if test="avatar != null and avatar != ''">#{avatar},</if>
+        <if test="password != null and password != ''">#{password},</if>
+        <if test="parentId != null and parentId != ''">#{parentId},</if>
+        <if test="googlecode != null and googlecode != ''">#{googlecode},</if>
+        <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+        <if test="supplierbranchidgroup != null ">#{supplierbranchidgroup},</if>
+        <if test="orderallotrule != null ">#{orderallotrule},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        <if test="updateTime != null ">#{updateTime},</if>
+
+        sysdate()
+        )
+    </insert>
+
+
+    <select id="countUserByBranchId" parameterType="long" resultType="int">
+        SELECT count(0)
+        FROM sys_user
+        WHERE supplierbranchid = #{supplierbranchid}
+    </select>
+
+
+    <delete id="deleteUserBy" parameterType="Long">
+        DELETE
+        FROM sys_user
+        WHERE supplierbranchid = #{supplierbranchid}
+          AND login_name<![CDATA[ <> ]]>'admin'
+    </delete>
+    <update id="updateBankcardRoleBy" parameterType="long">
+        UPDATE typayv2.t_bankcard
+        SET authes = ''
+        WHERE supplierbranchid = #{supplierbranchid}
+    </update>
+    <delete id="deleteUserRoleBy" parameterType="long">
+        DELETE
+        FROM sys_user_role
+        WHERE user_id IN (SELECT user_id FROM sys_user WHERE supplierbranchid = #{supplierbranchid} AND login_name<![CDATA[ <> ]]>'admin')
+    </delete>
+
+
+    <select id="queryUserListBy" parameterType="Long" resultMap="SysUserResult">
+        select
+        u.supplierbranchid,
+        u.supplierbranchidgroup,
+        sr.parent_id AS roleparentId,
+        sr.role_id,
+        sr.role_name,
+        u.parent_id,
+        u.user_id,
+        u.user_name,
+        u.login_name,
+        u.orderallotrule,
+        u.avatar,
+        u.password,u.googlecode, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time
+        from cardmerchantfront.sys_user u
+        LEFT JOIN cardmerchantfront.sys_user_role sur ON sur.user_id = u.user_id
+        LEFT JOIN cardmerchantfront.sys_role sr ON sr.role_id = sur.role_id
+        where u.del_flag = '0'
+        <if test="supplierBranchId != null">
+            AND u.supplierbranchid =#{supplierBranchId}
+        </if>
+        order by u.supplierbranchid,sr.parent_id
+    </select>
+
+
+    <select id="getUserByLoginName" parameterType="String" resultMap="SysUserResult">
+        <include refid="selectUserVo"/>
+        where u.login_name = #{userName}
+    </select>
+</mapper>

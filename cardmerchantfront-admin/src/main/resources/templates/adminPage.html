@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<body class="gray-bg">
+    <input id="idCode" name="idCode" type="hidden" th:value="${idCode}"/>
+    <input id="url" name="url" type="hidden" th:value="${url}"/>
+</body>
+<!-- 全局js -->
+<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<!-- 验证插件 -->
+<script src="../static/ajax/libs/layer/layer.min.js" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script src="../static/ruoyi/js/ry-ui.js" th:src="@{/ruoyi/js/ry-ui.js?v=4.1.0}"></script>
+<script>
+    let idCode = $("#idCode").val();
+    let url = $("#url").val();
+    adminPage(idCode,url);
+    function adminPage(idCode,url) {
+        $.ajax({
+            type: "POST",
+            url: "adminPage",
+            data: {
+                "idCode": idCode,
+                "url": url
+            },
+            beforeSend: function(request) {
+                request.setRequestHeader("newDate",new Date().getTime());
+            },
+            success: function (r) {
+                if (r.code == 0) {
+                    location.href = url;
+                }else{
+                    document.write("无权访问该页面！");
+                }
+            }
+        });
+    }
+</script>
+</html>

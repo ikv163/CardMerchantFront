@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBankcardMapper">
+
+    <select id="selectTBankcardsByIds" parameterType="java.util.List" resultType="com.pay.typay.biz.domain.TBankcard">
+        select * from t_bankcard b where b.BankID in
+        <foreach item="item" index="index" collection="bankids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectBankcardByIds" parameterType="java.util.List" resultType="com.pay.typay.biz.domain.TBankcard">
+        SELECT kk.*,
+        ifnull(lll.DepositAmount,0.00) as depositAmount,
+        ifnull(lll.HistoryDepositAmount,0.00) as historyDepositAmount,
+        IFNULL(lll.WithdrawAmount, 0.00) as WithdrawAmount
+        FROM (
+        SELECT b.BankID AS bankid,
+        b.Status AS status,
+        b.BankCode AS bankcode,
+        b.MaxBalance AS maxbalance,
+        b.MinBalance AS minbalance,
+        b.Balance AS balance,
+        b.remark AS remark
+        FROM t_bankcard b
+        where b.BankID in
+        <foreach item="item" index="index" collection="bankids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ) kk
+        LEFT JOIN (
+        SELECT ttt.BankID,
+        SUM(ttt.DepositAmount) as DepositAmount,
+        SUM(ttt.WithdrawAmount) as WithdrawAmount,
+        sum(ttt.HistoryDepositAmount) as HistoryDepositAmount
+        FROM t_bankcardsummary ttt
+        where ttt.BankID in
+        <foreach item="item" index="index" collection="bankids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and DATE_FORMAT(ttt.Calendar, '%y-%m-%d') = DATE_FORMAT(NOW(), '%y-%m-%d')
+        GROUP BY ttt.BankID
+        ) lll ON kk.bankid = lll.BankID
+    </select>
+
+    <select id="fetchTransitCardList" resultType="com.pay.typay.biz.domain.TBankcard">
+        SELECT
+        bd.BankID as bankid,
+        t_bankcardpool.BankPoolName,
+        tp.PayType,
+        tp.PayChannelName,
+        bd.Status,
+        bd.Comments,
+        bd.WorkType,
+        bd.ReMark,
+        bd.BankCode,
+        bd.Balance,
+        bd.SumAmountPerDayTrans,
+        bd.SumTimesPerDayTrans,
+        ifnull(bd.MaxBalance,0) as MaxBalance,
+        ifnull(bd.MinBalance,0) as MinBalance,
+        bd.LastUpDateTime,
+        bd.updateTime,
+        bd.AliSumAmountPerDayTrans,
+        bd.AliSumTimesPerDayTrans,
+        bd.AliMaxAmountPerTrans,
+        bd.AliMinAmountPerTrans,
+        bc.ClientName,
+        bc.Status as clientStatus,
+        bc.WorkType as clentWorkType,
+        IFNULL(t_bankcardsummary.DepositAmount,0) as DepositAmount,
+        t_bankcardsummary.DepositTimes,
+        t_bankcardsummary.HistoryDepositAmount,
+        IFNULL(t_bankcardsummary.AliDepositAmount,0) as AliDepositAmount,
+        IFNULL(t_bankcardsummary.AliDepositTimes,0) as AliDepositTimes,
+        IFNULL(t_bankcardsummary.withdrawTimes,0) as withdrawTimes,
+        IFNULL(t_bankcardsummary.withdrawAmount,0) as withdrawAmount,
+        count(t.ID) as Num
+        FROM
+        tyadmin.t_bankclient bc
+        JOIN t_bankcard bd ON bd.BankCode = bc.BankAccount
+        LEFT JOIN t_bankcardsummary ON bd.BankID = t_bankcardsummary.BankID  and t_bankcardsummary.Calendar = current_date
+        LEFT JOIN t_bankcardpool on t_bankcardpool.BankPooID=bd.PoolID
+        left JOIN t_bankinchannel tb on bd.BankID = tb.BankID
+        left  join t_paychannel tp on tp.PayChannelID = tb.ChannelID
+        left  join  t_banktrans t on bd.BankCode = t.BankAccount and TransType = 0
+        <if test="worktype == 1">
+            and TransTime > date_sub(now(),interval 15 minute)
+        </if>
+        <if test="worktype == 2">
+            and TransTime > date_sub(now(),interval 10 minute)
+        </if>
+        <where>
+            bc.status != 1 and bc.status != -1
+            <if test="supplierbranchid != null ">and bd.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="banknum != null  and banknum != ''">and bd.BankNum = #{banknum}</if>
+            <if test="poolid != null  and poolid != ''">and bd.poolid = #{poolid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bd.BankCode like '%${bankcode}%'</if>
+            <if test="banktype != null  and banktype != ''">and bd.banktype in
+                <foreach collection="types" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="poolids != null  and poolids != ''">and bd.poolid in
+                <foreach collection="poolids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="statuses != null  and statuses     != ''">and bd.status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="paytypes != null  and paytypes     != ''">and tp.paytype in
+                <foreach collection="paytypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="paychannelids != null  and paychannelids != ''">and tp.PayChannelID in
+                <foreach collection="paychannelids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="address != null  and address != ''">and bd.Address = #{address}</if>
+            <if test="worktype != null ">and bd.WorkType = #{worktype}</if>
+            <if test="status != null ">and bd.Status = #{status}</if>
+            <if test="clientName != null and clientName!=''"> and bc.clientName like '%${clientName}%' </if>
+            <if test="bankPoolName != null  and bankPoolName != ''">and t_bankcardpool.BankPoolName like concat('%',#{bankPoolName},'%')</if>
+            ${params.dataScope}
+        </where>
+        Group by bc.ClientID, bd.BankID, tp.PayChannelID
+        order by t_bankcardpool.BankPoolName
+    </select>
+    <select id="findBankCardChannes" resultMap="BankCardChanneMap">
+        SELECT
+        BankNum,
+        BankType,
+        Address,
+        DepositAddress,
+        OwnerName,
+        Balance,
+        BankCode AS BankAccount,
+        UCode,
+        ifnull( DepositAmount, 0 ) AS DepositAmount,
+        ifnull( WithdrawAmount, 0 ) AS WithdrawAmount
+        FROM
+        t_BankCard
+        LEFT JOIN t_bankcardsummary ON ( t_bankcardsummary.BankID = t_BankCard.BankID AND Calendar =#{Calendar} )
+        LEFT JOIN t_banktype ON t_BankCard.BankType = t_banktype.BankTypeCode
+        WHERE
+        WorkType &lt;>#{WorkType}
+        AND STATUS = 100
+        AND MinAmountPerTrans &lt;=#{PayAmount} AND ( MaxAmountPerTrans = 0 OR ( MaxAmountPerTrans >=#{PayAmount}
+        AND MaxAmountPerTrans > 0
+        ))
+        AND t_BankCard.BankID IN
+        <foreach  item="item" index="index" collection="bankIDs" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        order by  Balance
+    </select>
+    <select id="selectPBankcardsByIds" resultType="com.pay.typay.biz.domain.TBankcard">
+        select * from t_bankcard b where b.BankID in
+        <foreach item="item" index="index" collection="bankids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="fetchTransitCard" resultType="com.pay.typay.biz.domain.TBankcard">
+        SELECT
+        bd.BankID as bankid,
+        t_bankcardpool.BankPoolName,
+        bd.Status,
+        bd.Comments,
+        bd.WorkType,
+        bd.ReMark,
+        bd.BankCode,
+        bd.Balance,
+        bd.SumAmountPerDayTrans,
+        bd.SumTimesPerDayTrans,
+        bd.MaxBalance,
+        bd.MinBalance,
+        bd.LastUpDateTime,
+        bd.updateTime,
+        bd.AliSumAmountPerDayTrans,
+        bd.AliSumTimesPerDayTrans,
+        bd.AliMaxAmountPerTrans,
+        bd.AliMinAmountPerTrans,
+        t_bankcardsummary.DepositAmount,
+        t_bankcardsummary.DepositTimes,
+        t_bankcardsummary.HistoryDepositAmount,
+        t_bankcardsummary.withdrawTimes,
+        t_bankcardsummary.withdrawAmount
+        FROM
+        t_bankcard bd
+        LEFT JOIN t_bankcardsummary ON bd.BankID = t_bankcardsummary.BankID  and t_bankcardsummary.Calendar = current_date
+        LEFT JOIN t_bankcardpool on t_bankcardpool.BankPooID=bd.PoolID
+
+        <where>
+            <if test="supplierbranchid != null ">and bd.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="banknum != null  and banknum != ''">and bd.BankNum = #{banknum}</if>
+            <if test="poolid != null  and poolid != ''">and bd.poolid = #{poolid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bd.BankCode like '%${bankcode}%'</if>
+            <if test="banktype != null  and banktype != ''">and bd.banktype in
+                <foreach collection="types" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="poolids != null  and poolids != ''">and bd.poolid in
+                <foreach collection="poolids.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="statuses != null  and statuses     != ''">and bd.status in
+                <foreach collection="statuses.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="paytypes != null  and paytypes     != ''">and tp.paytype in
+                <foreach collection="paytypes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="address != null  and address != ''">and bd.Address = #{address}</if>
+            <if test="worktype != null ">and bd.WorkType = #{worktype}</if>
+            <if test="status != null ">and bd.Status = #{status}</if>
+            <if test="bankPoolName != null  and bankPoolName != ''">and t_bankcardpool.BankPoolName = #{bankPoolName}</if>
+            ${params.dataScope}
+        </where>
+        order by bd.updateTime desc
+    </select>
+
+    <resultMap type="com.pay.typay.biz.domain.BankcardChannelDto" id="BankCardChanneMap">
+        <result property="BankNum" column="BankNum"/>
+        <result property="BankType" column="BankType"/>
+        <result property="Address" column="Address"/>
+        <result property="DepositAddress" column="DepositAddress"/>
+        <result property="OwnerName" column="OwnerName"/>
+        <result property="Balance" column="Balance"/>
+        <result property="BankAccount" column="BankAccount"/>
+        <result property="DepositAmount" column="DepositAmount"/>
+        <result property="WithdrawAmount" column="WithdrawAmount"/>
+    </resultMap>
+
+    <update id="updateTBankcard" parameterType="java.util.List">
+        <foreach item="item" index="index" collection="bankcards" open="" separator=";" close="">
+            update t_bankcard SET
+            Version = Version + 1,
+            Status = #{item.status},
+            LastUpDateTime = CURRENT_DATE
+            where BankID = #{item.bankid}
+            <if test="item.version != null ">and Version = #{item.version}</if>
+        </foreach>
+    </update>
+
+    <update id="updateTBankcardById" parameterType="TBankcard">
+        update t_bankcard set
+        <if test="poolid != null ">PoolID = #{poolid},</if>
+        <if test="balance != null ">Balance = #{balance},</if>
+        <if test="maxbalance != null ">MaxBalance = #{maxbalance},</if>
+        <if test="minbalance != null ">MinBalance = #{minbalance},</if>
+        <if test="initbalance != null ">InitBalance = #{initbalance},</if>
+        <if test="sumamountperdaytrans != null ">SumAmountPerDayTrans = #{sumamountperdaytrans},</if>
+        <if test="sumtimesperdaytrans != null ">SumTimesPerDayTrans = #{sumtimesperdaytrans},</if>
+        <if test="minamountpertrans != null ">MinAmountPerTrans = #{minamountpertrans},</if>
+        <if test="maxamountpertrans != null ">MaxAmountPerTrans = #{maxamountpertrans},</if>
+        <if test="alisumtimesperdaytrans != null ">AliSumTimesPerDayTrans = #{alisumtimesperdaytrans},</if>
+        <if test="alisumamountperdaytrans != null ">AliSumAmountPerDayTrans = #{alisumamountperdaytrans},</if>
+        <if test="aliminamountpertrans != null ">AliMinAmountPerTrans = #{aliminamountpertrans},</if>
+        <if test="alimaxamountpertrans != null ">AliMaxAmountPerTrans = #{alimaxamountpertrans},</if>
+        <if test="status != null ">Status = #{status},</if>
+        LastUpDateTime = CURRENT_DATE
+        where BankID = #{bankid}
+    </update>
+
+</mapper>

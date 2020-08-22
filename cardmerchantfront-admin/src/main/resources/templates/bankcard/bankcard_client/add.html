@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:include="include :: header('新增银行卡客户端')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bankcard_client-add">
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.basicinfo">基本信息</em></h4>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="biz.clientname">客户端名称</em>：</label>
+            <div class="col-sm-8">
+                <input name="clientName" class="form-control" type="text">
+            </div>
+        </div>
+        <!--<div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.bankcode">银行卡简码</em>：</label>
+            <div class="col-sm-8">
+                <input name="bankAccount" class="form-control" type="text">
+            </div>
+        </div>-->
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.bankcode">银行卡简码</em>：</label>
+            <div class="col-sm-8">
+                <select id="bankcard-banktype" class="form-control" name="bankAccount"
+                        th:with="type=${bankcard}">
+                         <option value="">请选择</option>
+                         <option th:each="dict : ${type}"
+                                th:value="${dict.getBankcode()}"
+                                th:text="${dict.getBankcode()}">
+                         </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select name="status" class="form-control"
+                        th:with="type=${@dictbank.getSelectUIType('ClientStatusTwo')}">
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.value}"
+                            th:value="${dict.key}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em
+                    data-i18name="biz.worktype">工作模式</em>：</label>
+            <div class="col-sm-8">
+                <select name="workType" class="form-control m-b">
+                    <option value="1">收款</option>
+                    <option value="2">出款</option>
+                    <option value="3">中转</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em
+                    data-i18name="biz.banktype">银行类型</em>：</label>
+            <div class="col-sm-8">
+                <select name="bankType" class="form-control m-b" th:with="type=${@dictbank.getTBanktype()}">
+                    <option value="">请选择</option>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="m.identiy">识别码</em>：</label>
+            <div class="col-sm-8">
+                <input name="identity" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">备注 ：</label>
+            <div class="col-sm-8">
+                <input name="remark" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6"  shiro:hasRole="admin">
+                <label class="col-sm-4 control-label is-required"><em
+                        data-i18name="t.supplierbranchid">财务分支</em>：</label>
+                <div class="col-sm-8">
+                    <select class="form-control" th:title="请选择"
+                            id="supplierbranchidgroup" name="supplierBranchID"  data-style="btn-info"  >
+                        <option th:each="post:${@dictbank.getCurrentSurppilerbranchGroup()}" th:value="${post.getId()}"
+                                th:text="${post.getBranchname()}"
+                        ></option>
+                    </select>
+                </div>
+
+        </div>
+
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "bankcard/bankcard_client";
+    $().ready(function () {
+
+        $("#form-bankcard_client-add").validate({
+            focusCleanup: true,
+            onkeyup: false,
+            rules: {
+                "clientName": {
+                    minlength: 2,
+                    "required": true,
+                    remote: {
+                        url: prefix + "/check",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            "clientName": function () {
+                                return $.common.trim($("[name=clientName]").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            let s = JSON.parse(data);
+                            return s && s.total == 0
+                        }
+                    }
+                },
+                "identity": {
+                    minlength: 2,
+                    "required": true,
+                    remote: {
+                        url: prefix + "/check",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            "identity": function () {
+                                return $.common.trim($("[name=identity]").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            let s = JSON.parse(data);
+                            return s && s.total == 0
+                        }
+                    }
+                },
+                "bankType": {"required": true},
+                "status": {"required": true},
+                "workType": {"required": true}
+            },
+            messages: {
+                "clientName": {"remote": "客户端名称已经存在"},
+                "identity": {"remote": "识别码已经存在"},
+            }
+        });
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+            $.operate.save(prefix + "/add", $('#form-bankcard_client-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>

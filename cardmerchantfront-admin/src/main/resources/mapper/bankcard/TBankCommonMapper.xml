@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBankCommonMapper">
+
+    <resultMap type="com.pay.typay.common.core.domain.Ztree" id="bankpoolMenusResult">
+        <result property="id" column="id"/>
+        <result property="pId" column="pId"/>
+        <result property="name" column="name"/>
+        <result property="title" column="title"/>
+        <result property="checked" column="checked"/>
+        <result property="open" column="open"/>
+        <result property="nocheck" column="nocheck"/>
+    </resultMap>
+
+
+    <select id="bankpoolMenus" resultMap="bankpoolMenusResult" parameterType="map">
+
+        SELECT tb.BankID AS id,
+        tb.PoolID AS pId,
+        tb.BankCode AS name,
+        tb.BankCode AS title,
+        FALSE AS checked,
+        FALSE AS open,
+        FALSE AS nocheck
+        FROM t_bankcard tb
+        WHERE BankCode IS NOT NULL
+        UNION
+
+        SELECT t.BankPooID AS id,
+        0 AS pId,
+        t.BankPoolName AS name,
+        t.BankPoolName AS title,
+        FALSE AS checked,
+        FALSE AS open,
+        TRUE AS nocheck
+        FROM (SELECT tb.PoolID
+        FROM t_bankcard tb
+        GROUP BY PoolID
+        HAVING tb.PoolID IS NOT NULL) a
+        JOIN t_bankcardpool t ON a.PoolID = t.BankPooID
+        <where>
+            <if test="roleType != null  and roleType != ''">and t.roleType = #{roleType}</if>
+
+        </where>
+    </select>
+
+
+    <select id="getCurrentSurppilerbranchGroup" resultType="com.pay.typay.biz.domain.Surppilerbranch">
+        SELECT DISTINCT
+        ts.id,
+        ts.companyid,
+        ts.branchname,
+        ts.STATUS
+        FROM
+        t_surppilerbranch ts
+        INNER JOIN cardmerchantfront.sys_user u ON u.user_id = #{userId}
+        AND ( ts.id = u.supplierbranchid OR find_in_set( ts.id, u.supplierbranchidGroup ) > 0 )
+        WHERE
+        ts.Status = 1
+
+    </select>
+
+</mapper>

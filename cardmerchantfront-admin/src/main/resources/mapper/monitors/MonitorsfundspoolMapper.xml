@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.MonitorsfundspoolMapper">
+
+    <resultMap type="Monitorsfundspool" id="MonitorsfundspoolResult">
+        <result property="bankid" column="BankID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="banknum" column="BankNum"/>
+        <result property="loginaccount" column="LoginAccount"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="poolid" column="PoolID"/>
+        <result property="auth" column="Auth"/>
+        <result property="banktype" column="BankType"/>
+        <result property="address" column="Address"/>
+        <result property="depositaddress" column="DepositAddress"/>
+        <result property="ownername" column="OwnerName"/>
+        <result property="ownerphone" column="OwnerPhone"/>
+        <result property="owneridentity" column="OwnerIdentity"/>
+        <result property="worktype" column="WorkType"/>
+        <result property="balance" column="Balance"/>
+        <result property="maxbalance" column="MaxBalance"/>
+        <result property="minbalance" column="MinBalance"/>
+        <result property="initbalance" column="InitBalance"/>
+        <result property="sumamountperdaytrans" column="SumAmountPerDayTrans"/>
+        <result property="sumtimesperdaytrans" column="SumTimesPerDayTrans"/>
+        <result property="minamountpertrans" column="MinAmountPerTrans"/>
+        <result property="maxamountpertrans" column="MaxAmountPerTrans"/>
+        <result property="alisumtimesperdaytrans" column="AliSumTimesPerDayTrans"/>
+        <result property="alisumamountperdaytrans" column="AliSumAmountPerDayTrans"/>
+        <result property="aliminamountpertrans" column="AliMinAmountPerTrans"/>
+        <result property="alimaxamountpertrans" column="AliMaxAmountPerTrans"/>
+        <result property="status" column="Status"/>
+        <result property="comments" column="Comments"/>
+        <result property="remark" column="ReMark"/>
+        <result property="version" column="Version"/>
+        <result property="uloginpwd" column="ULoginPWD"/>
+        <result property="ukeypwd" column="UkeyPWD"/>
+        <result property="loginpwd" column="LoginPWD"/>
+        <result property="paypwd" column="PayPWD"/>
+        <result property="ucode" column="UCode"/>
+        <result property="tagid" column="TagID"/>
+        <result property="phoneid" column="PhoneID"/>
+        <result property="lastloginclientname" column="LastLoginClientName"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="cardindex" column="CardIndex"/>
+    </resultMap>
+
+    <sql id="selectMonitorsfundspoolVo">
+        SELECT BankID,
+               SupplierBranchID,
+               BankNum,
+               LoginAccount,
+               BankCode,
+               PoolID,
+               Auth,
+               BankType,
+               Address,
+               DepositAddress,
+               OwnerName,
+               OwnerPhone,
+               OwnerIdentity,
+               WorkType,
+               Balance,
+               MaxBalance,
+               MinBalance,
+               InitBalance,
+               SumAmountPerDayTrans,
+               SumTimesPerDayTrans,
+               MinAmountPerTrans,
+               MaxAmountPerTrans,
+               AliSumTimesPerDayTrans,
+               AliSumAmountPerDayTrans,
+               AliMinAmountPerTrans,
+               AliMaxAmountPerTrans,
+               Status,
+               Comments,
+               ReMark,
+               Version,
+               ULoginPWD,
+               UkeyPWD,
+               LoginPWD,
+               PayPWD,
+               UCode,
+               TagID,
+               PhoneID,
+               LastLoginClientName,
+               CreateTime,
+               LastUpDateTime,
+               CardIndex
+        FROM t_bankcard t
+    </sql>
+
+    <select id="selectMonitorsfundspoolList" parameterType="Monitorsfundspool" resultMap="MonitorsfundspoolResult">
+        <include refid="selectMonitorsfundspoolVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="banknum != null  and banknum != ''">and BankNum = #{banknum}</if>
+            <if test="loginaccount != null  and loginaccount != ''">and LoginAccount = #{loginaccount}</if>
+            <if test="bankcode != null  and bankcode != ''">and BankCode = #{bankcode}</if>
+            <if test="poolid != null ">and PoolID = #{poolid}</if>
+            <if test="auth != null ">and Auth = #{auth}</if>
+            <if test="banktype != null  and banktype != ''">and BankType = #{banktype}</if>
+            <if test="address != null  and address != ''">and Address = #{address}</if>
+            <if test="depositaddress != null  and depositaddress != ''">and DepositAddress = #{depositaddress}</if>
+            <if test="ownername != null  and ownername != ''">and OwnerName like concat('%', #{ownername}, '%')</if>
+            <if test="ownerphone != null  and ownerphone != ''">and OwnerPhone = #{ownerphone}</if>
+            <if test="owneridentity != null  and owneridentity != ''">and OwnerIdentity = #{owneridentity}</if>
+            <if test="worktype != null ">and WorkType = #{worktype}</if>
+            <if test="balance != null ">and Balance = #{balance}</if>
+            <if test="maxbalance != null ">and MaxBalance = #{maxbalance}</if>
+            <if test="minbalance != null ">and MinBalance = #{minbalance}</if>
+            <if test="initbalance != null ">and InitBalance = #{initbalance}</if>
+            <if test="sumamountperdaytrans != null ">and SumAmountPerDayTrans = #{sumamountperdaytrans}</if>
+            <if test="sumtimesperdaytrans != null ">and SumTimesPerDayTrans = #{sumtimesperdaytrans}</if>
+            <if test="minamountpertrans != null ">and MinAmountPerTrans = #{minamountpertrans}</if>
+            <if test="maxamountpertrans != null ">and MaxAmountPerTrans = #{maxamountpertrans}</if>
+            <if test="alisumtimesperdaytrans != null ">and AliSumTimesPerDayTrans = #{alisumtimesperdaytrans}</if>
+            <if test="alisumamountperdaytrans != null ">and AliSumAmountPerDayTrans = #{alisumamountperdaytrans}</if>
+            <if test="aliminamountpertrans != null ">and AliMinAmountPerTrans = #{aliminamountpertrans}</if>
+            <if test="alimaxamountpertrans != null ">and AliMaxAmountPerTrans = #{alimaxamountpertrans}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="statusfilter != null ">and Status != #{statusfilter}</if>
+            <if test="comments != null  and comments != ''">and Comments = #{comments}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="version != null ">and Version = #{version}</if>
+            <if test="uloginpwd != null  and uloginpwd != ''">and ULoginPWD = #{uloginpwd}</if>
+            <if test="ukeypwd != null  and ukeypwd != ''">and UkeyPWD = #{ukeypwd}</if>
+            <if test="loginpwd != null  and loginpwd != ''">and LoginPWD = #{loginpwd}</if>
+            <if test="paypwd != null  and paypwd != ''">and PayPWD = #{paypwd}</if>
+            <if test="ucode != null  and ucode != ''">and UCode = #{ucode}</if>
+            <if test="tagid != null ">and TagID = #{tagid}</if>
+            <if test="phoneid != null ">and PhoneID = #{phoneid}</if>
+            <if test="lastloginclientname != null  and lastloginclientname != ''">and LastLoginClientName like
+                concat('%', #{lastloginclientname}, '%')
+            </if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+            <if test="cardindex != null  and cardindex != ''">and CardIndex = #{cardindex}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+
+
+        order by createtime desc
+    </select>
+
+    <select id="selectMonitorsfundspoolById" parameterType="Long" resultMap="MonitorsfundspoolResult">
+        <include refid="selectMonitorsfundspoolVo"/>
+        where BankID = #{bankid}
+    </select>
+
+    <select id="getToatlBalance" resultType="com.pay.typay.biz.domain.Monitorsfundspool">
+        SELECT ifnull(sum( t.Balance ),'0.00') as Balance,t.WorkType FROM t_bankcard t
+        <where>
+            Status=100
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        GROUP BY WorkType
+    </select>
+
+    <select id="getBankByTransit" resultType="com.pay.typay.biz.domain.TBankcard">
+        SELECT t.BankID,
+        t.BankCode,
+        t.Balance
+        FROM t_bankcard t
+        LEFT JOIN t_bankcardpool p ON p.BankPooID = t.PoolID
+        <where>
+            t.STATUS = 1
+            AND p.WorkType = 1
+            AND p.RoleType = 4
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+    </select>
+
+
+    <select id="getBankMonitors" resultMap="MonitorsfundspoolResult">
+        SELECT
+            t.BankID,
+            ifnull( t.Balance, 0.00 ) as Balance,
+            t.WorkType,
+            t.BankCode,
+            t.STATUS,
+            t.BankType
+        FROM
+            t_bankcard t
+        WHERE
+            t.WorkType IN ( 1, 2, 3, 4 )
+            AND STATUS IN ( 100,- 4 )
+            AND SupplierBranchID = #{supplierbranchid}
+            <if test="bankType != null">
+                AND t.BankType NOT IN
+                <foreach collection="bankType" separator="," open="(" item="item" index="index" close=")">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="getBufferCanTrans" resultMap="MonitorsfundspoolResult">
+        SELECT
+            aaa.*,
+            ifnull( tb.DepositAmount, 0.00 )
+            FROM
+                (
+                SELECT
+                    t_bankcard.BankID,
+                    t_bankcard.SumAmountPerDayTrans,
+                    t_bankcard.WorkType,
+                    t_bankcard.STATUS,
+                    t_bankcard.Balance,
+                    t_bankcard.BankType,
+                    t_bankcard.BankCode
+                FROM
+                    t_bankcard
+                    LEFT JOIN t_bankcardpool ON t_bankcard.PoolID = t_bankcardpool.BankPooID
+                WHERE
+                    t_bankcard.`Status` = 1
+                    AND t_bankcard.SupplierBranchID = #{supplierbranchid}
+                    AND t_bankcardpool.BankPoolName LIKE '中转缓冲%'
+                    <if test="bankType != null">
+                        AND t_bankcard.BankType NOT IN
+                        <foreach collection="bankType" separator="," open="(" item="item" index="index" close=")">
+                            #{item}
+                        </foreach>
+                    </if>
+                ) aaa
+                LEFT JOIN t_bankcardsummary tb ON aaa.bankid = tb.bankid
+            WHERE
+                tb.Calendar = #{calendar}
+    </select>
+
+    <select id="getBankMonitorsNew" parameterType="com.pay.typay.biz.domain.Merchant" resultType="com.pay.typay.biz.domain.MonitorsVO">
+        select ccc.*,tb.BankID as bankid,
+               tb.BankCode as bankcode,
+               tb.Balance as balance,
+               tb.status as status,
+               tb.worktype as worktype,
+               m.merchantname as merchantname,
+               tb.MaxBalance from (select aaa.PayPoolID as paypoolid,aaa.MerchantID as merchantid, aaa.UserLevel as userlevel, bbb.CreditLevel as creditlevel
+        from (select tmp.PayPoolID,
+                     tmp.MerchantID,
+                     SUBSTRING_INDEX(SUBSTRING_INDEX(tmp.UserLevels, ',', numbers.n), ',', -1) UserLevel
+              from (select 1 n union all
+                    select 2 union all select 3 union all
+                    select 4 union all select 5 union all
+                    select 6 union all select 7 union all
+                    select 8 union all select 9 union all
+                    select 10 union all select 11) numbers
+                       INNER JOIN t_merchantpaypool tmp on
+                          CHAR_LENGTH(tmp.UserLevels) - CHAR_LENGTH(REPLACE(tmp.UserLevels, ',', '')) >= numbers.n - 1
+                <where>
+                    <if test="supplierbranchid != null">and tmp.SupplierBranchID = #{supplierbranchid}</if>
+                    <if test="merchantids != null and merchantids != ''">
+                        and tmp.MerchantID in
+                        <foreach collection="merchantids.split(',')" open="(" close=")" separator="," item="item">
+                            #{item}
+                        </foreach>
+                    </if>
+                </where>
+              GROUP BY PayPoolID, UserLevel,MerchantID) aaa
+                 LEFT JOIN
+             (select tmp.PayPoolID as paypoolid,
+                     tmp.MerchantID,
+                     SUBSTRING_INDEX(SUBSTRING_INDEX(tmp.UserCreditLevel, ',', numbers.n), ',', -1) CreditLevel
+              from (select 1 n union all
+                    select 2 union all select 3 union all
+                    select 4 union all select 5 union all
+                    select 6 union all select 7 union all
+                    select 8 union all select 9 union all
+                    select 10 union all select 11) numbers
+                       INNER JOIN t_merchantpaypool tmp on
+                          CHAR_LENGTH(tmp.UserCreditLevel) - CHAR_LENGTH(REPLACE(tmp.UserCreditLevel, ',', '')) >= numbers.n - 1
+                <where>
+                    <if test="supplierbranchid != null">and tmp.SupplierBranchID = #{supplierbranchid}</if>
+                    <if test="merchantids != null and merchantids != ''">
+                        and tmp.MerchantID in
+                        <foreach collection="merchantids.split(',')" open="(" close=")" separator="," item="item">
+                            #{item}
+                        </foreach>
+                    </if>
+                </where>
+              GROUP BY PayPoolID, CreditLevel,MerchantID) bbb on aaa.PayPoolID = bbb.PayPoolID) ccc
+            left join t_Paypoolchannel tpc on ccc.PayPoolID = tpc.PayPoolID
+            left join t_bankinchannel tbc on tpc.PayChannelID = tbc.ChannelID
+            left join t_bankcard tb on tbc.BankID = tb.BankID
+            left join t_merchant m on  ccc.merchantid = m.merchantid
+        WHERE tb.Status in (100, -4) and tb.WorkType in (1,2)
+    </select>
+</mapper>

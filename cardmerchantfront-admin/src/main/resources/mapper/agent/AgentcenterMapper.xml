@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.agent.mapper.AgentcenterMapper">
+
+    <resultMap type="Agentcenter" id="AgentcenterResult">
+        <result property="id" column="id"/>
+        <result property="supplierBranchId" column="supplier_branch_id"/>
+        <result property="agentName" column="agent_name"/>
+        <result property="parentAgentId" column="parent_agent_id"/>
+        <result property="balance" column="balance"/>
+        <result property="creditBalance" column="credit_balance"/>
+        <result property="availableBalance" column="available_balance"/>
+        <result property="fronzenBalance" column="fronzen_balance"/>
+        <result property="ratio" column="ratio"/>
+        <result property="profitBalance" column="profit_balance"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastUpdateTime" column="last_update_time"/>
+        <result property="version" column="version"/>
+        <result property="userId" column="user_id"/>
+        <result property="agentLevel" column="agent_level"/>
+        <result property="agentCode" column="agent_code"/>
+        <result property="payCode" column="pay_code"/>
+        <result property="parentSupplierBranchId" column="parent_supplier_branch_id"/>
+    </resultMap>
+
+    <sql id="selectAgentcenterVo">
+        SELECT id,
+               supplier_branch_id,
+               agent_name,
+               agent_code,
+               parent_agent_id,
+               balance,
+               credit_balance,
+               available_balance,
+               fronzen_balance,
+               ratio,
+               profit_balance,
+               status,
+               remark,
+               create_time,
+               last_update_time,
+               version,
+               user_id,
+               agent_level,
+               pay_code,
+               parent_supplier_branch_id
+        FROM t_bankcard_agent
+    </sql>
+
+    <select id="selectAgentcenterList" parameterType="Agentcenter" resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        <where>
+            status != -1
+            <if test="supplierBranchId != null ">and supplier_branch_id = #{supplierBranchId}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and supplier_branch_id in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="id != null ">and id = #{id}</if>
+            <if test="agentName != null  and agentName != ''">and agent_name like concat('%', #{agentName}, '%')</if>
+            <if test="agentCode != null  and agentCode != ''">and agent_code like concat('%', #{agentCode}, '%')</if>
+            <if test="parentAgentId != null  and parentAgentId != ''">and parent_agent_id = #{parentAgentId}</if>
+            <if test="balance != null ">and balance = #{balance}</if>
+            <if test="creditBalance != null ">and credit_balance = #{creditBalance}</if>
+            <if test="availableBalance != null ">and available_balance = #{availableBalance}</if>
+            <if test="fronzenBalance != null ">and fronzen_balance = #{fronzenBalance}</if>
+            <if test="ratio != null ">and ratio = #{ratio}</if>
+            <if test="profitBalance != null ">and profit_balance = #{profitBalance}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="lastUpdateTime != null ">and last_update_time = #{lastUpdateTime}</if>
+            <if test="version != null ">and version = #{version}</if>
+            <if test="userId != null ">and user_id = #{userId}</if>
+            <if test="agentLevel != null  and agentLevel != ''">and agent_level = #{agentLevel}</if>
+            <if test="createby != null  and createby != ''">and createby = #{createby}</if>
+            <if test="parentSupplierBranchId != null  and parentSupplierBranchId != ''">and parent_supplier_branch_id = #{parentSupplierBranchId}</if>
+        </where>
+    </select>
+    <select id="selectAgentcenterListContrant" parameterType="Agentcenter" resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        <where>
+            <if test="supplierBranchId != null ">and supplier_branch_id = #{supplierBranchId}</if>
+            <if test="agentName != null  and agentName != ''">and agent_name =  #{agentName}</if>
+            <if test="agentCode != null  and agentCode != ''">and agent_code =  #{agentCode}</if>
+            <if test="balance != null ">and balance = #{balance}</if>
+            <if test="creditBalance != null ">and credit_balance = #{creditBalance}</if>
+            <if test="availableBalance != null ">and available_balance = #{availableBalance}</if>
+            <if test="fronzenBalance != null ">and fronzen_balance = #{fronzenBalance}</if>
+            <if test="ratio != null ">and ratio = #{ratio}</if>
+            <if test="profitBalance != null ">and profit_balance = #{profitBalance}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="lastUpdateTime != null ">and last_update_time = #{lastUpdateTime}</if>
+            <if test="version != null ">and version = #{version}</if>
+            <if test="userId != null ">and user_id = #{userId}</if>
+            <if test="agentLevel != null  and agentLevel != ''">and agent_level = #{agentLevel}</if>
+            <if test="createby != null  and createby != ''">and createby = #{createby}</if>
+        </where>
+    </select>
+
+    <select id="selectAgentcenterById" resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        where id = #{param1} and supplier_branch_id = #{param2}
+        <if test="param3 != null and param3 != ''">
+            and createby = #{param3}
+        </if>
+    </select>
+
+    <select id="selectAgentCenterByAgentName"  resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        where agent_name = #{agentName}
+    </select>
+
+    <select id="selectAgentCenterByParentAgentId" parameterType="string" resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        where agent_name = #{parentAgentId} order by agent_code desc limit 0,1
+    </select>
+
+    <select id="selectAgentCenterByAgentCode" parameterType="string" resultMap="AgentcenterResult">
+        <include refid="selectAgentcenterVo"/>
+        where agent_code like CONCAT(#{agentCode}, '%') order by agent_code desc limit 0,1
+    </select>
+
+    <insert id="insertAgentcenter" parameterType="Agentcenter" useGeneratedKeys="true" keyProperty="id">
+        insert into t_bankcard_agent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierBranchId != null">supplier_branch_id,</if>
+            <if test="agentName != null  and agentName != ''">agent_name,</if>
+            <if test="parentAgentId != null  and parentAgentId != ''">parent_agent_id,</if>
+            <if test="balance != null ">balance,</if>
+            <if test="creditBalance != null ">credit_balance,</if>
+            <if test="availableBalance != null ">available_balance,</if>
+            <if test="fronzenBalance != null ">fronzen_balance,</if>
+            <if test="ratio != null ">ratio,</if>
+            <if test="profitBalance != null ">profit_balance,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="lastUpdateTime != null ">last_update_time,</if>
+            <if test="version != null ">version,</if>
+            <if test="userId != null ">user_id,</if>
+            <if test="agentLevel != null  and agentLevel != ''">agent_level,</if>
+            <if test="createby != null  and createby != ''">createby,</if>
+            <if test="agentCode != null  and agentCode != ''">agent_code,</if>
+            <if test="parentSupplierBranchId != null  and parentSupplierBranchId != ''">parent_supplier_branch_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierBranchId != null ">#{supplierBranchId},</if>
+            <if test="agentName != null  and agentName != ''">#{agentName},</if>
+            <if test="parentAgentId != null  and parentAgentId != ''">#{parentAgentId},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="creditBalance != null ">#{creditBalance},</if>
+            <if test="availableBalance != null ">#{availableBalance},</if>
+            <if test="fronzenBalance != null ">#{fronzenBalance},</if>
+            <if test="ratio != null ">#{ratio},</if>
+            <if test="profitBalance != null ">#{profitBalance},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="lastUpdateTime != null ">#{lastUpdateTime},</if>
+            <if test="version != null ">#{version},</if>
+            <if test="userId != null ">#{userId},</if>
+            <if test="agentLevel != null  and agentLevel != ''">#{agentLevel},</if>
+            <if test="createby != null  and createby != ''">#{createby},</if>
+            <if test="agentCode != null  and agentCode != ''">#{agentCode},</if>
+            <if test="parentSupplierBranchId != null  and parentSupplierBranchId != ''">#{parentSupplierBranchId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAgentcenter" parameterType="Agentcenter">
+        update t_bankcard_agent
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierBranchId != null ">supplier_branch_id = #{supplierBranchId},</if>
+            <if test="agentName != null  and agentName != ''">agent_name = #{agentName},</if>
+            <if test="balance != null ">balance = #{balance},</if>
+            <if test="creditBalance != null ">credit_balance = #{creditBalance},</if>
+            <if test="availableBalance != null ">available_balance = #{availableBalance},</if>
+            <if test="fronzenBalance != null ">fronzen_balance = #{fronzenBalance},</if>
+            <if test="ratio != null ">ratio = #{ratio},</if>
+            <if test="profitBalance != null ">profit_balance = #{profitBalance},</if>
+            <if test="status != null  and status != ''">status = #{status},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="lastUpdateTime != null ">last_update_time = #{lastUpdateTime},</if>
+            <if test="version != null ">version = #{version},</if>
+            <if test="userId != null ">user_id = #{userId},</if>
+            <if test="agentLevel != null  and agentLevel != ''">agent_level = #{agentLevel},</if>
+            <if test="payCode != null  and payCode != ''">pay_code = #{payCode},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAgentcenterById" parameterType="Long">
+        DELETE
+        FROM t_bankcard_agent
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 软删除-->
+    <delete id="deleteAgentcenterByIds" parameterType="String">
+        update  t_bankcard_agent set status=-1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

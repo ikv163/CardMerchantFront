@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.bankcard.mapper.BankcardReviewMapper">
+    
+    <resultMap type="BankcardReview" id="BankcardReviewResult">
+        <result property="id" column="id"/>
+        <result property="agentId"    column="agent_id"/>
+        <result property="supplierbranchid" column="supplierbranchid"/>
+        <result property="reviewStatus" column="review_status"/>
+        <result property="applicantId" column="applicant_id"/>
+        <result property="applicantName"  column="applicant_name" />
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewer" column="reviewer" />
+        <result property="beforWorktype"    column="befor_worktype"/>
+        <result property="afterWorktype"    column="after_worktype"/>
+        <result property="reviewTime"    column="review_time"/>
+        <result property="createTime"    column="create_time"/>
+        <result property="bankcardId"    column="bankcard_id"/>
+        <result property="agentName"  column="agent_name"/>
+        <result property="bankAcount" column="BankCode"></result>
+    </resultMap>
+
+    <sql id="selectBankcardReviewVo">
+        select id, agent_id, supplierbranchid, review_status, applicant_id, applicant_name, reviewer_id, reviewer, befor_worktype, after_worktype, review_time, create_time, bankcard_id from t_agent_bankcard_review
+    </sql>
+
+
+    <sql id="selectBankcardReviewVoList">
+        select
+        rew.id,
+        rew.agent_id,
+        rew.supplierbranchid,
+        rew.review_status,
+        rew.applicant_id,
+        rew.applicant_name,
+        rew.reviewer_id,
+        rew.reviewer,
+        rew.befor_worktype,
+        rew.after_worktype,
+        rew.review_time,
+        rew.create_time,
+        rew.bankcard_id,
+        ag.agent_name,
+        tb.BankCode
+        from t_agent_bankcard_review  rew
+        left join  t_bankcard_agent ag on  (ag.id = rew.agent_id)
+        left join t_bankcard tb  on (tb.BankID = rew.bankcard_id )
+    </sql>
+
+    <select id="selectBankcardReviewList" parameterType="BankcardReview" resultMap="BankcardReviewResult">
+        <include refid="selectBankcardReviewVoList"/>
+        <where>
+            <if test="supplierbranchid != null ">and rew.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and rew.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="agentName !=null  and agentName != ''">and ag.agent_name =#{agentName}</if>
+            <if test="bankAcount !=null and bankAcount !=''">and tb.BankCode = #{bankAcount}</if>
+            <if test="reviewStatus != null "> and rew.review_status = #{reviewStatus}</if>
+            <if test="applicantId != null "> and rew.applicant_id = #{applicantId}</if>
+            <if test="applicantName != null  and applicantName != ''"> and rew.applicant_name = #{applicantName}</if>
+            <if test="reviewerId != null "> and rew.reviewer_id = #{reviewerId}</if>
+            <if test="reviewer != null  and reviewer != ''"> and rew.reviewer = #{reviewer}</if>
+            <if test="beforWorktype != null "> and rew.befor_worktype = #{beforWorktype}</if>
+            <if test="afterWorktype != null "> and rew.after_worktype = #{afterWorktype}</if>
+            <if test="reviewTime != null "> and rew.review_time = #{reviewTime}</if>
+            <if test="bankcardId != null "> and rew.bankcard_id = #{bankcardId}</if>
+        </where>
+    </select>
+    
+    <select id="selectBankcardReviewById" resultMap="BankcardReviewResult">
+        <include refid="selectBankcardReviewVoList"/>
+        where rew.id = #{param1} and rew.supplierbranchid in
+        <foreach  item="param2" index="index" collection="param2.split(',')" open="(" close=")" separator=",">
+            #{param2}
+        </foreach>
+    </select>
+        
+    <insert id="insertBankcardReview" parameterType="BankcardReview" useGeneratedKeys="true" keyProperty="id">
+        insert into t_agent_bankcard_review
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="agentId != null ">agent_id,</if>
+            <if test="supplierbranchid != null ">supplierbranchid,</if>
+            <if test="reviewStatus != null ">review_status,</if>
+            <if test="applicantId != null ">applicant_id,</if>
+            <if test="applicantName != null  and applicantName != ''">applicant_name,</if>
+            <if test="reviewerId != null ">reviewer_id,</if>
+            <if test="reviewer != null  and reviewer != ''">reviewer,</if>
+            <if test="beforWorktype != null ">befor_worktype,</if>
+            <if test="afterWorktype != null ">after_worktype,</if>
+            <if test="reviewTime != null ">review_time,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="bankcardId != null ">bankcard_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="agentId != null ">#{agentId},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="reviewStatus != null ">#{reviewStatus},</if>
+            <if test="applicantId != null ">#{applicantId},</if>
+            <if test="applicantName != null  and applicantName != ''">#{applicantName},</if>
+            <if test="reviewerId != null ">#{reviewerId},</if>
+            <if test="reviewer != null  and reviewer != ''">#{reviewer},</if>
+            <if test="beforWorktype != null ">#{beforWorktype},</if>
+            <if test="afterWorktype != null ">#{afterWorktype},</if>
+            <if test="reviewTime != null ">#{reviewTime},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="bankcardId != null ">#{bankcardId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBankcardReview" parameterType="BankcardReview">
+        update t_agent_bankcard_review
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="agentId != null ">agent_id = #{agentId},</if>
+            <if test="supplierbranchid != null ">supplierbranchid = #{supplierbranchid},</if>
+            <if test="reviewStatus != null ">review_status = #{reviewStatus},</if>
+            <if test="applicantId != null ">applicant_id = #{applicantId},</if>
+            <if test="applicantName != null  and applicantName != ''">applicant_name = #{applicantName},</if>
+            <if test="reviewerId != null ">reviewer_id = #{reviewerId},</if>
+            <if test="reviewer != null  and reviewer != ''">reviewer = #{reviewer},</if>
+            <if test="beforWorktype != null ">befor_worktype = #{beforWorktype},</if>
+            <if test="afterWorktype != null ">after_worktype = #{afterWorktype},</if>
+            <if test="reviewTime != null ">review_time = #{reviewTime},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="bankcardId != null ">bankcard_id = #{bankcardId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBankcardReviewById" parameterType="Long">
+        delete from t_agent_bankcard_review where id = #{id}
+    </delete>
+
+    <delete id="deleteBankcardReviewByIds" parameterType="String">
+        delete from t_agent_bankcard_review where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectBankcardReviewByBankId" resultMap="BankcardReviewResult">
+        <include refid="selectBankcardReviewVo"/>
+        where bankcard_id = #{bankid} and review_status = 0 limit 1
+    </select>
+    
+</mapper>

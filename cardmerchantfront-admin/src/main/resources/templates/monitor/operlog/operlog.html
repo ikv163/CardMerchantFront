@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('操作日志列表')"/>
+    <link type="text/css" href="/js/editable-select/jquery-editable-select.css" rel="stylesheet"/>
+</head>
+<style>
+
+    table {
+
+        table-layout:fixed;
+    }
+    table td{
+        overflow: hidden;
+        text-overflow:ellipsis;
+        word-break: break-word;
+        white-space: normal;
+
+    }
+    .col-sm-3 {
+        width: 100px;
+        line-height: 30px;
+        padding-right: 0px;
+    }
+    .col-sm-4 {
+        width: 208px;
+        height: 30px;
+        padding-left: 5px;
+        border: 1px solid #e5e6e7;
+        border-radius: 4px;
+    }
+    .col-sm-5 {
+        width: 20%;
+        padding-left: 0;
+        margin: 5px 0px;
+    }
+    .col-sm-4 button {
+        background-color: white;
+        border: none;
+        color: inherit;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <div th:if="!${@permission.isAdmin()} ">
+                            <input type="hidden" name="loginName"
+                                   th:value="${@permission.getPrincipalProperty('userName')}"/>
+                            <input type="hidden" name="userId"
+                                   th:value="${@permission.getPrincipalProperty('userId')}"/>
+                        </div>
+                        <li>
+                            <p class="mylabeltitle"> <em data-i18name="biz.systemmodule">系统模块</em>：</p><input type="text"
+                                                                                                  name="title"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.operator">操作人员</em>：</p><input type="text"
+                                                                                            name="operName"/>
+                        </li>
+                        <li class="select-selectpicker">
+                            <p class="mylabeltitle"><em data-i18name="biz.operatype">操作类型</em>：</p><select name="businessTypes" id="businessTypes" class="form-control"
+                                                                                              th:with="type=${@dict.getType('sys_oper_type')}">
+                            <option value="">请选择</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"> <em data-i18name="biz.operastatus">操作状态</em>：</p><select name="status" class="form-control"
+                                                                                                 th:with="type=${@dict.getType('sys_common_status')}">
+                            <option value="">请选择</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li class="">
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+
+                        <li class="">
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="monitor:operlog:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" class="table-bordered table-hover table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: drag-column-save"/>
+<script  src="/js/editable-select/jquery-editable-select.js"></script>
+<script th:inline="javascript">
+    var detailFlag = [[${@permission.hasPermi('monitor:operlog:detail')}]];
+    var datas = [[${@dict.getType('sys_oper_type')}]];
+    var prefix = ctx + "monitor/operlog";
+
+    // function queryParams(params) {
+    //     var search = $.table.queryParams(params);
+    //     search.userName = [[${@permission.getPrincipalProperty('userName')}]];
+    //     search.userId = [[${@permission.getPrincipalProperty('userId')}]];
+    //     return search;
+    // }
+
+    $(function () {
+        initTableData(columnList)
+    });
+
+    function assembleColumns(){
+        return [{
+            field: 'state',
+            checkbox: true,
+            isColumnDrag:false
+        },
+            {
+                field: 'operId',
+                title: '<em data-i18name="t.logid">日志编号</em>',
+                visible: false
+            },
+            {
+                field: 'operName',
+                width:"6%",
+                title: '<em data-i18name="biz.operator">操作人员</em>',
+                sortable: true
+            },
+            {
+                field: 'title',
+                width:"13%",
+                title: '<em data-i18name="biz.systemmodule">系统模块</em>'
+            },
+            {
+                field: 'operContent',
+                width:"20%",
+                cellStyle:{
+                    css: {
+                        "word-break": "break-all",
+                        "word-wrap": "break-all"
+                    }
+                },
+                title: '操作详情'
+            },
+            {
+                field: 'operParam',
+                width:"20%",
+                cellStyle:{
+                    css: {
+                        "word-break": "break-all",
+                        "word-wrap": "break-all"
+                    }
+                },
+                title: '<em data-i18name="biz.operaContent">操作内容</em>',
+                //备注列双击修改备注
+                formatter: function (value, row) {
+                    return '<span title="'+(value || "") +'">' + (value || "") + '</span>';
+                }
+            },
+            {
+                field: 'businessType',
+                width:"6%",
+                title: '<em data-i18name="biz.operatype">操作类型</em>',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return $.table.selectDictLabel(datas, value);
+                }
+            },
+            {
+                field: 'operIp',
+                width:"8%",
+                title: '<em data-i18name="t.host">操作IP</em>'
+            },
+            {
+                field: 'status',
+                width:"6%",
+                title: '<em data-i18name="biz.operastatus">操作状态</em>',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    if (value == 0) {
+                        return '<span class="badge badge-primary">成功</span>';
+                    } else if (value == 1) {
+                        return '<span class="badge badge-danger">失败</span>';
+                    }
+                }
+            },
+            {
+                field: 'operTime',
+                width:"10%",
+                title: '<em data-i18name="biz.operatime">操作时间</em>',
+                sortable: true
+            },
+            {
+                field:'caozuo',
+                title: '<em data-i18name="t.operto">操作</em>',
+                align: 'center',
+                width:"5%",
+                formatter: function (value, row, index) {
+                    var actions = [];
+                    actions.push('<a class="btn btn-warning btn-xs ' + detailFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.operId + '\')"><i class="fa fa-search"></i>详细</a>');
+                    return actions.join('');
+                }
+            }]
+    }
+    function assembleOptions(){
+        return {
+            url: prefix + "/list",
+            cleanUrl: prefix + "/clean",
+            detailUrl: prefix + "/detail/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "operTime",
+            sortOrder: "desc",
+            modalName: "操作日志",
+            uniqueId:"operId",
+            escape: true,
+            showPageGo: true,
+            // queryParams: queryParams,
+            rememberSelected: true,
+            columns: assembleColumns()
+        };
+    }
+    $('#title').editableSelect({
+        trigger:"focus"
+    });
+    // function searchPre() {
+    //     var data = {};
+    //     data.businessTypes = $.common.join($('#businessTypes').selectpicker('val'));
+    //     $.table.search('operlog-form', 'bootstrap-table', data);
+    // }
+
+    function resetPre() {
+        $.form.reset();
+        $("#businessTypes").selectpicker('refresh');
+    }
+</script>
+</body>
+</html>

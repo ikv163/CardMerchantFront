@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看代理银行卡充值订单')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">查看代理银行卡充值订单基本信息</h4>
+    <form class="form-horizontal m">
+
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var data = [[${tAgentdepositorder}]];
+    var orderstatusDict = [[${@dict.getType('depositestatus')}]];
+    $(function () {
+        var options = {
+            columns: [
+                /*{
+                    field: 'orderindex',
+                    title: '索引',
+                    visible: false
+                },*/
+                {
+                    field: 'orderid',
+                    title: '订单号'
+                },
+                {
+                    field: 'payamount',
+                    title: '提款金额'
+                },
+                {
+                    field: 'bankcode',
+                    title: '银行卡简码'
+                },
+                {
+                    field: 'orderstatus',
+                    title: '订单状态',
+                    formatter: function (v) {
+
+                        let dictVale = getDictVale(v, orderstatusDict);
+                        return dictVale;
+                    }
+                },
+            ]
+        };
+
+        var html = '';
+        let myoptions = options.columns;
+        if(data){
+            for (let item of myoptions) {
+                let field = item.field;
+                let value = data[field];
+                if (item.formatter) {
+                    value = item.formatter(value, data);
+                }
+                html += `
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label">${item.title}：</label>
+            <div class="col-sm-8">
+                <span class="form-control">${value}</span>
+            </div>
+        </div>
+            `;
+            }
+        }
+        $('.form-horizontal').html(html);
+
+    });
+</script>
+</body>
+</html>

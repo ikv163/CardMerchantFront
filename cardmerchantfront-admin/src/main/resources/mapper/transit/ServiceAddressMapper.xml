@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.ServiceAddressMapper">
+    <insert id="insertInto">
+
+        INSERT  INTO t_serviceaddress (ServiceKey,ServiceAddress, ServiceName, Status) values (#{serviceKey}, #{serviceAddress},'', 1)
+    </insert>
+
+    <select id="getConfig" resultType="com.pay.typay.biz.domain.TServiceAddress">
+        SELECT *
+        FROM t_serviceaddress b
+        WHERE b.ServiceKey = #{serviceKey}
+          AND b.Status = 1
+        LIMIT 1
+    </select>
+
+    <update id="update" parameterType="java.lang.String">
+        UPDATE t_serviceaddress
+        SET ServiceAddress = #{serviceAddress}
+        WHERE ServiceKey = #{serviceKey}
+    </update>
+</mapper>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('用户提款订单列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">金额：</p>
+                            <input type="text" name="payamount"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">平台订单号：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">商户订单号：</p>
+                            <input type="text" name="merchantorderid"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">卡简码：</p>
+                            <input type="text" name="bankaccount"/>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">状态：</p>
+                            <select name="orderstatus" class="form-control"
+                                    th:with="type=${@dict.getType('depositestatus')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">附言：</p>
+                            <input type="text" name="remark"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">开始时间：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginCreatetime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">结束时间：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endCreatetime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchA()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="biz:userwithdrew:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<style>
+    .totalClass{
+        float: right;
+        text-align: right;
+        display: inline-block;
+    }
+
+    .totalClass span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .totalClass span em {
+        color: red;
+    }
+
+</style>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var proviewFlag = [[${@permission.hasPermi('orders:userwithdrew:proview')}]];
+    var orderstatusDatas = [[${@dict.getType('depositestatus')}]];
+    var prefix = ctx + "orders/userwithdrew";
+    function loadTotal(queryParams) {
+        $(".fixed-table-body").find(".totalClass").remove();
+        let content = '<p class="totalClass">';
+        content += '<span>申请金额(本页)</span><b></b><span style="color:red;" id="pagePayAmount"></span>';
+        content += '/ <span >申请金额(总计)</span><b></b><span style="color:red;" id="payAmountTotal"></span>';
+        content += '<span>提款金额(本页)</span><b></b><span style="color:red;" id="pagePaidAmount"></span>';
+        content += '/ <span >提款金额(总计)</span><b></b><span style="color:red;" id="paidAmountTotal"></span>';
+        content += '<span >总成功率</span><b></b><span style="color:red;" id="successRatioTotal"> </span>';
+        $(".fixed-table-body").prepend(content);
+        $.get(prefix + "/getSummary?" + $("#formId").serialize(), function (data) {
+            let payAmountTotal = data.payamount ? parseFloat(data.payamount).toFixed(2) : '0.00' ;
+            let paidAmountTotal = data.paidamount ? parseFloat(data.paidamount).toFixed(2) : '0.00';
+            let ratio = data.ratio ? data.ratio : '0.00';
+            $('#payAmountTotal').text(payAmountTotal);
+            $('#paidAmountTotal').text(paidAmountTotal);
+            $('#successRatioTotal').text(ratio + '%');
+        });
+    }
+
+    function searchA() {
+        $.table.search();
+        loadTotal();
+    }
+
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + "/proview/{id}",
+            modalName: "用户提款订单",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            showFooter: true,
+            columns: [
+                {
+                    field: 'orderindex',
+                    title: '订单索引',
+                    visible: false
+                },
+                {
+                    field: 'orderid',
+                    title: '平台订单号',
+                    footerFormatter: function () {
+                        return "小计:"
+                    }
+                },
+                {
+                    field: 'merchantorderid',
+                    title: '商户订单号',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    field: 'agentName',
+                    title: '代理账号',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    field: 'bankaccount',
+                    title: '卡简码',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    field: 'remark',
+                    title: '附言',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    field: 'payamount',
+                    title: '申请金额',
+                    formatter: function(value) {
+                        return parseFloat(value).toFixed(2);
+                    },
+                    footerFormatter: function (value) {
+                        let amountTotal = 0;
+                        for (i=0 ; i < value.length;i++) {
+                            amountTotal += value[i].payamount
+                        }
+                        $('#pagePayAmount').text(amountTotal.toFixed(2))
+                        return amountTotal.toFixed(2);
+                    }
+                },
+                {
+                    field: 'paidamount',
+                    title: '提款金额',
+                    formatter: function(value) {
+                        return parseFloat(value).toFixed(2);
+                    },
+                    footerFormatter: function (value) {
+                        let amountTotal = 0;
+                        for (i=0 ; i < value.length;i++) {
+                            amountTotal += value[i].paidamount
+                        }
+                        $('#pagePaidAmount').text(amountTotal.toFixed(2))
+                        return amountTotal.toFixed(2);
+                    }
+                },
+                // {
+                //     field: 'memberaccount',
+                //     title: '用户账号',
+                //     footerFormatter: function () {
+                //         return "/"
+                //     }
+                // },
+                {
+                    field: 'profit',
+                    title: '利润',
+                    footerFormatter: function (value) {
+                        let amountTotal = 0;
+                        for (i=0 ; i < value.length;i++) {
+                            amountTotal += value[i].profit
+                        }
+                        return amountTotal.toFixed(2);
+                    }
+                },
+                {
+                    field: 'orderstatus',
+                    title: '状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(orderstatusDatas, value);
+                    },
+
+                },
+                {
+                    field: 'createtime',
+                    title: '创建时间',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    field: 'orderpaidstatuschangetime',
+                    title: '更新时间',
+                    footerFormatter: function () {
+                        return "/"
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + proviewFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.orderindex + '\')"><i class="fa fa-eye"></i>查看</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+        loadTotal();
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function onDblClickRow(row, $element) {
+        $.operate.proview(row.orderindex);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBanktypeMapper">
+
+    <resultMap type="TBanktype" id="TBanktypeResult">
+        <result property="banktypeid" column="BankTypeID"/>
+        <result property="banktypename" column="BankTypeName"/>
+        <result property="banktypecode" column="BankTypeCode"/>
+        <result property="remark" column="ReMark"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+    </resultMap>
+
+    <sql id="selectTBanktypeVo">
+        SELECT BankTypeID, BankTypeName, BankTypeCode, ReMark, LastUpDateTime
+        FROM t_banktype
+    </sql>
+
+    <select id="selectTBanktypeList" resultMap="TBanktypeResult">
+        <include refid="selectTBanktypeVo"/>
+    </select>
+
+    <select id="selectTBanktypeById" parameterType="Long" resultMap="TBanktypeResult">
+        <include refid="selectTBanktypeVo"/>
+        where BankTypeID = #{banktypeid}
+    </select>
+
+    <insert id="insertTBanktype" parameterType="TBanktype" useGeneratedKeys="true" keyProperty="banktypeid">
+        insert into t_banktype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="banktypename != null  and banktypename != ''">BankTypeName,</if>
+            <if test="banktypecode != null  and banktypecode != ''">BankTypeCode,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="banktypename != null  and banktypename != ''">#{banktypename},</if>
+            <if test="banktypecode != null  and banktypecode != ''">#{banktypecode},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTBanktype" parameterType="TBanktype">
+        update t_banktype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="banktypename != null  and banktypename != ''">BankTypeName = #{banktypename},</if>
+            <if test="banktypecode != null  and banktypecode != ''">BankTypeCode = #{banktypecode},</if>
+            <if test="remark != null">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where BankTypeID = #{banktypeid}
+    </update>
+
+    <delete id="deleteTBanktypeById" parameterType="Long">
+        DELETE
+        FROM t_banktype
+        WHERE BankTypeID = #{banktypeid}
+    </delete>
+
+    <delete id="deleteTBanktypeByIds" parameterType="String">
+        delete from t_banktype where BankTypeID in
+        <foreach item="banktypeid" collection="array" open="(" separator="," close=")">
+            #{banktypeid}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('银行卡账变列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p><em data-i18name="biz.bankcode">银行卡简码</em>：</p>
+                            <input type="text" name="bankCode"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.marchatname">商户名称</em>：</p>
+                            <input type="text" name="merchantName"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.platformorderno">平台订单号</em>：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.merchantorder">商户订单号</em>：</p>
+                            <input type="text" name="merchantorderid"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.tradeamout">交易金额</em>：</p>
+                            <input type="number" name="transamount"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                       <!-- <li>
+                            <p><em data-i18name="biz.trademethod">交易方式</em>：</p>
+                            &lt;!&ndash;<select name="transtype">
+                                <option value="0">充值</option>
+                                <option value="1">提款</option>
+                                <option value="2">准备金</option>
+                                <option value="3">商户下发</option>
+                            </select>&ndash;&gt;
+                            <select name="transtype" class="form-control" th:with="type=${@dictbank.getSelectUIType('MerchantTransType')}">
+                                <option value="">请选择</option>
+                                <option th:each="dict : ${type}" th:text="${dict.value}"
+                                        th:value="${dict.key}"></option>
+                            </select>
+                        </li>-->
+
+                        <li>
+                            <p><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="onClickSearch()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="reports:account_bankcarddeposite:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "reports/account_bankcarddeposite";
+    $("#formId").validate({
+        focusCleanup: true,
+        rules: {
+            transamount: {
+                number: true
+            },
+        }
+    });
+
+    function onClickSearch() {
+        if ($.validate.form()) {
+            $.table.search();
+        }
+    }
+
+    var MerchantTransType = [[${@dictbank.getSelectUIType('MerchantTransType')}]];
+    function getMerchantTransType(id) {
+        for (let key in MerchantTransType) {
+            if (id == key) {
+                let worytypeNmae = MerchantTransType[key];
+                switch (key) {
+                    // case 100:
+                    //     return ` <a class="badge badge-primary   ">${worytypeNmae}</a>`;
+                    case "0":
+                        return ` <a class="badge badge-primary ">${worytypeNmae}</a>`;
+                    // return ` <a class="badge badge-success ">${worytypeNmae}</a>`;
+                    case "1":
+                        return ` <a class="badge badge-danger ">${worytypeNmae}</a>`;
+                    default:
+                        return worytypeNmae;
+                }
+            }
+        }
+
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            modalName: "银行卡账变",
+            columns: [
+                {
+                    field: 'merchantName',
+                    title: '<em data-i18name="biz.marchatname">商户名称</em>'
+                },
+                {
+                    field: 'bankCode',
+                    title: '<em data-i18name="biz.bankcode">银行卡简码</em>'
+                },
+                {
+                    field: 'orderid',
+                    title: '<em data-i18name="biz.platformorderno">平台订单号</em>'
+                },
+                {
+                    field: 'merchantorderid',
+                    title: '<em data-i18name="biz.merchantorder">商户订单号</em>'
+                },
+                {
+                    field: 'transtype',
+                    title: '<em data-i18name="biz.trademethod">交易方式</em>',
+                    formatter: function (value, row, index) {
+                        return getMerchantTransType(value)
+                    }
+                },
+                {
+                    field: 'transamount',
+                    title: '<em data-i18name="biz.tradeamout">订单金额</em>'
+                },
+                {
+                    field: 'paidamount',
+                    title: '<em data-i18name="biz.activedammout">实际金额</em>'
+                },
+                {
+                    field: 'paychannelfee',
+                    title: '<em data-i18name="t.afee">实际手续费</em>'
+                },
+                {
+                    field: 'supplierpaidchannelfee',
+                    title: '<em data-i18name="t.merchatfee">商户手续费</em>'
+                },
+                {
+                    field: 'prebalance',
+                    title: '<em data-i18name="t.beforetradebalace">交易前余额</em>'
+                },
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="t.balance">余额</em>'
+                },
+                {
+                    field: 'createtime',
+                    title: '<em data-i18name="t.recordtime">记账时间</em>'
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

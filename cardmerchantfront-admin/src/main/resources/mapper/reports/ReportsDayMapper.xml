@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.reports.mapper.IReportsDayMapper">
+
+    <resultMap id="ReportsDayResult" type="com.pay.typay.biz.reports.vo.ReportsDayVO">
+        <result property="id" column="id"/>
+        <result property="agentId" column="agent_id"/>
+        <result property="parentAgentid" column="parent_agent_id"/>
+        <result property="agentLevel" column="agent_level"/>
+        <result property="transCount" column="transCount"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="totalCount" column="totalCount"/>
+        <result property="paidAmount" column="PaidAmount"/>
+        <result property="transType" column="trans_type"/>
+        <result property="creditBalance" column="credit_balance"/>
+        <result property="supplierBranchId" column="supplier_branch_id"/>
+        <result property="depositAmount" column="depositAmount"/>
+        <result property="withdrawAmount" column="withdrawAmount"/>
+        <result property="ratio" column="ratio"/>
+        <result property="transAmount" column="TransAmount"/>
+        <result property="payType" column="paytype"/>
+        <result property="orderId" column="OrderId"/>
+        <result property="merchantName" column="merchantName"/>
+        <result property="bankCode" column="bankcode"/>
+        <result property="status" column="status"/>
+        <result property="transType" column="TransType"/>
+        <result property="agentName" column="agent_name"/>
+        <result property="transToday" column="transToday"/>
+        <result property="available_Balance" column="available_Balance"/>
+        <result property="totalPaidamount" column="totalPaidamount"/>
+        <result property="totalPayamount" column="totalPayamount"/>
+        <result property="branchName" column="BranchName"/>
+        <result property="totalProfitAmount" column="totalProfitAmount"/>
+        <result property="profit_balance" column="profit_balance"/>
+    </resultMap>
+
+    <resultMap id="ReportsDayChildResult" type="com.pay.typay.biz.reports.domain.ReportsDayVO">
+        <result property="parentAgentId" column="parent_agent_id"/>
+        <result property="agentLevel" column="agent_level"/>
+        <result property="id" column="id"/>
+        <result property="agentId" column="agent_id"/>
+        <result property="transCount" column="trans_count"/>
+        <result property="totalCount" column="totalCount"/>
+        <result property="paidAmount" column="paid_amount"/>
+        <result property="depositAmount" column="depositAmount"/>
+        <result property="ratio" column="ratio"/>
+        <result property="transAmount" column="trans_amount"/>
+        <result property="withdrawAmount" column="withdrawAmount"/>
+    </resultMap>
+
+    <select id="selectReportsDayList" parameterType="com.pay.typay.biz.reports.vo.ReportsDayVO"
+            resultMap="ReportsDayResult">
+        select distinct kkk.*,iii.depositAmount,iii.totalCount,iii.transCount,iii.withdrawAmount,users.user_name
+        from (WITH RECURSIVE cte AS
+        (
+            select c.id,c.parent_agent_id,c.agent_level,c.user_id,c.credit_balance, c.ratio,c.balance,c.available_balance,c.profit_balance from t_bankcard_agent c
+            <where>
+                <if test="agentId != null and agentId != ''">and c.id = #{agentId}</if>
+                <if test="supplierBranchId != null"> and c.supplier_branch_id = #{supplierBranchId}</if>
+            </where>
+            UNION ALL
+            SELECT a.id,a.parent_agent_id,a.agent_level,a.user_id,a.credit_balance,a.ratio,a.balance,a.available_balance,a.profit_balance FROM t_bankcard_agent a
+            inner join cte on cte.id = a.parent_agent_id
+            <where>
+                <if test="supplierBranchId != null"> and a.supplier_branch_id = #{supplierBranchId} </if>
+                <if test="agentLevel != null  and agentLevel != ''">and a.agent_level = #{agentLevel}</if>
+            </where>
+        )
+        SELECT id, parent_agent_id, agent_level, user_id, credit_balance, ratio,balance,available_balance,profit_balance FROM cte) kkk
+        left join
+        (select ttt.id,
+        sum(if(ttt.TransType = 1, ttt.PaidAmount, 0)) as depositAmount,
+        sum(if(ttt.TransType = 0, ttt.PaidAmount, 0)) as withdrawAmount,
+        count(if(ttt.TransType in (0, 1),ttt.OrderID,null)) as transCount,
+        count(ttt.OrderID) as totalCount
+        from (select kkk.*, taa.PaidAmount, taa.TransType, lll.OrderID
+        from (WITH RECURSIVE cte AS
+        (
+            select c.id,c.parent_agent_id from t_bankcard_agent c
+            <where>
+                <if test="agentId != null and agentId != ''">and c.id = #{agentId}</if>
+                <if test="supplierBranchId != null"> and c.supplier_branch_id = #{supplierBranchId}</if>
+            </where>
+            UNION ALL
+            SELECT a.id,a.parent_agent_id FROM t_bankcard_agent a
+            inner join cte on cte.id = a.parent_agent_id
+            <where>
+                <if test="supplierBranchId != null"> and a.supplier_branch_id = #{supplierBranchId} </if>
+                <if test="agentLevel != null  and agentLevel != ''">and a.agent_level =  #{agentLevel}</if>
+            </where>
+        )
+        SELECT id, parent_agent_id FROM cte) kkk
+        LEFT JOIN t_bankcard tbc ON tbc.agent_id = kkk.id
+        left join t_bankaccountrecord taa ON tbc.BankID = taa.BankID and (taa.CreateTime between #{beginTime} and #{endTime})
+        left join
+            (select orderid from t_withdraworder two
+                <where>
+                    <if test="params.startTime != null and params.startTime != ''">
+                        AND two.CreateTime &gt;= #{params.startTime}
+                    </if>
+                    <if test="params.endTime != null and params.endTime != ''">
+                        AND two.CreateTime &lt;= #{params.endTime}
+                    </if>
+                    <if test="supplierBranchId != null"> and two.supplierbranchid = #{supplierBranchId}</if>
+                </where>
+                union all select orderid from t_depositorder tdo
+                    <where>
+                        <if test="params.startTime != null and params.startTime != ''">
+                            AND tdo.CreateTime &gt;= #{params.startTime}
+                        </if>
+                        <if test="params.endTime != null and params.endTime != ''">
+                            AND tdo.CreateTime &lt;= #{params.endTime}
+                        </if>
+                        <if test="supplierBranchId != null"> and tdo.supplierbranchid = #{supplierBranchId}</if>
+                    </where>
+            ) lll on lll.OrderID = taa.OrderID
+        ) ttt
+        group by id) iii ON kkk.id = iii.id
+        left join cardmerchantfront.sys_user users using (user_id)
+        <where>
+            <if test="userName != null and userName != ''">
+                and users.user_name = #{userName}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectAgentReportsDayList" parameterType="com.pay.typay.biz.reports.vo.ReportsDayVO"
+            resultMap="ReportsDayResult">
+        select t.id,
+        t.parent_agent_id,
+        t.supplier_branch_id,
+        t.agent_level,
+        t.agent_name,
+        t.ratio,
+        concat(t.agent_level, '/', t.ratio) as levelRatio,
+        t.balance,
+        t.profit_balance,
+        t.available_Balance,
+        k.*
+        from t_bankcard_agent t
+        left join
+        (select tba.id as subId,
+        sum(if(top.OrderType = 1, orders.PaidAmount, 0))                                          as depositAmount,
+        sum(if(top.OrderType = 2, orders.PaidAmount, 0))                                          as withdrawAmount,
+        sum(if(to_days(orders.createtime) = to_days(now()), orders.paidamount,0))                 as transToday,
+        count(orders.OrderID)                                                                as totalCount,
+        count(if(orders.OrderStatus in (3, 4), orders.OrderID, null))                        as transCount,
+        count(if(orders.OrderStatus in (3, 4), orders.OrderID, null)) / count(orders.OrderID) as successRate
+        from (
+        select orderid, paidamount, 1 as orderType, createtime, OrderStatus, BankAccount
+        from t_withdraworder two
+        <where>
+            and OrderType = 0
+            <if test="supplierBranchId != null ">and two.SupplierBranchID = #{supplierBranchId}</if>
+        </where>
+        union all
+        select orderid, paidamount, 2 as orderType, createtime, OrderStatus, BankAccount
+        from t_depositorder tdo
+        <where>
+            <if test="supplierBranchId != null ">and tdo.SupplierBranchID = #{supplierBranchId}</if>
+        </where>
+        ) orders
+        left join t_bankcard tb on orders.BankAccount = tb.BankCode
+        left join t_bankcard_agent tba on tba.user_id = tb.CreateBy
+        left join t_order_profit top on top.OrderID = orders.OrderID
+        <where>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND orders.CreateTime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND orders.CreateTime &lt;= #{params.endTime}
+            </if>
+            <if test="supplierBranchId != null ">and tba.supplier_branch_id = #{supplierBranchId}</if>
+        </where>
+        group by tba.id) k on t.id = k.subId
+        <where>
+            <if test="supplierBranchId != null ">and t.supplier_branch_id = #{supplierBranchId}</if>
+            <if test="agentId != null ">and t.id = #{agentId}</if>
+        </where>
+    </select>
+
+    <select id="getAgentWithdraw" parameterType="com.pay.typay.biz.reports.vo.ReportsDayVO" resultType="java.math.BigDecimal">
+        select sum(paidamount) from t_agentwithdraworder where orderstatus in (3,4)
+        and agent_id = #{agentId}
+        <if test="params.startTime != null and params.startTime != ''">
+            AND ordernotifytime &gt;= #{params.startTime}
+        </if>
+        <if test="params.endTime != null and params.endTime != ''">
+            AND ordernotifytime &lt;= #{params.endTime}
+        </if>
+    </select>
+    
+    <select id="selectAgentCodeByUserId" resultType="java.lang.String">
+        select id from t_bankcard_agent where user_id = #{userId} limit 1
+    </select>
+
+
+    <select id="selectReportsList" resultMap="ReportsDayResult">
+        select t.agent_name, t.supplier_branch_id,ts.BranchName, k.*
+        from (select tba.id,
+            top.OrderType as TransType,
+            ifnull(sum(orders.PaidAmount), 0) as totalPaidamount,
+            ifnull(sum(orders.PayAmount), 0)  as totalPayamount,
+            ifnull(sum((orders.PaidAmount * tba.ratio / 100)), 0)  as totalProfitAmount
+        from t_bankcard_agent tba
+        left join t_bankcard tb on tba.user_id = tb.CreateBy
+        left join (
+            select orderid, paidamount, PayAmount, createtime, OrderStatus, BankAccount,PayType
+            from t_withdraworder two
+            where two.SupplierBranchID = #{supplierBranchId}
+            union all
+            select orderid, paidamount, PayAmount, createtime, OrderStatus, BankAccount,PayType
+            from t_depositorder tdo
+        where tdo.SupplierBranchID = #{supplierBranchId}) orders on orders.BankAccount = tb.BankCode
+        left join t_order_profit top on top.OrderID = orders.OrderID
+        <where>
+            <if test="supplierBranchId != null ">and tba.supplier_branch_id = #{supplierBranchId}</if>
+            <if test="payType != null and payType != ''">
+                and orders.PayType = #{payType}
+            </if>
+            <choose >
+                <when test="transType != null and transType != ''">
+                    and top.OrderType = #{transType}
+                </when>
+                <otherwise>
+                    and top.OrderType in (1, 2)
+                </otherwise>
+            </choose>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND orders.createtime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND orders.createtime &lt;= #{params.endTime}
+            </if>
+        </where>
+        group by tba.id, top.OrderType) k
+        left join t_bankcard_agent t on t.id = k.id
+        left join t_surppilerbranch ts on t.supplier_branch_id = ts.id
+        <where>
+            <if test="agentName != null and agentName != ''">
+                AND t.agent_name = #{agentName}
+            </if>
+            <if test="supplierBranchId != null ">and t.supplier_branch_id = #{supplierBranchId}</if>
+        </where>
+    </select>
+
+    <select id="selectChildList" resultMap="ReportsDayResult">
+        select tba.agent_name,
+               top.OrderType as transType,
+               orders.OrderID,
+               orders.PayType,
+               orders.PaidAmount,
+               orders.PayAmount as TransAmount,
+               orders.BankAccount as bankcode,
+               (orders.PaidAmount * tba.ratio / 100) as profit_balance
+        from t_bankcard_agent tba
+                 left join t_bankcard tb on tba.user_id = tb.CreateBy
+                 left join (
+            select orderid, paidamount, PayAmount, createtime, OrderStatus, BankAccount,PayType
+            from t_withdraworder two
+            where two.SupplierBranchID = #{supplierBranchId}
+            union all
+            select orderid, paidamount, PayAmount, createtime, OrderStatus, BankAccount,PayType
+            from t_depositorder tdo
+            where tdo.SupplierBranchID = #{supplierBranchId}) orders on orders.BankAccount = tb.BankCode
+                 left join t_order_profit top on top.OrderID = orders.OrderID
+        <where>
+            <if test="supplierBranchId != null ">and tba.supplier_branch_id = #{supplierBranchId}</if>
+            <if test="agentName != null and agentName != ''">
+                AND tba.agent_name = #{agentName}
+            </if>
+            <if test="payType != null and payType != ''">
+                and orders.PayType = #{payType}
+            </if>
+            <if test="transType != null and transType != ''">
+                and top.OrderType = #{transType}
+            </if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND orders.createtime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND orders.createtime &lt;= #{params.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectReportsListBak" resultMap="ReportsDayResult">
+        select distinct tbaa.order_id,
+        tbaa.trans_type,
+        tbaa.trans_amount,
+        tbaa.paid_amount,
+        users.user_name,
+        tp.paytype,
+        tb.bankcode,
+        ifnull(two.OrderStatus, tdo.OrderStatus) as status,
+        (tbaa.paid_amount * tba.ratio)           as profit
+        from t_bankcard_agent_accountrecord tbaa
+        left join t_bankcard_agent tba on tbaa.agent_id = tba.id
+        left join cardmerchantfront.sys_user users using (user_id)
+        left join t_paychannel tp on tbaa.agent_id = tp.agent_id
+        left join t_bankcard tb on tb.BankID = tbaa.bank_id
+        left join t_agentwithdraworder two on two.OrderID = tbaa.order_id
+        left join t_agentdepositorder tdo on tdo.OrderID = tbaa.order_id
+        <where>
+            <if test="userName != null and userName != ''">
+                AND users.user_name = #{userName}
+            </if>
+            <if test="payType != null and payType != ''">
+                AND tp.paytype = #{payType}
+            </if>
+            <if test="transType != null and transType != ''">
+                AND tbaa.trans_type = #{transType}
+            </if>
+            <if test="status != null and status != ''">
+                AND (two.OrderStatus = #{status} or tdo.OrderStatus = #{status})
+            </if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND tbaa.create_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND tbaa.create_time &lt;= #{params.endTime}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectReportsDayChildList" parameterType="com.pay.typay.biz.reports.domain.ReportsDayVO"
+            resultMap="ReportsDayChildResult">
+        select distinct kkk.*, iii.depositAmount, iii.totalCount, iii.transCount, iii.withdrawAmount
+        FROM (WITH RECURSIVE cte AS (SELECT c.id, c.parent_agent_id, c.agent_level, c.ratio FROM t_bankcard_agent c
+        <where>
+            <choose>
+                <when test="parentAgentId != null and parentAgentId != ''">
+                    and c.parent_agent_id in (#{parentAgentId})
+                </when>
+                <otherwise>
+                    and c.parent_agent_id != ''
+                </otherwise>
+            </choose>
+            and c.supplier_branch_id = #{supplierBranchId}
+        </where>
+        UNION ALL
+        SELECT a.id, a.parent_agent_id, a.agent_level, a.ratio FROM t_bankcard_agent a INNER JOIN cte ON cte.id = a.parent_agent_id
+        WHERE a.supplier_branch_id = #{supplierBranchId})
+        SELECT id, parent_agent_id, agent_level, ratio FROM cte) kkk
+        LEFT JOIN (select ttt.id,
+        sum(if(ttt.trans_type = 1, ttt.paid_amount, 0))        as depositAmount,
+        sum(if(ttt.trans_type = 0, ttt.paid_amount, 0))        as withdrawAmount,
+        count(if(ttt.trans_type in (0, 1), ttt.OrderID, null)) as transCount,
+        count(ttt.OrderID)                                     as totalCount
+        FROM (select kkk.*, taa.paid_amount, taa.trans_type, lll.OrderID
+        FROM (WITH RECURSIVE cte AS (
+        SELECT c.id, c.parent_agent_id FROM t_bankcard_agent c
+        <where>
+            <choose>
+                <when test="parentAgentId != null and parentAgentId != ''">
+                    and c.parent_agent_id in (#{parentAgentId})
+                </when>
+                <otherwise>
+                    and c.parent_agent_id != ''
+                </otherwise>
+            </choose>
+            and c.supplier_branch_id = #{supplierBranchId}
+        </where>
+        UNION ALL
+        SELECT a.id, a.parent_agent_id FROM t_bankcard_agent a
+        INNER JOIN cte
+        ON cte.id = a.parent_agent_id
+        WHERE a.supplier_branch_id = #{supplierBranchId})
+        SELECT id, parent_agent_id
+        FROM cte) kkk
+        LEFT JOIN t_bankcard_agent_accountrecord taa on kkk.id = taa.agent_id
+        LEFT JOIN (select orderid FROM t_withdraworder two
+        <where>
+            <if test="createDate != null and createDate != ''">
+                and two.CreateTime >= concat(#{createDate}, ' ', '00:00:00')
+                and two.CreateTime &lt;= concat(#{createDate}, ' ', '23:59:59')
+            </if>
+            and two.supplierbranchid = #{supplierBranchId}
+        </where>
+        UNION all
+        SELECT orderid FROM t_depositorder tdo
+        <where>
+            <if test="createDate != null and createDate != ''">
+                and tdo.CreateTime >= concat(#{createDate}, ' ', '00:00:00')
+                and tdo.CreateTime &lt;= concat(#{createDate}, ' ', '23:59:59')
+            </if>
+            and tdo.supplierbranchid = #{supplierBranchId}
+        </where> ) lll on taa.order_id = lll.OrderID) ttt
+        group by id) iii using (id)
+    </select>
+
+    <select id="selectDepositAmount" parameterType="java.lang.String" resultType="com.pay.typay.biz.reports.domain.ReportsDayVO">
+        select  ifnull(sum(if(tbaa.trans_type = 1, tbaa.paid_amount, 0)),0) as depositAmount,
+                ifnull(sum(if(tbaa.trans_type = 0, tbaa.paid_amount, 0)),0) as withdrawAmount
+            from t_bankcard_agent tba
+                     left join t_bankcard_agent_accountrecord tbaa on tba.id = tbaa.agent_id
+            where tba.id = #{agentId}
+    </select>
+</mapper>

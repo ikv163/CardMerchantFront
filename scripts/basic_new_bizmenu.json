@@ -1,0 +1,2902 @@
+{
+  "银行卡配置": {
+    "submenu": {
+      "银行卡管理中心": {
+        "cn": "银行卡管理中心",
+        "en": "manage_bankcard_center",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2002
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 2003
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2004
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 2005
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 2006
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 2008
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 2009
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192209
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192210
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192222
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2010
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2011
+          }
+        ],
+        "menu_id": 2001
+      },
+      "入款银行卡管理": {
+        "cn": "入款银行卡管理",
+        "en": "manage_bankcard_deposit",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 5122902
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 5122903
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 5122904
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 5122905
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 5122906
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 5122908
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 5122909
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192309
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192310
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192322
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 5122910
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 5122911
+          }
+        ],
+        "menu_id": 5122901
+      },
+      "出款银行卡管理": {
+        "cn": "出款银行卡管理",
+        "en": "manage_bankcard_withdraw",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 5121902
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 5121903
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 5121904
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 5121905
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 5121906
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 5121908
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 5121909
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192409
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192410
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192422
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 5121910
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 5121911
+          }
+        ],
+        "menu_id": 5121901
+      },
+      "中转银行卡管理": {
+        "cn": "中转银行卡管理",
+        "en": "manage_bankcard_transter",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 42902
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 42903
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 42904
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 42905
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 42906
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 42908
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 42909
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192509
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192510
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192522
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 53192523
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 53192524
+          },
+          {
+            "cn": "重置额度",
+            "en": "resetamount",
+            "menu_id": 53192525
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 42910
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 42911
+          }
+        ],
+        "menu_id": 42901
+      },
+      "下发银行卡管理": {
+        "cn": "下发银行卡管理",
+        "en": "manage_bankcard_delivery",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 51002
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 51003
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 51004
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 51005
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 51006
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 51008
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 51009
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192609
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192610
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192622
+          },
+          {
+            "cn": "重置",
+            "en": "reset",
+            "menu_id": 53192625
+          },
+          {
+            "cn": "校对余额",
+            "en": "checkBalance",
+            "menu_id": 53192626
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 51010
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 51011
+          }
+        ],
+        "menu_id": 51001
+      },
+      "手动出款银行卡管理": {
+        "cn": "手动出款银行卡管理",
+        "en": "manage_bankcard_manualwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52165802
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 52165803
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 52165804
+          },
+          {
+            "cn": "批量额度调整",
+            "en": "editpop",
+            "menu_id": 52165805
+          },
+          {
+            "cn": "批量修改状态",
+            "en": "statusedit",
+            "menu_id": 52165806
+          },
+          {
+            "cn": "批量修改工作模式",
+            "en": "worktypeedit",
+            "menu_id": 52165808
+          },
+          {
+            "cn": "设置自动手动区分金额",
+            "en": "sethandwithdraw",
+            "menu_id": 52165809
+          },
+          {
+            "cn": "分配角色",
+            "en": "distribution_role",
+            "menu_id": 53192709
+          },
+          {
+            "cn": "分配卡池",
+            "en": "distribution_cardpool",
+            "menu_id": 53192710
+          },
+          {
+            "cn": "批量银行卡迁移",
+            "en": "mutiplemove",
+            "menu_id": 53192722
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 52165810
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52165811
+          }
+        ],
+        "menu_id": 52165801
+      },
+      "银行卡卡池": {
+        "cn": "银行卡卡池",
+        "en": "bankcard_pool",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2013
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 2014
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2015
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2016
+          }
+        ],
+        "menu_id": 2012
+      },
+      "入款银行卡卡池": {
+        "cn": "入款银行卡卡池",
+        "en": "bankcard_pool_deposit",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 512313
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 512314
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 512315
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 512316
+          }
+        ],
+        "menu_id": 512312
+      },
+      "出款银行卡卡池": {
+        "cn": "出款银行卡卡池",
+        "en": "bankcard_pool_withdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 510013
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 510014
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 510015
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 510016
+          }
+        ],
+        "menu_id": 510012
+      },
+      "中转银行卡卡池": {
+        "cn": "中转银行卡卡池",
+        "en": "bankcard_pool_transter",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52141213
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 52141214
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 52141215
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 52141216
+          }
+        ],
+        "menu_id": 52141212
+      },
+      "下发银行卡卡池": {
+        "cn": "下发银行卡卡池",
+        "en": "bankcard_pool_delivery",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52141313
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 52141314
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 52141315
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 52141316
+          }
+        ],
+        "menu_id": 52141312
+      },
+      "手动出款卡卡池": {
+        "cn": "手动出款卡卡池",
+        "en": "bankcard_pool_manualwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52190713
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 52190714
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 52190715
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 52190716
+          }
+        ],
+        "menu_id": 52190712
+      },
+      "银行卡客户端": {
+        "cn": "银行卡客户端",
+        "en": "bankcard_client",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2018
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 2019
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2020
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2021
+          },
+          {
+            "cn": "启用",
+            "en": "operateurl",
+            "menu_id": 2022
+          }
+        ],
+        "menu_id": 2017
+      },
+      "银行卡标签": {
+        "cn": "银行卡标签",
+        "en": "bankcard_tag",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112002
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 55112003
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 55112004
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 55112010
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112011
+          }
+        ],
+        "menu_id": 55112001
+      },
+      "异常银行卡": {
+        "cn": "异常银行卡",
+        "en": "manage_bankcard_exceptioncard",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112302
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112311
+          }
+        ],
+        "menu_id": 55112301
+      },
+      "异常出款银行卡": {
+        "cn": "异常出款银行卡",
+        "en": "manage_bankcard_exceptionwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112402
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112411
+          }
+        ],
+        "menu_id": 55112401
+      },
+      "异常收款银行卡": {
+        "cn": "异常收款银行卡",
+        "en": "manage_bankcard_exceptiondeposite",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112502
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112511
+          }
+        ],
+        "menu_id": 55112501
+      },
+      "手动出款异常银行": {
+        "cn": "手动出款异常银行卡",
+        "en": "manage_bankcard_manualwithdrewexception",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112602
+          }
+        ],
+        "menu_id": 55112601
+      },
+      "异常中转银行卡管理": {
+        "cn": "异常中转银行卡管理",
+        "en": "manage_bankcard_exceptiontransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112202
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112211
+          }
+        ],
+        "menu_id": 55112201
+      },
+      "超额交易中转银行卡": {
+        "cn": "超额交易中转银行卡",
+        "en": "manage_bankcard_overtradingtransfercard",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112702
+          }
+        ],
+        "menu_id": 55112701
+      }
+    },
+    "icon": "credit-card",
+    "modulename": "biz-manage-bankcard",
+    "menu_id": 2000
+  },
+  "业务配置": {
+    "submenu": {
+      "支付池": {
+        "cn": "支付池",
+        "en": "paymentpool",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2025
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 2026
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2027
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2028
+          },
+          {
+            "cn": "渠道维护",
+            "en": "selectDeptTree",
+            "menu_id": 2029
+          }
+        ],
+        "menu_id": 2024
+      },
+      "银行卡支付渠道": {
+        "cn": "银行卡支付渠道",
+        "en": "paymentchannelbankcard",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2031
+          },
+          {
+            "cn": "新增",
+            "en": "add",
+            "menu_id": 2032
+          },
+          {
+            "cn": "编辑",
+            "en": "edit",
+            "menu_id": 2033
+          },
+          {
+            "cn": "删除",
+            "en": "edit",
+            "menu_id": 2034
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 2035
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 2036
+          }
+        ],
+        "menu_id": 2030
+      },
+      "第三方支付渠道": {
+        "cn": "第三方支付渠道",
+        "en": "paymentchannelthirdparty",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2038
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 2039
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 2040
+          },
+          {
+            "cn": "测试",
+            "en": "checkChannel",
+            "menu_id": 2041
+          },
+          {
+            "cn": "三方渠道修改",
+            "en": "updateThirdChannel",
+            "menu_id": 2042
+          },
+          {
+            "cn": "查看",
+            "en": "proview",
+            "menu_id": 2043
+          }
+        ],
+        "menu_id": 2037
+      },
+      "出款银行卡支付渠道": {
+        "cn": "出款银行卡支付渠道",
+        "en": "paymentchannelbankcard_out",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 5215931
+          },
+          {
+            "cn": "新增",
+            "en": "add",
+            "menu_id": 5215932
+          },
+          {
+            "cn": "编辑",
+            "en": "edit",
+            "menu_id": 5215933
+          },
+          {
+            "cn": "删除",
+            "en": "edit",
+            "menu_id": 5215934
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 5215935
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 5215936
+          }
+        ],
+        "menu_id": 5215930
+      },
+      "入款银行卡支付渠道": {
+        "cn": "入款银行卡支付渠道",
+        "en": "paymentchannelbankcard_in",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52151031
+          },
+          {
+            "cn": "新增",
+            "en": "add",
+            "menu_id": 52151032
+          },
+          {
+            "cn": "编辑",
+            "en": "edit",
+            "menu_id": 52151033
+          },
+          {
+            "cn": "删除",
+            "en": "edit",
+            "menu_id": 52151034
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 52151035
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 52151036
+          }
+        ],
+        "menu_id": 52151030
+      }
+    },
+    "icon": "sheqel",
+    "modulename": "biz-manage-config",
+    "menu_id": 2023
+  },
+  "业务监控": {
+    "submenu": {
+      "银行卡客户端监控": {
+        "menu_id": 2045,
+        "cn": "银行卡客户端监控",
+        "en": "monitorsactivebankcard",
+        "rights": [
+          {
+            "menu_id": 2046,
+            "en": "list",
+            "cn": "查询"
+          },
+          {
+            "menu_id": 2047,
+            "en": "export",
+            "cn": "导出"
+          },
+          {
+            "menu_id": 2048,
+            "en": "testCard",
+            "cn": "测卡"
+          },
+          {
+            "menu_id": 2049,
+            "en": "batchBalance",
+            "cn": "批量额度调整"
+          },
+          {
+            "menu_id": 2050,
+            "en": "applyMoney",
+            "cn": "申请资金"
+          },
+          {
+            "menu_id": 2051,
+            "en": "openAndClose",
+            "cn": "关"
+          },
+          {
+            "menu_id": 2052,
+            "en": "openAndClose",
+            "cn": "开"
+          },
+          {
+            "menu_id": 2053,
+            "en": "reset",
+            "cn": "重置"
+          },
+          {
+            "menu_id": 2054,
+            "en": "checkBalance",
+            "cn": "校验余额"
+          },
+          {
+            "menu_id": 2055,
+            "en": "downAndUp",
+            "cn": "上卡"
+          },
+          {
+            "menu_id": 2056,
+            "en": "downAndUp",
+            "cn": "下卡"
+          },
+          {
+            "menu_id": 2057,
+            "en": "onlySameBank",
+            "cn": "只抓同行"
+          },
+          {
+            "menu_id": 2058,
+            "en": "editStatus",
+            "cn": "银行卡状态修改"
+          },
+          {
+            "menu_id": 2059,
+            "en": "paramSetting",
+            "cn": "参数设置"
+          },
+          {
+            "menu_id": 2060,
+            "en": "batchUpdateClient",
+            "cn": "客户端状态修改"
+          }
+        ]
+      },
+      "中转银行卡客户端监控": {
+        "menu_id": 6880,
+        "cn": "中转银行卡客户端监控",
+        "en": "monitorsactivebankcard_transit",
+        "rights": [
+          {
+            "menu_id": 6801,
+            "en": "list",
+            "cn": "查询"
+          },
+          {
+            "menu_id": 6802,
+            "en": "export",
+            "cn": "导出"
+          },
+          {
+            "menu_id": 6803,
+            "en": "testCard",
+            "cn": "测卡"
+          },
+          {
+            "menu_id": 6804,
+            "en": "batchBalance",
+            "cn": "批量额度调整"
+          },
+          {
+            "menu_id": 6815,
+            "en": "applyMoney",
+            "cn": "申请资金"
+          },
+          {
+            "menu_id": 6805,
+            "en": "openAndClose",
+            "cn": "关"
+          },
+          {
+            "menu_id": 6806,
+            "en": "openAndClose",
+            "cn": "开"
+          },
+          {
+            "menu_id": 6814,
+            "en": "reset",
+            "cn": "重置"
+          },
+          {
+            "menu_id": 6807,
+            "en": "checkBalance",
+            "cn": "校验余额"
+          },
+          {
+            "menu_id": 6808,
+            "en": "downAndUp",
+            "cn": "上卡"
+          },
+          {
+            "menu_id": 6809,
+            "en": "downAndUp",
+            "cn": "下卡"
+          },
+          {
+            "menu_id": 6810,
+            "en": "onlySameBank",
+            "cn": "只抓同行"
+          },
+          {
+            "menu_id": 6811,
+            "en": "editStatus",
+            "cn": "银行卡状态修改"
+          },
+          {
+            "menu_id": 6812,
+            "en": "paramSetting",
+            "cn": "参数设置"
+          },
+          {
+            "menu_id": 6813,
+            "en": "batchUpdateClient",
+            "cn": "客户端状态修改"
+          },
+          {
+            "menu_id": 6818,
+            "en": "openAndClose",
+            "cn": "开关"
+          }
+        ]
+      },
+      "出款银行卡客户端监控": {
+        "menu_id": 5000,
+        "cn": "出款银行卡客户端监控",
+        "en": "monitorsactivebankcard_out",
+        "rights": [
+          {
+            "menu_id": 5001,
+            "en": "list",
+            "cn": "查询"
+          },
+          {
+            "menu_id": 5002,
+            "en": "export",
+            "cn": "导出"
+          },
+          {
+            "menu_id": 5003,
+            "en": "testCard",
+            "cn": "测卡"
+          },
+          {
+            "menu_id": 5004,
+            "en": "batchBalance",
+            "cn": "批量额度调整"
+          },
+          {
+            "menu_id": 5015,
+            "en": "applyMoney",
+            "cn": "申请资金"
+          },
+          {
+            "menu_id": 5016,
+            "en": "stop",
+            "cn": "暂停出款"
+          },
+          {
+            "menu_id": 5005,
+            "en": "openAndClose",
+            "cn": "关"
+          },
+          {
+            "menu_id": 5006,
+            "en": "openAndClose",
+            "cn": "开"
+          },
+          {
+            "menu_id": 5014,
+            "en": "reset",
+            "cn": "重置"
+          },
+          {
+            "menu_id": 5007,
+            "en": "checkBalance",
+            "cn": "校验余额"
+          },
+          {
+            "menu_id": 5008,
+            "en": "downAndUp",
+            "cn": "上卡"
+          },
+          {
+            "menu_id": 5009,
+            "en": "downAndUp",
+            "cn": "下卡"
+          },
+          {
+            "menu_id": 5010,
+            "en": "onlySameBank",
+            "cn": "只抓同行"
+          },
+          {
+            "menu_id": 5011,
+            "en": "editStatus",
+            "cn": "银行卡状态修改"
+          },
+          {
+            "menu_id": 5012,
+            "en": "paramSetting",
+            "cn": "参数设置"
+          },
+          {
+            "menu_id": 5013,
+            "en": "batchUpdateClient",
+            "cn": "客户端状态修改"
+          }
+        ]
+      },
+      "入款银行卡客户端监控": {
+        "menu_id": 6000,
+        "cn": "入款银行卡客户端监控",
+        "en": "monitorsactivebankcard_in",
+        "rights": [
+          {
+            "menu_id": 6001,
+            "en": "list",
+            "cn": "查询"
+          },
+          {
+            "menu_id": 6002,
+            "en": "export",
+            "cn": "导出"
+          },
+          {
+            "menu_id": 6003,
+            "en": "testCard",
+            "cn": "测卡"
+          },
+          {
+            "menu_id": 6004,
+            "en": "batchBalance",
+            "cn": "批量额度调整"
+          },
+          {
+            "menu_id": 6015,
+            "en": "applyMoney",
+            "cn": "申请资金"
+          },
+          {
+            "menu_id": 6005,
+            "en": "openAndClose",
+            "cn": "关"
+          },
+          {
+            "menu_id": 6006,
+            "en": "openAndClose",
+            "cn": "开"
+          },
+          {
+            "menu_id": 6014,
+            "en": "reset",
+            "cn": "重置"
+          },
+          {
+            "menu_id": 6007,
+            "en": "checkBalance",
+            "cn": "校验余额"
+          },
+          {
+            "menu_id": 6008,
+            "en": "downAndUp",
+            "cn": "上卡"
+          },
+          {
+            "menu_id": 6009,
+            "en": "downAndUp",
+            "cn": "下卡"
+          },
+          {
+            "menu_id": 6010,
+            "en": "onlySameBank",
+            "cn": "只抓同行"
+          },
+          {
+            "menu_id": 6011,
+            "en": "editStatus",
+            "cn": "银行卡状态修改"
+          },
+          {
+            "menu_id": 6012,
+            "en": "paramSetting",
+            "cn": "参数设置"
+          },
+          {
+            "menu_id": 6013,
+            "en": "batchUpdateClient",
+            "cn": "客户端状态修改"
+          }
+        ]
+      },
+      "三方渠道监控": {
+        "cn": "三方渠道监控",
+        "en": "monitorsthirdpartychannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2062
+          },
+          {
+            "cn": "下发",
+            "en": "issued",
+            "menu_id": 2063
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2064
+          },
+          {
+            "cn": "停止",
+            "en": "stop",
+            "menu_id": 2065
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 2066
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2067
+          }
+        ],
+        "menu_id": 2061
+      },
+      "出入款银行卡渠道监控": {
+        "cn": "出入款银行卡渠道监控",
+        "en": "monitorsinmoneychannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2069
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2070
+          },
+          {
+            "cn": "停止",
+            "en": "stop",
+            "menu_id": 2071
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 2072
+          }
+        ],
+        "menu_id": 2068
+      },
+      "银行卡可转资金监控": {
+        "cn": "银行卡可转资金监控",
+        "en": "monitorsinmoneychannel_available",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52162569
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52162570
+          },
+          {
+            "cn": "停止",
+            "en": "stop",
+            "menu_id": 52162571
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 52162572
+          }
+        ],
+        "menu_id": 52162568
+      },
+      "出款银行卡渠道监控": {
+        "cn": "出款银行卡渠道监控",
+        "en": "monitorsinmoneychannel_out",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52141469
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52141470
+          },
+          {
+            "cn": "停止",
+            "en": "stop",
+            "menu_id": 52141471
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 52141472
+          }
+        ],
+        "menu_id": 52141468
+      },
+      "入款银行卡渠道监控": {
+        "cn": "入款银行卡渠道监控",
+        "en": "monitorsinmoneychannel_in",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52141569
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52141570
+          },
+          {
+            "cn": "停止",
+            "en": "stop",
+            "menu_id": 52141571
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 52141572
+          }
+        ],
+        "menu_id": 52141568
+      },
+      "卡池资金监控": {
+        "cn": "卡池资金监控",
+        "en": "monitorsfundspool",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2074
+          }
+        ],
+        "menu_id": 2073
+      },
+      "中转卡池资金监控": {
+        "cn": "中转卡池资金监控",
+        "en": "monitorsfundstransitpool",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 59195574
+          }
+        ],
+        "menu_id": 59195573
+      }
+    },
+    "icon": "bar-chart",
+    "modulename": "biz-monitors",
+    "menu_id": 2044
+  },
+  "订单管理": {
+    "submenu": {
+      "银行卡收款订单": {
+        "cn": "银行卡收款订单",
+        "en": "ordersbankcardreceipt",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2077
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2078
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2079
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2080
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2081
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2082
+          }
+        ],
+        "menu_id": 2076
+      },
+      "银行卡手动出款订单": {
+        "cn": "银行卡手动出款订单",
+        "en": "ordersbankcardmanualoutmoney",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2084
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2085
+          },
+          {
+            "cn": "分派订单",
+            "en": "allotorder",
+            "menu_id": 2086
+          },
+          {
+            "cn": "取消分派",
+            "en": "closeAllotOrder",
+            "menu_id": 2087
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2088
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2089
+          },
+          {
+            "cn": "锁定",
+            "en": "lockorder",
+            "menu_id": 5555
+          },
+          {
+            "cn": "解锁",
+            "en": "unlockorder",
+            "menu_id": 5556
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2090
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2091
+          }
+        ],
+        "menu_id": 2083
+      },
+      "银行内转订单": {
+        "cn": "银行内转订单",
+        "en": "ordersbankinnertransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2093
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2094
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2095
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2096
+          }
+        ],
+        "menu_id": 2092
+      },
+      "银行卡提款订单": {
+        "cn": "银行卡提款订单",
+        "en": "ordersbankcardwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2098
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2099
+          },
+          {
+            "cn": "转手动",
+            "en": "orderhand",
+            "menu_id": 2100
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2101
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2102
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2103
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2104
+          }
+        ],
+        "menu_id": 2097
+      },
+      "银行卡测卡订单": {
+        "cn": "银行卡测卡订单",
+        "en": "ordersbankcardtest",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2106
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2107
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2108
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2109
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2110
+          }
+        ],
+        "menu_id": 2105
+      },
+      "三方存款订单": {
+        "cn": "三方存款订单",
+        "en": "ordersthirdpartydeposit",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2112
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2113
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2114
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2115
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2116
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2117
+          }
+        ],
+        "menu_id": 2111
+      },
+      "三方提款订单": {
+        "cn": "三方提款订单",
+        "en": "ordersthirdpartywidthdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2119
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2120
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2121
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2122
+          },
+          {
+            "cn": "转手动",
+            "en": "handorder",
+            "menu_id": 21100
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2123
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2124
+          }
+        ],
+        "menu_id": 2118
+      },
+      "风云存款订单": {
+        "cn": "风云存款订单",
+        "en": "fengyunpayordersthirdpartydeposit",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 512012
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 512013
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 512014
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 512015
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 512016
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 512017
+          }
+        ],
+        "menu_id": 512011
+      },
+      "风云提款订单": {
+        "cn": "风云提款订单",
+        "en": "fengyunpayordersthirdpartywidthdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 512019
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 512020
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 512021
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 512022
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 512023
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 512024
+          }
+        ],
+        "menu_id": 512018
+      },
+      "三方下发订单": {
+        "cn": "三方下发订单",
+        "en": "ordersthirdpartydelivery",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2126
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2127
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2128
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2129
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2130
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2131
+          }
+        ],
+        "menu_id": 2125
+      },
+      "三方测试订单": {
+        "cn": "三方测试订单",
+        "en": "ordersthirdpartytest",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2133
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2134
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2135
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2136
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2137
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2138
+          }
+        ],
+        "menu_id": 2132
+      },
+      "内转代付订单": {
+        "cn": "内转代付订单",
+        "en": "thirdwithdraworderpayroll",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2140
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2141
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2142
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2143
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2144
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2145
+          }
+        ],
+        "menu_id": 2139
+      },
+      "代理出款订单": {
+        "cn": "代理出款订单",
+        "en": "thirdwithdraworderproxy",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2147
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2148
+          },
+          {
+            "cn": "分派订单",
+            "en": "allotorder",
+            "menu_id": 7800
+          },
+          {
+            "cn": "取消分派",
+            "en": "closeAllotOrder",
+            "menu_id": 7801
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 2149
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 2150
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 2151
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 2152
+          }
+        ],
+        "menu_id": 2146
+      },
+      "银行卡提款历史订单": {
+        "cn": "银行卡提款历史订单",
+        "en": "orderswithdrawhistory",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 6947
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 6948
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 6952
+          }
+        ],
+        "menu_id": 6946
+      },
+      "银行卡手动出款历史订单": {
+        "cn": "银行卡手动出款历史订单",
+        "en": "ordershistory",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 95547
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 95548
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 95552
+          }
+        ],
+        "menu_id": 95546
+      },
+      "中转内转订单": {
+        "cn": "中转内转订单",
+        "en": "order_transfer_innertransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52171719
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52171720
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52171721
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52171722
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52171723
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 52171724
+          }
+        ],
+        "menu_id": 52171718
+      },
+      "手动出款内转订单": {
+        "cn": "手动出款内转订单",
+        "en": "order_menualwithdrew_innertransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52171819
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52171820
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52171821
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52171822
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52171823
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 52171824
+          }
+        ],
+        "menu_id": 52171818
+      },
+      "收款卡内转订单": {
+        "cn": "收款卡内转订单",
+        "en": "order_depositcard_innertransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172319
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52172320
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52172321
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52172322
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52172323
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 52172324
+          }
+        ],
+        "menu_id": 52172318
+      },
+      "出款卡内转订单": {
+        "cn": "出款卡内转订单",
+        "en": "order_withdrewcard_innertransfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172519
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52172520
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52172521
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52172522
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52172523
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 52172524
+          }
+        ],
+        "menu_id": 52172518
+      },
+      "商户充值订单": {
+        "cn": "商户充值订单",
+        "en": "order_merchantrecharge",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112819
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112820
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 55112824
+          }
+        ],
+        "menu_id": 55112818
+      },
+      "已分派银行卡手动出款订单": {
+        "cn": "已分派银行卡手动出款订单",
+        "en": "ordersbankcardmanualoutmoney_sended",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 57165584
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 57165585
+          },
+          {
+            "cn": "取消分派",
+            "en": "closeAllotOrder",
+            "menu_id": 57165587
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 57165588
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 57165589
+          },
+          {
+            "cn": "锁定",
+            "en": "lockorder",
+            "menu_id": 57165555
+          },
+          {
+            "cn": "解锁",
+            "en": "unlockorder",
+            "menu_id": 57165556
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 57165590
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 57165591
+          }
+        ],
+        "menu_id": 57165583
+      },
+      "未分派银行卡手动出款订单": {
+        "cn": "未分派银行卡手动出款订单",
+        "en": "ordersbankcardmanualoutmoney_notsend",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 57165684
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 57165685
+          },
+          {
+            "cn": "分派订单",
+            "en": "allotorder",
+            "menu_id": 57165686
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 57165688
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 57165689
+          },
+          {
+            "cn": "锁定",
+            "en": "lockorder",
+            "menu_id": 57165655
+          },
+          {
+            "cn": "解锁",
+            "en": "unlockorder",
+            "menu_id": 57165656
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 57165690
+          },
+          {
+            "cn": "查看",
+            "en": "orderProview",
+            "menu_id": 57165691
+          }
+        ],
+        "menu_id": 57165683
+      }
+    },
+    "icon": "table",
+    "modulename": "biz-manage-orders",
+    "menu_id": 2075
+  },
+  "交易流水管理": {
+    "submenu": {
+      "银行卡交易流水": {
+        "cn": "银行卡交易流水",
+        "en": "transactionrecordbankcard",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2155
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2156
+          },
+          {
+            "cn": "补单",
+            "en": "add",
+            "menu_id": 2157
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2158
+          },
+          {
+            "cn": "重新匹配",
+            "en": "commit",
+            "menu_id": 2159
+          },
+          {
+            "cn": "修改备注",
+            "en": "modifyremark",
+            "menu_id": 2160
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 2161
+          }
+        ],
+        "menu_id": 2154
+      },
+      "异常交易流水": {
+        "cn": "异常交易流水",
+        "en": "exception",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 8055
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 8056
+          },
+          {
+            "cn": "补单",
+            "en": "add",
+            "menu_id": 8057
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 8058
+          },
+          {
+            "cn": "重新匹配",
+            "en": "commit",
+            "menu_id": 8059
+          },
+          {
+            "cn": "修改备注",
+            "en": "modifyremark",
+            "menu_id": 8060
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 8061
+          }
+        ],
+        "menu_id": 8054
+      },
+      "缓冲卡交易流水": {
+        "cn": "缓冲卡交易流水",
+        "en": "cachecard",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55113055
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55113061
+          }
+        ],
+        "menu_id": 55113054
+      },
+      "中转卡交易流水": {
+        "cn": "中转卡交易流水",
+        "en": "transfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55112955
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55112961
+          }
+        ],
+        "menu_id": 55112954
+      },
+      "出款卡交易流水": {
+        "cn": "出款卡交易流水",
+        "en": "withdraw",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 6655
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 6656
+          },
+          {
+            "cn": "补单",
+            "en": "add",
+            "menu_id": 6657
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 6658
+          },
+          {
+            "cn": "重新匹配",
+            "en": "commit",
+            "menu_id": 6659
+          },
+          {
+            "cn": "修改备注",
+            "en": "modifyremark",
+            "menu_id": 6660
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 6661
+          }
+        ],
+        "menu_id": 6654
+      },
+      "入款卡交易流水": {
+        "cn": "入款卡交易流水",
+        "en": "deposit",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 7055
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 7056
+          },
+          {
+            "cn": "补单",
+            "en": "add",
+            "menu_id": 7057
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 7058
+          },
+          {
+            "cn": "重新匹配",
+            "en": "commit",
+            "menu_id": 7059
+          },
+          {
+            "cn": "修改备注",
+            "en": "modifyremark",
+            "menu_id": 7060
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 7061
+          }
+        ],
+        "menu_id": 7054
+      },
+      "手动出款卡交易流": {
+        "cn": "手动出款卡交易流",
+        "en": "menualwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55113155
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55113161
+          }
+        ],
+        "menu_id": 55113154
+      },
+      "异常存款交易流水": {
+        "cn": "异常存款交易流水",
+        "en": "depositexception",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 58221555
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 58221561
+          }
+        ],
+        "menu_id": 58221554
+      },
+      "出款成功后冲正订单列表": {
+        "cn": "出款成功后冲正订单列表",
+        "en": "orderwithdrewedsucess",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 58221684
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 58221685
+          },
+          {
+            "cn": "冲正流水补单",
+            "en": "rebaseorder",
+            "menu_id": 58221687
+          }
+        ],
+        "menu_id": 58221683
+      }
+    },
+    "icon": "sheqel",
+    "modulename": "biz-manage-transactionrecord",
+    "menu_id": 2153
+  },
+  "报表管理": {
+    "submenu": {
+      "银行卡统计报表": {
+        "cn": "银行卡统计报表",
+        "en": "reportsbankcardgraph",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2164
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2165
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2166
+          }
+        ],
+        "menu_id": 2163
+      },
+      "银行卡账变": {
+        "cn": "银行卡账变",
+        "en": "reportsbankcardcus",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2168
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2169
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2170
+          }
+        ],
+        "menu_id": 2167
+      },
+      "银行卡存款账变": {
+        "cn": "银行卡存款账变",
+        "en": "account_bankcarddeposite",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172768
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52172769
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52172770
+          }
+        ],
+        "menu_id": 52172767
+      },
+      "银行卡提款账变": {
+        "cn": "银行卡提款账变",
+        "en": "account_bankcardwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172868
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52172869
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52172870
+          }
+        ],
+        "menu_id": 52172867
+      },
+      "银行卡渠道充值账变": {
+        "cn": "银行卡渠道充值账变",
+        "en": "account_bankcardchanneldeposite",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172968
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52172969
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52172970
+          }
+        ],
+        "menu_id": 52172967
+      },
+      "银行卡渠道提款账变": {
+        "cn": "银行卡渠道提款账变",
+        "en": "account_bankcardchannelwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52173068
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52173069
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52173070
+          }
+        ],
+        "menu_id": 52173067
+      },
+      "公司内转渠道账变": {
+        "cn": "公司内转渠道账变",
+        "en": "account_companyinnertransferchannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52173168
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52173169
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52173170
+          }
+        ],
+        "menu_id": 52173167
+      },
+      "公司内转商户账变": {
+        "cn": "公司内转商户账变",
+        "en": "account_companyinnertransfermerchant",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52173268
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 52173269
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 52173270
+          }
+        ],
+        "menu_id": 52173267
+      },
+      "三方渠道报表": {
+        "cn": "三方渠道报表",
+        "en": "reportsthirdpartychannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2172
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2173
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2174
+          }
+        ],
+        "menu_id": 2171
+      },
+      "三方下发报表": {
+        "cn": "三方下发报表",
+        "en": "reportsthirdpartydelivery",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2176
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2177
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2178
+          }
+        ],
+        "menu_id": 2175
+      },
+      "渠道统计报表": {
+        "cn": "渠道统计报表",
+        "en": "reportsgraphchannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2180
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2181
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2182
+          }
+        ],
+        "menu_id": 2179
+      },
+      "商户统计报表": {
+        "cn": "商户统计报表",
+        "en": "reportsmerchatgraph",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2184
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 2185
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2186
+          }
+        ],
+        "menu_id": 2183
+      }
+    },
+    "icon": "list-alt",
+    "modulename": "biz-manage-reports",
+    "menu_id": 2162
+  },
+  "日志管理": {
+    "submenu": {
+      "操作日志": {
+        "cn": "操作日志",
+        "en": "operlog",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2189
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2190
+          }
+        ],
+        "menu_id": 2188
+      },
+      "登录日志": {
+        "cn": "登录日志",
+        "en": "logininfor",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2192
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2193
+          }
+        ],
+        "menu_id": 2191
+      }
+    },
+    "icon": "map",
+    "modulename": "biz-monitor",
+    "menu_id": 2187
+  },
+  "U盾资产管理": {
+    "submenu": {
+      "手机管理": {
+        "cn": "手机管理",
+        "en": "phonemanger",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 55113302
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 55113303
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 55113304
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 55113310
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 55113311
+          }
+        ],
+        "menu_id": 55113313
+      }
+    },
+    "icon": "map",
+    "modulename": "biz-youturn",
+    "menu_id": 551133
+  }
+}

@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBanktransMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.TBanktrans" id="TBanktransResult">
+        <result property="id" column="ID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="clientid" column="ClientID"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="bankaccount" column="BankAccount"/>
+        <result property="bankid" column="BankID"/>
+        <result property="paychannelid" column="PayChannelID"/>
+        <result property="transtime" column="TransTime"/>
+        <result property="transfee" column="TransFee"/>
+        <result property="transtype" column="TransType"/>
+        <result property="transamount" column="TransAmount"/>
+        <result property="prebalance" column="PreBalance"/>
+        <result property="balance" column="Balance"/>
+        <result property="remark" column="Remark"/>
+        <result property="name" column="Name"/>
+        <result property="transaccount" column="TransAccount"/>
+        <result property="readmark" column="ReadMark"/>
+        <result property="status" column="Status"/>
+        <result property="picktime" column="PickTime"/>
+        <result property="md5sign" column="Md5Sign"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="merchantid" column="MerchantID"/>
+        <result property="bankNum" column="bankNum"/>
+        <result property="transOrderType" column="TransType"/>
+        <result property="bankPoolName"  column="BankPoolName"/>
+        <result property="transCount"    column="TransCount"/>
+        <result property="transSumAmount" column="TransSumAmount"/>
+        <result property="merchantOrderID" column="MerchantOrderID"/>
+        <result property="depositOrderBankCode" column="DepositOrderBankCode"/>
+
+    </resultMap>
+
+    <sql id="selectTBanktransVo">
+        SELECT ID,
+               SupplierBranchID,
+               ClientID,
+               BankCode,
+               BankAccount,
+               BankID,
+               PayChannelID,
+               TransTime,
+               TransFee,
+               TransType,
+               TransAmount,
+               PreBalance,
+               Balance,
+               Remark,
+               Name,
+               TransAccount,
+               ReadMark,
+               Status,
+               PickTime,
+               Md5Sign,
+               MerchantID
+        FROM t_banktrans
+    </sql>
+    <delete id="deleteTBanktransByIds"></delete>
+    <delete id="deleteTBanktransById"></delete>
+
+    <select id="selectTBanktransList" parameterType="TBanktrans" resultMap="TBanktransResult">
+        SELECT
+            ba.MerchantOrderID AS merchantOrderID ,
+            bt.ID,
+            bt.BankCode,
+            bt.BankAccount,
+            bt.Balance,
+            bc.BankNum AS bankNum,
+            bt.STATUS,
+            bt.TransType,
+            bt.TransAmount,
+            bt.NAME,
+            bt.TransAccount,
+            bt.Remark,
+            bt.TransTime,
+            bt.CreateTime,
+            tbp.BankPoolName,
+            IFNULL(btp.BankTypeName,'') AS DepositOrderBankCode
+        FROM t_banktrans bt
+        LEFT JOIN t_bankcard bc ON bt.BankAccount = bc.BankCode
+        LEFT JOIN t_bankaccountrecord ba ON bt.ID = ba.TransID
+        LEFT JOIN t_withdraworder  tw ON ba.OrderID = tw.OrderID
+        LEFT JOIN t_depositorder td ON ba.OrderID = td.OrderID
+        LEFT JOIN t_bankcardpool  tbp ON tbp.BankPooID = bc.PoolID
+        LEFT JOIN t_banktype btp ON IFnull(tw.BankCode,td.BankCode) = btp.BankTypeCode
+        <where>
+            <choose>
+                <when test="roletype !=null and roletype == 4">
+                    and (tbp.RoleType = 4 or bc.WorkType = 3)
+                </when>
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test="bankcardworktype != null">and tbp.WorkType = #{bankcardworktype}</if>
+            <if test="minpayamount != null ">and #{minpayamount} &lt;= bt.TransAmount  </if>
+            <if test="maxpayamount != null ">and bt.TransAmount &lt;= #{maxpayamount}</if>
+            <if test="WorkType != null ">and bc.WorkType = #{WorkType}</if>
+            <if test="supplierbranchid != null ">and bt.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="clientid != null ">and bt.ClientID = #{clientid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bt.BankCode=#{bankcode}</if>
+            <if test="bankaccount != null  and bankaccount != ''">and bt.BankAccount like concat('%', #{bankaccount}, '%') </if>
+            <if test="transtypeStr != null and transtypeStr != ''">and bt.TransType=#{transtypeStr}</if>
+            <if test="transamount != null and transamount != ''">and TransAmount = #{transamount}</if>
+            <if test="balance != null and balance != ''">and bt.Balance = #{balance}</if>
+            <if test="remark != null  and remark != ''">and bt.Remark  like concat('%', #{remark}, '%')</if>
+            <if test="name != null  and name != ''">and bt.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null  and transaccount != ''">and TransAccount = #{transaccount}</if>
+            <if test="readmark != null  and readmark != ''">and ReadMark like concat('%', #{#{readmark}}, '!%')</if>
+            <if test="statusStr != null and statusStr != ''">and bt.Status=#{statusStr}</if>
+            <if test="statusfilter != null and statusfilter != ''">and bt.Status !=#{statusfilter}</if>
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                    and bt.TransTime >=  #{params.beginTranstime}
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                    and bt.TransTime &lt;= #{params.endTranstime}
+            </if>
+            <if test="merchantOrderID != null and merchantOrderID != ''">
+                and ba.MerchantOrderID = #{merchantOrderID}
+            </if>
+            ${params.dataScope}
+        </where>
+        ORDER BY bt.CreateTime DESC
+    </select>
+
+
+    <select id="selectTotalBanktransList" parameterType="TBanktrans" resultMap="TBanktransResult">
+        SELECT
+        COUNT(bt.ID) AS TransCount,
+        bt.TransType,
+        SUM(bt.TransAmount) AS TransSumAmount
+        FROM t_banktrans bt
+        LEFT JOIN t_bankcard bc ON bt.BankAccount = bc.BankCode
+        LEFT JOIN t_bankaccountrecord ba ON bt.ID = ba.TransID
+        LEFT JOIN t_depositorder  td ON ba.OrderID = td.OrderID
+        LEFT JOIN t_bankcardpool  tbp ON tbp.BankPooID = bc.PoolID
+        <where>
+            <choose>
+                <when test="roletype !=null and roletype == 4">
+                    and (tbp.RoleType = 4 or bc.WorkType = 3)
+                </when>
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test="bankcardworktype != null">and tbp.WorkType = #{bankcardworktype}</if>
+            <if test="minpayamount != null ">and #{minpayamount} &lt;= bt.TransAmount  </if>
+            <if test="maxpayamount != null ">and bt.TransAmount &lt;= #{maxpayamount}</if>
+            <if test="WorkType != null ">and bc.WorkType = #{WorkType}</if>
+            <if test="supplierbranchid != null ">and bt.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="clientid != null ">and bt.ClientID = #{clientid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bt.BankCode=#{bankcode}</if>
+            <if test="bankaccount != null  and bankaccount != ''">and bt.BankAccount = #{bankaccount}</if>
+            <if test="transtypeStr != null and transtypeStr != ''">and bt.TransType=#{transtypeStr}</if>
+            <if test="transamount != null and transamount != ''">and TransAmount = #{transamount}</if>
+            <if test="balance != null and balance != ''">and bt.Balance = #{balance}</if>
+            <if test="remark != null  and remark != ''">and bt.Remark  like concat('%', #{remark}, '%')</if>
+            <if test="name != null  and name != ''">and bt.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null  and transaccount != ''">and TransAccount = #{transaccount}</if>
+            <if test="readmark != null  and readmark != ''">and ReadMark like concat('%', #{#{readmark}}, '!%')</if>
+            <if test="statusStr != null and statusStr != ''">and bt.Status=#{statusStr}</if>
+            <if test="statusfilter != null and statusfilter != ''">and bt.Status !=#{statusfilter}</if>
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                and bt.TransTime >=  #{params.beginTranstime}
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                and bt.TransTime &lt;= #{params.endTranstime}
+            </if>
+            <if test="merchantOrderID != null and merchantOrderID != ''">
+                and ba.MerchantOrderID = #{merchantOrderID}
+            </if>
+            ${params.dataScope}
+        </where>
+        Group BY bt.TransType
+    </select>
+
+    <select id="selectTBanktransById" parameterType="Long" resultMap="TBanktransResult">
+        <include refid="selectTBanktransVo"/>
+        where ID = #{id}
+    </select>
+
+    <select id="selectBankTransByIds" resultMap="TBanktransResult">
+        <include refid="selectTBanktransVo"/>
+        <where>
+            <if test="ids != null">
+                and ID in
+                <foreach collection="ids" open="(" close=")" item="item" index="index" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWithdrawtransList" resultMap="TBanktransResult">
+        SELECT
+        ba.MerchantOrderID ,
+        bt.TransType ,
+        bt.ID,
+        bt.BankCode,
+        bt.BankAccount,
+        bt.Balance,
+        bc.BankNum,
+        bt.STATUS,
+        bt.TransAmount,
+        bt.NAME,
+        bt.TransAccount,
+        bt.Remark,
+        bt.TransTime,
+        bt.CreateTime,
+        tbp.BankPoolName,
+        IFNULL(btp.BankTypeName,'') AS DepositOrderBankCode
+        FROM t_banktrans bt
+        LEFT JOIN t_bankcard bc ON bt.BankAccount = bc.BankCode
+        LEFT JOIN t_bankaccountrecord ba ON bt.ID = ba.TransID
+        LEFT JOIN t_withdraworder  tw ON ba.OrderID = tw.OrderID
+        LEFT JOIN t_depositorder td ON ba.OrderID = td.OrderID
+        LEFT JOIN t_bankcardpool tbp ON tbp.BankPooID = bc.PoolID
+        LEFT JOIN t_banktype btp ON IFnull(tw.BankCode,td.BankCode) = btp.BankTypeCode
+        <where>
+            <if test="minpayamount != null ">and #{minpayamount} &lt;= bt.TransAmount  </if>
+            <if test="maxpayamount != null ">and bt.TransAmount &lt;= #{maxpayamount}</if>
+
+            <if test="supplierbranchid != null ">and bt.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="clientid != null ">and bt.ClientID = #{clientid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bt.BankCode=#{bankcode}</if>
+            <if test="bankaccount != null  and bankaccount != ''">and bt.BankAccount like concat('%', #{bankaccount}, '%')</if>
+            <if test="transtypeStr != null and transtypeStr != ''">and bt.TransType=#{transtypeStr}</if>
+            <if test="transamount != null and transamount != ''">and TransAmount = #{transamount}</if>
+            <if test="balance != null and balance != ''">and bt.Balance = #{balance}</if>
+            <if test="remark != null  and remark != ''">and bt.Remark like concat('%', #{remark}, '%')</if>
+            <if test="name != null  and name != ''">and bt.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null  and transaccount != ''">and TransAccount = #{transaccount}</if>
+            <if test="readmark != null  and readmark != ''">and ReadMark like concat('%', #{#{readmark}}, '%')</if>
+            <if test="statusStr != null and statusStr != ''">and bt.Status=#{statusStr}</if>
+            <if test="statusfilter != null and statusfilter != ''">and bt.Status !=#{statusfilter}</if>
+            <if test="transtype != null ">and bt.TransType =#{transtype}</if>
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                and bt.TransTime >=  #{params.beginTranstime}
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                and bt.TransTime &lt;= #{params.endTranstime}
+            </if>
+            <if test="merchantOrderID != null and merchantOrderID != ''">
+                and ba.MerchantOrderID = #{merchantOrderID}
+            </if>
+            <if test="WorkType != null and WorkType != ''">and bc.WorkType=#{WorkType}</if>
+            ${params.dataScope}
+        </where>
+
+        ORDER BY bt.CreateTime DESC
+
+    </select>
+
+    <select id="selectWithdrawtransListTotal" resultType="com.pay.typay.biz.domain.TBanktrans">
+        SELECT
+        COUNT(bt.ID) AS TransCount,
+        bt.TransType,
+        SUM(bt.TransAmount) AS TransSumAmount
+        FROM t_banktrans bt
+        LEFT JOIN t_bankcard bc ON bt.BankAccount = bc.BankCode
+        LEFT JOIN t_bankaccountrecord ba ON bt.ID = ba.TransID
+        LEFT JOIN t_withdraworder  tw ON ba.OrderID = tw.OrderID
+        LEFT JOIN t_depositorder td ON ba.OrderID = td.OrderID
+        LEFT JOIN t_bankcardpool tbp ON tbp.BankPooID = bc.PoolID
+        LEFT JOIN t_banktype btp ON IFnull(tw.BankCode,td.BankCode) = btp.BankTypeCode
+        <where>
+            <if test="minpayamount != null ">and #{minpayamount} &lt;= bt.TransAmount  </if>
+            <if test="maxpayamount != null ">and bt.TransAmount &lt;= #{maxpayamount}</if>
+
+            <if test="supplierbranchid != null ">and bt.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="clientid != null ">and bt.ClientID = #{clientid}</if>
+            <if test="bankcode != null  and bankcode != ''">and bt.BankCode=#{bankcode}</if>
+            <if test="bankaccount != null  and bankaccount != ''">and bt.BankAccount = #{bankaccount}</if>
+            <if test="transtypeStr != null and transtypeStr != ''">and bt.TransType=#{transtypeStr}</if>
+            <if test="transamount != null and transamount != ''">and TransAmount = #{transamount}</if>
+            <if test="balance != null and balance != ''">and bt.Balance = #{balance}</if>
+            <if test="remark != null  and remark != ''">and bt.Remark = #{remark}</if>
+            <if test="name != null  and name != ''">and bt.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null  and transaccount != ''">and TransAccount = #{transaccount}</if>
+            <if test="readmark != null  and readmark != ''">and ReadMark like concat('%', #{#{readmark}}, '%')</if>
+            <if test="statusStr != null and statusStr != ''">and bt.Status=#{statusStr}</if>
+            <if test="statusfilter != null and statusfilter != ''">and bt.Status !=#{statusfilter}</if>
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                and bt.TransTime >=  #{params.beginTranstime}
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                and bt.TransTime &lt;= #{params.endTranstime}
+            </if>
+            <if test="merchantOrderID != null and merchantOrderID != ''">
+                and ba.MerchantOrderID = #{merchantOrderID}
+            </if>
+            <if test="WorkType != null and WorkType != ''">and bc.WorkType=#{WorkType}</if>
+            ${params.dataScope}
+        </where>
+        Group BY bt.TransType
+    </select>
+
+
+
+    <insert id="insertTBanktrans" parameterType="TBanktrans" useGeneratedKeys="true" keyProperty="id">
+        insert into t_banktrans
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="clientid != null ">ClientID,</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode,</if>
+            <if test="bankaccount != null  and bankaccount != ''">BankAccount,</if>
+            <if test="bankid != null ">BankID,</if>
+            <if test="paychannelid != null ">PayChannelID,</if>
+            <if test="transtime != null ">TransTime,</if>
+            <if test="transfee != null ">TransFee,</if>
+            <if test="transtype != null ">TransType,</if>
+            <if test="transamount != null ">TransAmount,</if>
+            <if test="prebalance != null ">PreBalance,</if>
+            <if test="balance != null ">Balance,</if>
+            <if test="remark != null  and remark != ''">Remark,</if>
+            <if test="name != null  and name != ''">Name,</if>
+            <if test="transaccount != null  and transaccount != ''">TransAccount,</if>
+            <if test="readmark != null  and readmark != ''">ReadMark,</if>
+            <if test="status != null ">Status,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="picktime != null ">PickTime,</if>
+            <if test="md5sign != null  and md5sign != ''">Md5Sign,</if>
+            <if test="merchantid != null ">MerchantID,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="clientid != null ">#{clientid},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="bankaccount != null  and bankaccount != ''">#{bankaccount},</if>
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="paychannelid != null ">#{paychannelid},</if>
+            <if test="transtime != null ">#{transtime},</if>
+            <if test="transfee != null ">#{transfee},</if>
+            <if test="transtype != null ">#{transtype},</if>
+            <if test="transamount != null ">#{transamount},</if>
+            <if test="prebalance != null ">#{prebalance},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="transaccount != null  and transaccount != ''">#{transaccount},</if>
+            <if test="readmark != null  and readmark != ''">#{readmark},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="picktime != null ">#{picktime},</if>
+            <if test="md5sign != null  and md5sign != ''">#{md5sign},</if>
+            <if test="merchantid != null ">#{merchantid},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTBanktrans" parameterType="TBanktrans">
+        <foreach collection="banktrans" separator=";" index="index" item="item" close="" open="">
+            update t_banktrans
+            <trim prefix="SET" suffixOverrides=",">
+                <if test="item.Remark != null  and item.Remark != ''">Remark = #{item.Remark},</if>
+                <if test="item.status != null ">Status = #{item.status},</if>
+            </trim>
+            where ID = #{item.id} and ReadMark = #{item.readmark}
+        </foreach>
+    </update>
+
+</mapper>

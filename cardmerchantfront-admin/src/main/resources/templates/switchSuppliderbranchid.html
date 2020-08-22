@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="change-suppliderbranch">
+        <div class="form-group">
+            <label class="col-xs-4 control-label"><em>切换到财务分支</em>：</label>
+            <div class="col-xs-8">
+                <select class="form-control" th:title="请选择"  id="supplierbranchid"
+                        name="supplierbranchid">
+                    <option th:each="post:${@dictbank.getCurrentSurppilerbranchGroup()}" th:value="${post.getId()}"
+                            th:text="${post.getBranchname()}"></option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+
+<script th:inline="javascript">
+    var prefix = "/system/user";
+        $('#supplierbranchid').val([[${supplierbranchid}]]);
+    function submitHandler() {
+
+        let supplierbranchid = $('#supplierbranchid').val();
+        if (!supplierbranchid) {
+            return $.modal.alert("请选择财务分支");
+        }
+        $.operate.save(prefix + "/editbranch", {supplierbranchid});
+
+    }
+</script>
+</body>
+
+</html>

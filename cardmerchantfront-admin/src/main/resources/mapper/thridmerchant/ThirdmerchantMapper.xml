@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.ThirdmerchantMapper">
+
+    <resultMap type="Thirdmerchant" id="ThirdmerchantResult">
+        <result property="merchantid" column="MerchantID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="merchantname" column="MerchantName"/>
+        <result property="merchantcode" column="MerchantCode"/>
+        <result property="withdrawbankpoolid" column="WithdrawBankPoolID"/>
+        <result property="depositbankpoolid" column="DepositBankPoolID"/>
+        <result property="depositurl" column="DepositUrl"/>
+        <result property="withdrawurl" column="WithdrawUrl"/>
+        <result property="depositstatus" column="DepositStatus"/>
+        <result property="withdrawstatus" column="WithdrawStatus"/>
+        <result property="status" column="Status"/>
+        <result property="remark" column="ReMark"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+    </resultMap>
+
+    <sql id="selectThirdmerchantVo">
+        select MerchantID,
+               SupplierBranchID,
+               MerchantName,
+               MerchantCode,
+               WithdrawBankPoolID,
+               DepositBankPoolID,
+               DepositUrl,
+               WithdrawUrl,
+               DepositStatus,
+               WithdrawStatus,
+               Status,
+               ReMark,
+               CreateTime,
+               LastUpDateTime
+        from t_thirdmerchant
+    </sql>
+
+    <select id="selectThirdmerchantList" parameterType="Thirdmerchant" resultMap="ThirdmerchantResult">
+        <include refid="selectThirdmerchantVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="merchantname != null  and merchantname != ''">and MerchantName like concat('%', #{merchantname},
+                '%')
+            </if>
+            <if test="merchantcode != null  and merchantcode != ''">and MerchantCode = #{merchantcode}</if>
+            <if test="withdrawbankpoolid != null ">and WithdrawBankPoolID = #{withdrawbankpoolid}</if>
+            <if test="depositbankpoolid != null ">and DepositBankPoolID = #{depositbankpoolid}</if>
+            <if test="depositurl != null  and depositurl != ''">and DepositUrl = #{depositurl}</if>
+            <if test="withdrawurl != null  and withdrawurl != ''">and WithdrawUrl = #{withdrawurl}</if>
+            <if test="depositstatus != null ">and DepositStatus = #{depositstatus}</if>
+            <if test="withdrawstatus != null ">and WithdrawStatus = #{withdrawstatus}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+        </where>
+    </select>
+
+    <select id="selectThirdmerchantById" parameterType="Long" resultMap="ThirdmerchantResult">
+        <include refid="selectThirdmerchantVo"/>
+        where MerchantID = #{merchantid}
+    </select>
+
+    <insert id="insertThirdmerchant" parameterType="Thirdmerchant">
+        insert into t_thirdmerchant
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="merchantid != null ">MerchantID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="merchantname != null  and merchantname != ''">MerchantName,</if>
+            <if test="merchantcode != null  and merchantcode != ''">MerchantCode,</if>
+            <if test="withdrawbankpoolid != null ">WithdrawBankPoolID,</if>
+            <if test="depositbankpoolid != null ">DepositBankPoolID,</if>
+            <if test="depositurl != null  and depositurl != ''">DepositUrl,</if>
+            <if test="withdrawurl != null  and withdrawurl != ''">WithdrawUrl,</if>
+            <if test="depositstatus != null ">DepositStatus,</if>
+            <if test="withdrawstatus != null ">WithdrawStatus,</if>
+            <if test="status != null ">Status,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="merchantid != null ">#{merchantid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="merchantname != null  and merchantname != ''">#{merchantname},</if>
+            <if test="merchantcode != null  and merchantcode != ''">#{merchantcode},</if>
+            <if test="withdrawbankpoolid != null ">#{withdrawbankpoolid},</if>
+            <if test="depositbankpoolid != null ">#{depositbankpoolid},</if>
+            <if test="depositurl != null  and depositurl != ''">#{depositurl},</if>
+            <if test="withdrawurl != null  and withdrawurl != ''">#{withdrawurl},</if>
+            <if test="depositstatus != null ">#{depositstatus},</if>
+            <if test="withdrawstatus != null ">#{withdrawstatus},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateThirdmerchant" parameterType="Thirdmerchant">
+        update t_thirdmerchant
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="merchantname != null  and merchantname != ''">MerchantName = #{merchantname},</if>
+            <if test="merchantcode != null  and merchantcode != ''">MerchantCode = #{merchantcode},</if>
+            <if test="withdrawbankpoolid != null ">WithdrawBankPoolID = #{withdrawbankpoolid},</if>
+            <if test="depositbankpoolid != null ">DepositBankPoolID = #{depositbankpoolid},</if>
+            <if test="depositurl != null  and depositurl != ''">DepositUrl = #{depositurl},</if>
+            <if test="withdrawurl != null  and withdrawurl != ''">WithdrawUrl = #{withdrawurl},</if>
+            <if test="depositstatus != null ">DepositStatus = #{depositstatus},</if>
+            <if test="withdrawstatus != null ">WithdrawStatus = #{withdrawstatus},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where MerchantID = #{merchantid}
+    </update>
+
+    <delete id="deleteThirdmerchantById" parameterType="Long">
+        delete
+        from t_thirdmerchant
+        where MerchantID = #{merchantid}
+    </delete>
+
+    <delete id="deleteThirdmerchantByIds" parameterType="String">
+        delete from t_thirdmerchant where MerchantID in
+        <foreach item="merchantid" collection="array" open="(" separator="," close=")">
+            #{merchantid}
+        </foreach>
+    </delete>
+
+</mapper>

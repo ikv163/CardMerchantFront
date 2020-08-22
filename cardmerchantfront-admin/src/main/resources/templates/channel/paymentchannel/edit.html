@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改支付渠道')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: select2-css"/>
+    <th:block th:include="include :: bootstrap-select-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-paychannel-edit" th:object="${paychannel}">
+
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4">渠道基本信息</h4>
+        </div>
+        <input name="paychannelid" th:field="*{paychannelid}" type="hidden">
+        <input name="version" th:field="*{version}" type="hidden">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">支付渠道名称：</label>
+            <div class="col-sm-8">
+                <input name="paychannelname" th:field="*{paychannelname}" class="form-control"
+                       type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em data-i18name="biz.worktype">工作模式</em>：</label>
+            <div class="col-sm-8">
+                <select name="worktype" id="bankworktype" class="form-control m-b" th:field="*{worktype}">
+                    <option value="1">收款</option>
+                    <option value="2">出款</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em data-i18name="biz.paymentype">支付方式</em>：</label>
+            <div class="col-sm-8">
+                <select name="paytype" th:field="*{paytype}" class="form-control" th:with="type=${@dict.getType('payment_type')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select name="status" th:field="*{status}" class="form-control m-b">
+                    <option value="1">启用</option>
+                    <option value="0">停用</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">每笔交易最小额度：</label>
+            <div class="col-sm-8">
+                <input name="minamountpertrans" maxlength="8"  th:field="*{minamountpertrans}" class="form-control"
+                       type="number" min="0" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">每笔交易最大额度：</label>
+            <div class="col-sm-8">
+                <input name="maxamountpertrans" maxlength="8"  th:field="*{maxamountpertrans}" class="form-control"
+                       type="number" min="0" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.bankcardgroupinfo">银行卡集合信息</em></h4>
+        </div>
+        <input name="bankids" id="bankids" th:field="*{bankids}" type="hidden"/>
+    </form>
+        <form id="formId" class="form-horizontal m">
+            <div class="select-list">
+                <input type="hidden" name="worktype" id="worktype"/>
+                <input type="hidden" name="poolid" id="poolid"/>
+                <ul>
+                    <li style="display: contents;">
+                        <p><em data-i18name="biz.bankcode">银行卡简码</em>：</p>
+                        <input type="text" name="bankcode" id="bankcode"/>
+                    </li>
+                    <li style="display: contents;">
+                        <p><em data-i18name="m.opener">开户人</em>：</p>
+                        <input type="text" name="ownername" id="ownername"/>
+                    </li>
+                    <li style="display: contents;">
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="searchbankcar()"><i
+                            class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    <div class="col-sm-12 select-table table-striped" id="bootstrap-table-dev">
+        <table id="bootstrap-table"></table>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: select2-js"/>
+<th:block th:include="include :: bootstrap-select-js"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "channel/paymentchannel";
+    var paychannel = [[${paychannel}]];
+    let val = $("#bankids").val();
+
+    var bankids = val.split(",");
+    var paychannelids = {};
+    var paychannelidsMap = {};
+    let ts = bankids.filter(value => value).map(function (element) {
+        paychannelids[element] = true;
+        paychannelidsMap[element] = true;
+        return element;
+    });
+
+
+    function getIsSameBankid(id) {
+        return paychannelids[id];
+    }
+
+    $("#form-paychannel-edit").validate({
+        focusCleanup: true,
+        rules: {
+            paychannelname: {
+                required: true,
+                remote: {
+                    url: prefix + "/list",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "paychannelname": function () {
+                            return $.common.trim($("[name=paychannelname]").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        if (paychannel.paychannelname == $.common.trim($("[name=paychannelname]").val())) {
+                            return true;
+                        }
+                        let s = JSON.parse(data);
+                        return s && s.total == 0
+                    }
+                }
+            },
+            worktype: {
+                required: true
+            },
+            paytype: {
+                required: true
+            },
+            clienttype: {
+                required: true
+            },
+            status: {
+                required: true
+            },
+            channellevel: {
+                required: true,
+                digits: true,
+                maxlength: 6
+            },
+
+
+            balance: {
+                required: true,
+
+                digits: true,
+                min: 0,
+            },
+            sumamountperdaytrans: {
+                required: true,
+
+                digits: true,
+                min: 0,
+            },
+            riskybalance: {
+                required: true,
+                digits: true,
+                min: 0,
+            },
+            minamountpertrans: {
+                required: true,
+
+                digits: true,
+                min: 0,
+            },
+            maxamountpertrans: {
+                required: true,
+
+                digits: true,
+                min: 0,
+            }
+        },
+        messages: {}
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+            let strings = Object.keys(paychannelidsMap);
+            let strings1 = strings;
+            strings1.push(...rows.map(v => "" + v));
+            let newVar = [...new Set(strings1)];
+            $("#bankids").val(newVar.join(","));
+            $.operate.save(prefix + "/editSave", $('#form-paychannel-edit').serialize());
+        }
+    }
+
+    $("input[name='lastupdatetime']").datetimepicker({
+        format: 'yyyy-mm-dd hh:ii:ss',
+
+        autoclose: true
+    });
+
+
+    function searchbankcar() {
+        changebankcar();
+    }
+
+    searchbankcar();
+
+    function changebankcar() {
+        $("#bootstrap-table-dev").show();
+
+        $('#formId').show()
+        let worktype = $('#bankworktype').val();
+        let bankcode = $('#bankcode').val().trim();
+        let ownername = $('#ownername').val().trim();
+        initbankcar(worktype, bankcode, ownername);
+    }
+
+    function initbankcar(worktype, bankcode, ownername) {
+        let bankcardworktypeMapElement = worktype;
+
+        function queryParams(params) {
+            var search = $.table.queryParams(params);
+            search.poolid = null;
+            search.bankcode = bankcode;
+            search.worktype = bankcardworktypeMapElement;
+            search.ownername = ownername;
+
+            return search;
+        }
+
+        var url = ctx + "bankcard/manage_bankcard_center/listByWorktype1";
+        var options = {
+            url: url,
+            method: 'post',
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+
+            sidePagination: "server",
+            contentType: "application/x-www-form-urlencoded",
+            queryParams: queryParams,
+            onClickRow: onClickRow,
+            onLoadSuccess: function (data) {
+                let $bootstrap = $('#bootstrap-table tbody tr');
+                data.rows.forEach(function (v, index) {
+                    if (getIsSameBankid(v.bankid)) {
+                        if (!$bootstrap.eq(index).find('[name=btSelectItem]').attr('checked')) {
+                            v.checked = true;
+                            $bootstrap.eq(index).click();
+                            $bootstrap.eq(index).find('[name=btSelectItem]').click();
+                        }
+                    }
+                });
+
+            },
+            columns: [
+                {
+                    field: 'state',
+                    checkbox: true
+                },
+                {
+                    field: 'bankid',
+                    title: '银行卡编号',
+                    visible: false
+                },
+                {
+                    field: 'banknum',
+                    title: '银行卡简码',
+                    formatter: function (value, row, index) {
+                        let s = `
+                            <div>${row.bankcode}</div>
+                        `;
+                        return s;
+                    }
+                },
+                {
+                    field: 'worktype',
+                    title: '工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '服务状态',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                }
+            ]
+        };
+        $.table.destroy();
+        $.table.init(options);
+    }
+
+
+    var worktypes = [[${@dictbank.getSelectUIType('WorkType')}]];
+
+    function getWorktype(id) {
+        for (let key in worktypes) {
+            if (id == key) {
+                return worktypes[key];
+            }
+        }
+    }
+
+    var serviceState = [[${@dictbank.getSelectUIType('Statussearch')}]];
+
+    function getServiceState(id) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+
+            }
+        }
+    }
+
+    function getBankcardpoolname(id) {
+        for (let item of bankcardpool) {
+            if (id == item.bankpooid) {
+                return item.bankpoolname;
+            }
+        }
+    }
+
+    var bankcardpool = [[${@dictbank.selectTBankcardpoolInfoList()}]];
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+        row.checked = !row.checked;
+        if (row.checked) {
+            paychannelidsMap[row.bankid] = true;
+        } else {
+            delete paychannelidsMap[row.bankid];
+        }
+    }
+
+</script>
+</body>
+</html>

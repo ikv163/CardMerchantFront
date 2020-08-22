@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('银行卡客户端列表')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.clientname">客户端名称</em>：</p>
+                            <input type="text" name="clientName"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="">卡简码</em>：</p>
+                            <input type="text" name="bankAccount"/>
+                        </li>
+
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="">卡状态</em>：</p>
+                            <select name="bankcardStatus" class="form-control" th:with="type=${@dict.getType('bankcardstatus')}">
+                                <option value="">全选</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="">心跳</em>：</p>
+                            <select name="heartbeat" class="form-control">
+                                <option value="">全选</option>
+                                <option value="0">正常</option>
+                                <option value="1">异常</option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.servicestatus">服务状态</em>：</p>
+                            <select name="status" class="form-control" th:with="type=${@dictbank.getSelectUIType('ClientStatus')}">
+                                <option th:each="dict : ${type}" th:text="${dict.value}" th:if="${dict.value} != '软删除'"
+                                        th:value="${dict.key}"></option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+<!--                <div class="select-list">-->
+<!--                    <ul>-->
+<!--                        <li>-->
+<!--                            <p class="mylabeltitle"></p>-->
+<!--                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i-->
+<!--                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>-->
+<!--                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i-->
+<!--                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <p class="mylabeltitle">开始时间：</p>-->
+<!--                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"-->
+<!--                                   name="params[beginCreatetime]"/>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <p class="mylabeltitle">结束时间：</p>-->
+<!--                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"-->
+<!--                                   name="params[endCreatetime]"/>-->
+<!--                        </li>-->
+
+
+<!--                    </ul>-->
+<!--                </div>-->
+
+
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:haspermission="bankcard:bankcard_client:add">
+                <i class="fa fa-plus"></i> <em data-i18name="fn.add">添 加</em>
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:haspermission="bankcard:bankcard_client:edit">
+                <i class="fa fa-edit"></i> <em data-i18name="fn.modify">修改</em>
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:haspermission="bankcard:bankcard_client:remove">
+                <i class="fa fa-remove"></i> <em data-i18name="fn.remove">删除</em>
+            </a>
+            <a class="btn btn-primary multiple disabled" onclick="$.operate.operateurl('启用')"
+               shiro:haspermission="bankcard:bankcard_client:operateurl">
+                <i class="fa fa-edit"></i> <em data-i18name="biz.enable">启用</em>
+            </a>
+
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bankcard:bankcard_client:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('bankcard:bankcard_client:remove')}]];
+    var prefix = ctx + "bankcard/bankcard_client";
+    //字典
+    var tBanktype = [[${@dictbank.getTBanktype()}]];
+
+    function getTBanktype(id) {
+        for (let item of tBanktype) {
+            if (id == item.banktypecode) {
+                return item.banktypename;
+            }
+        }
+
+        for (let key in worktype) {
+            if (id == key) {
+                return worktype[key];
+            }
+        }
+
+    }
+    var bankClientStatus = [[${@dictbank.getSelectUIType('ClientStatus')}]];
+
+    function getServiceState(id) {
+        for (let key in bankClientStatus) {
+            if (id == key) {
+                let serviceStateElement = bankClientStatus[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+            }
+        }
+    }
+
+
+    var cardState = [[${@dictbank.getSelectUIType('Status')}]];
+
+    function getCardState(id) {
+        for (let key in cardState) {
+            if (id == key) {
+                let serviceStateElement = cardState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+            }
+        }
+    }
+
+    var workType = [[${@dictbank.getSelectUIType('WorkTypecreate')}]];
+
+    function getWorkType(id){
+        return workType[id];
+    }
+
+
+
+    $(function () {
+        var options = {
+            operateurl: prefix + "/statusedit",
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            proviewUrl: prefix + "/proview/{id}",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "银行卡客户端",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            columns: [
+                {
+                    field: 'state',
+                    checkbox: true
+                },
+                {
+                    field: 'clientId',
+                    title: '<em data-i18name="m.clientno">客户端编号</em>',
+                },
+                {
+                    field: 'clientName',
+                    title: ' <em data-i18name="biz.clientname">客户端名称</em>'
+                },
+                {
+                    field: 'workType',
+                    title: ' <em data-i18name="biz.worktype">工作模式</em>',
+                    formatter: function (value) {
+                        return getWorkType(value)
+                    }
+                },
+                {
+                    field: 'bankAccount',
+                    title: '<em data-i18name="">卡简码</em>',
+                    formatter: function (value) {
+                        return value || '-';
+                    }
+                },
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="">当前余额</em>',
+                    formatter: function (value) {
+                        return value || '-';
+                    }
+                },
+                {
+                    field: 'bankcardStatus',
+                    title: ' <em data-i18name="">卡状态</em>',
+                    formatter: function (value) {
+                        return getCardState(value);
+
+                    }
+                },
+
+                {
+                    field: 'status',
+                    title: '<em data-i18name="">心跳 </em>',
+                    formatter:function (value,row) {
+                        if($.common.isNotEmpty(value)){
+                            return value == -100 ? "异常" : "正常";
+                        }
+                        return "-";
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '<em data-i18name="biz.servicestatus">服务状态</em>',
+                    formatter: function (value) {
+                        return getServiceState(value);
+                    }
+                },
+                {
+                    field: 'lastUpDateTime',
+                    title: '<em data-i18name="t.logoutime">最后心跳时间</em>'
+                },
+                {
+                    field: 'remark',
+                    title: '<em data-i18name="">备注</em>'
+                },
+                {
+                    title: '<em data-i18name="t.operto">操作</em>',
+                    align: 'center',
+                    visible: false,
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.clientId + '\')"><i class="fa fa-eye"></i><em data-i18name="fn.view">查看</em></a> ');
+                        return actions.join('');
+                    }
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function onDblClickRow(row, $element) {
+        $.operate.proview(row.clientId);
+    }
+
+</script>
+</body>
+</html>

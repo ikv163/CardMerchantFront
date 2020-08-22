@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('卡商提款订单列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+
+
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">银行卡简码：</p>
+                            <input type="text" name="bankcode"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">订单号：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+
+                        <li>
+                            <p class="mylabeltitle">金额：</p>
+                            <input type="text" name="payamount"/>
+                        </li>
+
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchA()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="agent:applywithdrew:add" th:if="${@permission.hasRole('代理')} != 'hidden'">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-rounded btn-warning" onclick="$.table.exportExcel()">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<style>
+    .totalClass{
+        float: right;
+        text-align: right;
+        display: inline-block;
+    }
+
+    .totalClass span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .totalClass span em {
+        color: red;
+    }
+</style>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('agent:applywithdrew:edit')}]];
+    var proviewFlag = [[${@permission.hasPermi('agent:applywithdrew:proview')}]];
+    var removeFlag = [[${@permission.hasPermi('agent:applywithdrew:remove')}]];
+    var prefix = ctx + "agent/applywithdrew";
+    var orderstatusDict = [[${@dict.getType('depositestatus')}]];
+
+    function loadTotal(res) {
+        $(".fixed-table-body").find(".totalClass").remove();
+        let content = '<p class="totalClass">';
+        if (res) {
+            let pagetcount = res.rows;
+            let pageAmount = pagetcount.reduce(function (a, b) {
+                return a + b.payamount;
+            }, 0)
+            content += '<span>提款订单金额(本页)</span><b></b><span style="color:red;" id="pagePayAmount">' + res.sumBalance + '</span>'
+            content += '<span >提款订单总金额(总计)</span><b></b><span style="color:red;" id="payAmountTotal">' + pageAmount + '</span>';
+            $(".fixed-table-body").prepend(content);
+        } else {
+            let content = '<p class="totalClass">';
+            content += '<span>提款订单金额(本页)</span><b></b><span style="color:red;" id="pagePayAmount">0.00</span>'
+            content += '<span >提款订单总金额(总计)</span><b></b><span style="color:red;" id="payAmountTotal">0.00</span>';
+            $(".fixed-table-body").prepend(content);
+        }
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            popupdateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + "/proview/{id}",
+            modalName: "卡商提款订单",
+            uniqueId:"orderindex",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            responseHandler:responseHandler,
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    field: 'orderindex',
+                    title: '订单索引',
+                    visible: false
+                },
+                {
+                    field: 'orderid',
+                    title: '订单号'
+                },
+                {
+                    field: 'agent_name',
+                    title: '代理帐号'
+                },
+                {
+                    field: 'bankcode',
+                    title: '卡简码'
+                },
+                {
+                    field: 'payamount',
+                    title: '申请金额'
+                },
+                {
+                    field: 'paidamount',
+                    title: '实际到账金额'
+                },
+                {
+                    field: 'orderstatus',
+                    title: '订单状态',
+                    formatter: function (v) {
+                        var status = {
+                            4: true,
+                            5: true,
+                            6: true,
+                            7: true
+                        };
+
+                        let dictVale = getDictVale(v, orderstatusDict);
+                        if (status[v]) {
+                            return `<a class="badge badge-danger">${dictVale}</i>`;
+                        } else {
+                            return `<a class="badge badge-primary">${dictVale}</i>`;
+                        }
+                    }
+                },
+                {
+                    field: 'createtime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'ordernotifytime',
+                    title: '更新时间'
+                },
+
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        var statusmap = {
+                            //创建
+                            0: true
+                        }
+                        actions.push('<a class="btn btn-success btn-xs ' + proviewFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.orderindex + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        if (statusmap[row.orderstatus]) {
+                            actions.push('<a class="btn btn-danger btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="canceldepositeOrder(\'' + row.orderindex + '\')"><i class="fa fa-edit"></i>取消</a> ');
+                        }
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+        loadTotal();
+    });
+
+
+    function searchA() {
+        $.table.search();
+        loadTotal();
+    }
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function canceldepositeOrder(orderindex) {
+        $.modal.confirm("确认要取消订单？", function () {
+            $.operate.save(prefix + "/cancelOrder", {orderindex: orderindex, orderstatus: 7});
+        })
+    }
+
+    responseHandler = function (res) {
+        loadTotal(res);
+    }
+
+
+    function onDblClickRow(row, $element) {
+        $.operate.proview(row.orderindex);
+    }
+</script>
+</body>
+</html>

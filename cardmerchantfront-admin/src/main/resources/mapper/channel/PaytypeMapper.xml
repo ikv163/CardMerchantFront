@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.PaytypeMapper">
+
+    <resultMap type="Paytype" id="PaytypeResult">
+        <result property="paytypeid" column="PayTypeID"/>
+        <result property="paytypename" column="PayTypeName"/>
+        <result property="paycode" column="PayCode"/>
+        <result property="status" column="Status"/>
+        <result property="remark" column="ReMark"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+    </resultMap>
+
+    <sql id="selectPaytypeVo">
+        SELECT PayTypeID, PayTypeName, PayCode, Status, ReMark, CreateTime, LastUpDateTime
+        FROM t_paytype
+    </sql>
+
+    <select id="selectPaytypeList" parameterType="Paytype" resultMap="PaytypeResult">
+        <include refid="selectPaytypeVo"/>
+        <where>
+            <if test="paytypename != null  and paytypename != ''">and PayTypeName like concat('%', #{paytypename},
+                '%')
+            </if>
+            <if test="paycode != null  and paycode != ''">and PayCode = #{paycode}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+        </where>
+    </select>
+
+    <select id="selectPaytypeById" parameterType="Long" resultMap="PaytypeResult">
+        <include refid="selectPaytypeVo"/>
+        where PayTypeID = #{paytypeid}
+    </select>
+
+    <select id="paytypeBankcardpayOnlyList" parameterType="Paytype" resultMap="PaytypeResult">
+        <include refid="selectPaytypeVo"/>
+        <where>
+            <if test="paytypename != null  and paytypename != ''">and PayTypeName like concat('%', #{paytypename},
+                '%')
+            </if>
+            <if test="paycode != null  and paycode != ''">and PayCode = #{paycode}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+            PayTypeID &lt; 200
+        </where>
+    </select>
+    <select id="paytypeThirtyPartOnlyList" parameterType="Paytype" resultMap="PaytypeResult">
+        <include refid="selectPaytypeVo"/>
+        <where>
+            <if test="paytypename != null  and paytypename != ''">and PayTypeName like concat('%', #{paytypename},
+                '%')
+            </if>
+            <if test="paycode != null  and paycode != ''">and PayCode = #{paycode}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+            PayTypeID &gt;= 200
+        </where>
+    </select>
+
+    <insert id="insertPaytype" parameterType="Paytype">
+        insert into t_paytype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paytypeid != null ">PayTypeID,</if>
+            <if test="paytypename != null  and paytypename != ''">PayTypeName,</if>
+            <if test="paycode != null  and paycode != ''">PayCode,</if>
+            <if test="status != null ">Status,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paytypeid != null ">#{paytypeid},</if>
+            <if test="paytypename != null  and paytypename != ''">#{paytypename},</if>
+            <if test="paycode != null  and paycode != ''">#{paycode},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePaytype" parameterType="Paytype">
+        update t_paytype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paytypename != null  and paytypename != ''">PayTypeName = #{paytypename},</if>
+            <if test="paycode != null  and paycode != ''">PayCode = #{paycode},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where PayTypeID = #{paytypeid}
+    </update>
+
+    <delete id="deletePaytypeById" parameterType="Long">
+        DELETE
+        FROM t_paytype
+        WHERE PayTypeID = #{paytypeid}
+    </delete>
+
+    <delete id="deletePaytypeByIds" parameterType="String">
+        delete from t_paytype where PayTypeID in
+        <foreach item="paytypeid" collection="array" open="(" separator="," close=")">
+            #{paytypeid}
+        </foreach>
+    </delete>
+
+</mapper>

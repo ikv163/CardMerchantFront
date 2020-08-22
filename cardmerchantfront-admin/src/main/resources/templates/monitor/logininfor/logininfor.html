@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('登录日志列表')"/>
+</head>
+
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul class="">
+                        <input th:if="!${@permission.isAdmin()}" type="hidden" name="loginName"
+                               th:value="${@permission.getPrincipalProperty('userName')}"/>
+                        <input type="hidden" name="userId" th:value="${@permission.getPrincipalProperty('userId')}"/>
+
+                        <li>
+                            <label><em data-i18name="biz.loginurl">登录地址</em>：</label><input type="text" name="ipaddr"/>
+                        </li>
+                        <li th:if="${@permission.isAdmin()}">
+                            <label><em data-i18name="user.loginname">登录名称</em>：</label><input type="text" name="loginName"/>
+                        </li>
+                        <li>
+                            <label><em data-i18name="biz.loginstatus">登录状态</em>：</label><select name="status" class="form-control"
+                                                                                               th:with="type=${@dict.getType('sys_common_status')}">
+                            <option value="">请选择</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em> ：</p>
+                            <input type="text" class="time-input"  id="startTime" placeholder="开始时间"
+                                   name="params[beginTime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">登录时间</em> ：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <li>
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                        <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                    </li>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="monitor:logininfor:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var datas = [[${@dict.getType('sys_common_status')}]];
+    var prefix = ctx + "monitor/logininfor";
+
+    function queryParams(params) {
+        var search = $.table.queryParams(params);
+        search.userName = [[${@permission.getPrincipalProperty('userName')}]];
+        search.userId = [[${@permission.getPrincipalProperty('userId')}]];
+        return search;
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            cleanUrl: prefix + "/clean",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "loginTime",
+            sortOrder: "desc",
+            modalName: "登录日志",
+            escape: true,
+            showPageGo: true,
+            queryParams: queryParams,
+            rememberSelected: true,
+            columns: [{
+                field: 'state',
+                checkbox: true
+            },
+                {
+                    field: 'infoId',
+                    title: '<em data-i18name="t.accessno">访问编号</em>',
+                    visible: false
+                },
+                {
+                    field: 'loginName',
+                    title: '<em data-i18name="user.loginname">登录名称</em>',
+                    sortable: true
+                },
+                {
+                    field: 'ipaddr',
+                    title: '<em data-i18name="biz.loginurl">登录地址</em>'
+                },
+                {
+                    field: 'browser',
+                    title: '<em data-i18name="t.brewer">浏览器</em>'
+                },
+                {
+                    field: 'os',
+                    title: '<em data-i18name="t.os">操作系统</em>'
+                },
+                {
+                    field: 'status',
+                    title: '<em data-i18name="biz.loginstatus">登录状态</em>',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'msg',
+                    title: '<em data-i18name="t.optinfo">操作信息</em>'
+                },
+                {
+                    field: 'loginTime',
+                    title: '<em data-i18name="biz.logintime">登录时间</em>',
+                    sortable: true
+                }]
+        };
+        $.table.init(options);
+    });
+
+
+</script>
+</body>
+</html>

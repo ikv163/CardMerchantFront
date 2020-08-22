@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.bankcard.mapper.StatementcenterMapper">
+
+    <resultMap type="Statementcenter" id="StatementcenterResult">
+        <result property="id" column="ID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="clientid" column="ClientID"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="bankaccount" column="BankAccount"/>
+        <result property="bankid" column="BankID"/>
+        <result property="paychannelid" column="PayChannelID"/>
+        <result property="transtime" column="TransTime"/>
+        <result property="transfee" column="TransFee"/>
+        <result property="transtype" column="TransType"/>
+        <result property="transamount" column="TransAmount"/>
+        <result property="prebalance" column="PreBalance"/>
+        <result property="balance" column="Balance"/>
+        <result property="remark" column="Remark"/>
+        <result property="name" column="Name"/>
+        <result property="transaccount" column="TransAccount"/>
+        <result property="readmark" column="ReadMark"/>
+        <result property="status" column="Status"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="picktime" column="PickTime"/>
+        <result property="md5sign" column="Md5Sign"/>
+        <result property="merchantid" column="MerchantID"/>
+    </resultMap>
+
+    <sql id="selectStatementcenterVo">
+        SELECT ts.ID,
+               ts.SupplierBranchID,
+               ts.ClientID,
+               ts.BankCode,
+               ts.BankID,
+               ts.PayChannelID,
+               ts.TransTime,
+               ts.TransFee,
+               ts.TransType,
+               ts.TransAmount,
+               ts.PreBalance,
+               ts.Balance,
+               ts.Remark,
+               ts.Name,
+               ts.TransAccount,
+               ts.ReadMark,
+               ts.Status,
+               ts.CreateTime,
+               ts.PickTime,
+               ts.Md5Sign,
+               ts.MerchantID,
+               r.MerchantOrderID,
+               	t.BankCode as BankAccount
+        FROM t_banktrans ts
+                 JOIN t_bankcard t ON (ts.BankAccount = t.BankCode or ts.TransAccount = t.BankNum)
+                 left join t_bankaccountrecord r on (r.TransID = ts.ID)
+    </sql>
+
+    <select id="selectStatementcenterList" parameterType="Statementcenter" resultMap="StatementcenterResult">
+        <include refid="selectStatementcenterVo"/>
+        <where>
+            <if test="id != null ">and ts.ID = #{id}</if>
+            <if test="supplierbranchid != null ">and ts.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and ts.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="bankaccount != null and bankaccount != ''">and ts.BankAccount like concat('%', #{bankaccount},
+                '%')
+            </if>
+            <if test="transfee != null ">and ts.TransFee = #{transfee}</if>
+            <if test="transtype != null ">and ts.TransType = #{transtype}</if>
+            <if test="name != null and name != ''">and ts.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null and transaccount != ''">and ts.TransAccount = #{transaccount}</if>
+            <if test="readmark != null and readmark != ''">and ts.ReadMark = #{readmark}</if>
+            <if test="remark != null and remark != ''">and ts.ReMark = #{remark}</if>
+            <if test="status != null ">and ts.Status = #{status}</if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND ts.createtime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND ts.createtime &lt;= #{params.endTime}
+            </if>
+            <if test="surplier_type != null ">and t.surplier_type = #{surplier_type}</if>
+            <if test="createby != null and  createby > 0 ">and t.createby = #{createby}</if>
+            <if test="merchantOrderID != null and merchantOrderID != '' ">and r.MerchantOrderID = #{merchantOrderID}</if>
+        </where>
+        order by ts.createtime desc
+    </select>
+
+    <select id="selectStatementcenterById" parameterType="Long" resultMap="StatementcenterResult">
+        <include refid="selectStatementcenterVo"/>
+        where ID = #{id}
+    </select>
+
+
+    <select id="getTotal" parameterType="Long" resultMap="StatementcenterResult">
+        select ts.TransType,sum(ts.TransAmount) TransAmount
+        from t_banktrans ts
+        JOIN t_bankcard t ON (ts.BankAccount = t.BankCode or ts.TransAccount = t.BankNum)
+        left join t_bankaccountrecord r on (r.TransID = ts.ID)
+        <where>
+            <if test="id != null ">and ts.ID = #{id}</if>
+            <if test="supplierbranchid != null ">and ts.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and ts.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="bankaccount != null and bankaccount != ''">and ts.BankAccount like concat('%', #{bankaccount},
+                '%')
+            </if>
+            <if test="transfee != null ">and ts.TransFee = #{transfee}</if>
+            <if test="transtype != null ">and ts.TransType = #{transtype}</if>
+            <if test="name != null and name != ''">and ts.Name like concat('%', #{name}, '%')</if>
+            <if test="transaccount != null and transaccount != ''">and ts.TransAccount = #{transaccount}</if>
+            <if test="readmark != null and readmark != ''">and ts.ReadMark = #{readmark}</if>
+            <if test="remark != null and remark != ''">and ts.ReMark = #{remark}</if>
+            <if test="status != null ">and ts.Status = #{status}</if>
+            <if test="params.startTime != null and params.startTime != ''">
+                AND ts.createtime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND ts.createtime &lt;= #{params.endTime}
+            </if>
+            <if test="surplier_type != null ">and t.surplier_type = #{surplier_type}</if>
+            <if test="createby != null  and createby > 0 ">and t.createby = #{createby}</if>
+            <if test="merchantOrderID != null and merchantOrderID != '' ">and r.MerchantOrderID = #{merchantOrderID}</if>
+        </where>
+        group by ts.TransType
+
+    </select>
+
+    <insert id="insertStatementcenter" parameterType="Statementcenter" useGeneratedKeys="true" keyProperty="id">
+        insert into t_banktrans
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="clientid != null ">ClientID,</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode,</if>
+            <if test="bankaccount != null  and bankaccount != ''">BankAccount,</if>
+            <if test="bankid != null ">BankID,</if>
+            <if test="paychannelid != null ">PayChannelID,</if>
+            <if test="transtime != null ">TransTime,</if>
+            <if test="transfee != null ">TransFee,</if>
+            <if test="transtype != null ">TransType,</if>
+            <if test="transamount != null ">TransAmount,</if>
+            <if test="prebalance != null ">PreBalance,</if>
+            <if test="balance != null ">Balance,</if>
+            <if test="remark != null  and remark != ''">Remark,</if>
+            <if test="name != null  and name != ''">Name,</if>
+            <if test="transaccount != null  and transaccount != ''">TransAccount,</if>
+            <if test="readmark != null  and readmark != ''">ReadMark,</if>
+            <if test="status != null ">Status,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="picktime != null ">PickTime,</if>
+            <if test="md5sign != null  and md5sign != ''">Md5Sign,</if>
+            <if test="merchantid != null ">MerchantID,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="clientid != null ">#{clientid},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="bankaccount != null  and bankaccount != ''">#{bankaccount},</if>
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="paychannelid != null ">#{paychannelid},</if>
+            <if test="transtime != null ">#{transtime},</if>
+            <if test="transfee != null ">#{transfee},</if>
+            <if test="transtype != null ">#{transtype},</if>
+            <if test="transamount != null ">#{transamount},</if>
+            <if test="prebalance != null ">#{prebalance},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="transaccount != null  and transaccount != ''">#{transaccount},</if>
+            <if test="readmark != null  and readmark != ''">#{readmark},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="picktime != null ">#{picktime},</if>
+            <if test="md5sign != null  and md5sign != ''">#{md5sign},</if>
+            <if test="merchantid != null ">#{merchantid},</if>
+        </trim>
+    </insert>
+
+    <update id="updateStatementcenter" parameterType="Statementcenter">
+        update t_banktrans
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="clientid != null ">ClientID = #{clientid},</if>
+            <if test="bankcode != null  and bankcode != ''">BankCode = #{bankcode},</if>
+            <if test="bankaccount != null  and bankaccount != ''">BankAccount = #{bankaccount},</if>
+            <if test="bankid != null ">BankID = #{bankid},</if>
+            <if test="paychannelid != null ">PayChannelID = #{paychannelid},</if>
+            <if test="transtime != null ">TransTime = #{transtime},</if>
+            <if test="transfee != null ">TransFee = #{transfee},</if>
+            <if test="transtype != null ">TransType = #{transtype},</if>
+            <if test="transamount != null ">TransAmount = #{transamount},</if>
+            <if test="prebalance != null ">PreBalance = #{prebalance},</if>
+            <if test="balance != null ">Balance = #{balance},</if>
+            <if test="remark != null  and remark != ''">Remark = #{remark},</if>
+            <if test="name != null  and name != ''">Name = #{name},</if>
+            <if test="transaccount != null  and transaccount != ''">TransAccount = #{transaccount},</if>
+            <if test="readmark != null  and readmark != ''">ReadMark = #{readmark},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="picktime != null ">PickTime = #{picktime},</if>
+            <if test="md5sign != null  and md5sign != ''">Md5Sign = #{md5sign},</if>
+            <if test="merchantid != null ">MerchantID = #{merchantid},</if>
+        </trim>
+        where ID = #{id}
+    </update>
+
+    <delete id="deleteStatementcenterById" parameterType="Long">
+        DELETE
+        FROM t_banktrans
+        WHERE ID = #{id}
+    </delete>
+
+    <delete id="deleteStatementcenterByIds" parameterType="String">
+        delete from t_banktrans where ID in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

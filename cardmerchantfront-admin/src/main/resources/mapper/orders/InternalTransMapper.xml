@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.orders.mapper.InternalTransMapper">
+    
+    <resultMap type="InternalTrans" id="InternalTransResult">
+        <result property="OrderIndex"           column="OrderIndex"    />
+        <result property="orderId"              column="OrderID"    />
+        <result property="supplierBranchID"     column="SupplierBranchID"    />
+        <result property="outputBankID"         column="OutputBankID"    />
+        <result property="outputBankAccount"    column="OutputBankAccount"    />
+        <result property="inputBankID"          column="InputBankID"    />
+        <result property="inputBankNum"         column="InputBankNum"    />
+        <result property="inputBankOwner"       column="InputBankOnwer"    />
+        <result property="inputBankAddress"     column="InputBankAddress"    />
+        <result property="tradeAmount"          column="TradeAmount"    />
+        <result property="status"               column="Status"    />
+        <result property="bankCode"             column="BankCode"    />
+        <result property="orderType"            column="OrderType"    />
+        <result property="remark"               column="Remark"    />
+        <result property="orderCreateTime"           column="CreateTime"    />
+        <result property="lastUpDateTime"       column="LastUpDateTime"    />
+    </resultMap>
+
+    <sql id="selectInternalTransVo">
+
+         select  d.OrderID, d.SupplierBranchID,d.OutputBankID, d.OutputBankAccount,d.InputBankID,
+          d.InputBankNum, d.InputBankOnwer, d.InputBankAddress, d.TradeAmount, d.Status,d.BankCode, d.OrderType,
+          d.Remark, d.CreateTime, d.LastUpDateTime
+          from t_b2binternaltransorder d
+    </sql>
+
+    <select id="selectInternalTransList" parameterType="InternalTrans" resultMap="InternalTransResult">
+        <include refid="selectInternalTransVo"/>
+        <where>
+            <if test="orderId != null  and orderId != ''"> and d.OrderID = #{orderId}</if>
+            <if test="supplierBranchID != null  and supplierBranchID != ''"> and d.SupplierBranchID = #{supplierBranchID}</if>
+            <if test="tradeAmount != null  and tradeAmount != ''"> and d.TradeAmount = #{tradeAmount}</if>
+            <if test="outputBankAccount != null  and outputBankAccount != ''"> and d.OutputBankAccount = #{outputBankAccount}</if>
+            <if test="inputBankNum != null  and inputBankNum != ''"> and d.InputBankNum = #{inputBankNum}</if>
+
+            <if test="status != null  and status != ''"> and d.Status = #{status}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                AND d.CreateTime &gt;= #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                AND d.CreateTime &lt;= #{params.endCreatetime}
+            </if>
+
+        </where>
+    </select>
+    
+    <select id="selectInternalTransById" parameterType="Long" resultMap="InternalTransResult">
+        <include refid="selectInternalTransVo"/>
+        where d.OrderIndex = #{orderindex}
+    </select>
+</mapper>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('每日汇总')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul >
+                        <li>
+                            <p><em data-i18name="">代理账号</em>：</p>
+                            <input type="text" name="userName"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="">级别</em>：</p>
+                            <select name="level">
+                                <option value="">所有</option>
+                                <option value="">一级代理</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+<!--    <div class="row">-->
+<!--        <div class="col-sm-12 select-table table-striped">-->
+<!--            <table id="bootstrap-table-total"></table>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <div class="row">-->
+<!--        <div class="col-sm-12 select-table table-striped">-->
+<!--            <table id="bootstrap-table-summary"></table>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <div class="row">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<style>
+    .container-div .row {
+        height: auto;
+    }
+    .totalClass{
+        float: right;
+        text-align: right;
+        display: inline-block;
+    }
+
+    .totalClass span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .totalClass span em {
+        color: red;
+    }
+</style>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "reports/reportdalily";
+    var agent_level = [[${@dict.getType('agent_level')}]];
+
+    $('.time-input').datetimepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        minView: 1,
+        minuteStep:1
+    });
+
+    // function searchA(){
+    //     $.table.search("","bootstrap-table-total");
+    //     $.table.search("","bootstrap-table-summary");
+    //     $.table.search("","bootstrap-table");
+    // }
+
+
+    // $(function () {
+    //     var options = {
+    //         id: "bootstrap-table-total",
+    //         url: "/reports/reportdalily/total",
+    //         modalName: "代理银行卡",
+    //         pagination:false,
+    //         columns: [
+    //             {
+    //                 field: 'totalAmount',
+    //                 title: '<em data-i18name="">卡分销今日总额</em>',
+    //                 formatter: function (value) {
+    //                     return parseFloat(value).toFixed(2);
+    //                 },
+    //             },
+    //             {
+    //                 field: 'depositAmount',
+    //                 title: '<em data-i18name="">今日入金</em>',
+    //                 formatter: function (value) {
+    //                     return parseFloat(value).toFixed(2);
+    //                 },
+    //             },
+    //             {
+    //                 field: 'withdrawAmount',
+    //                 title: '<em data-i18name="">今日出金</em>',
+    //                 formatter: function (value) {
+    //                     return parseFloat(value).toFixed(2);
+    //                 },
+    //             }
+    //         ]
+    //     };
+    //     $.table.init(options);
+    // });
+    // $(function () {
+    //     var options = {
+    //         id: "bootstrap-table-summary",
+    //         url: "/reports/reportdalily/getWorkTypeSummary",
+    //         modalName: "代理银行卡",
+    //         pagination: false,
+    //         columns: [
+    //             {
+    //                 field: 'workType',
+    //                 title: '<em data-i18name="">工作模式</em>'
+    //             },
+    //             {
+    //                 field: 'transCount',
+    //                 title: '<em data-i18name="">交易笔数</em>'
+    //             },
+    //             {
+    //                 field: 'successTransCount',
+    //                 title: '<em data-i18name="">成功笔数</em>'
+    //             },
+    //             {
+    //                 field: 'avgAmount',
+    //                 title: '<em data-i18name="">平均金额</em>'
+    //             },
+    //             {
+    //                 field: 'transAmount',
+    //                 title: '<em data-i18name="">交易总额</em>'
+    //             },
+    //             {
+    //                 field: 'successRatio',
+    //                 title: '<em data-i18name="">成功率（%）</em>'
+    //             }
+    //         ]
+    //     };
+    //     $.table.init(options);
+    // });
+
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+           // exportUrl: prefix + "/export",
+            modalName: "每日汇总",
+            responseHandler:responseHandler,
+            columns: [
+                {
+                    field: 'agentName',
+                    title: '<em data-i18name="">代理账号</em>'
+                },
+                {
+                    field: 'agentLevel',
+                    title: '<em data-i18name="">代理等级</em>',
+                    formatter: function (value,row,index) {
+                        if(value == 0){
+                            return "总代理";
+                        }
+                        return getDictVale(value, agent_level);
+                    }
+                },
+
+                {
+                    field: 'totalCount',
+                    title: '<em data-i18name="">交易笔数</em>'
+                },
+                {
+                    field: 'transCount',
+                    title: '<em data-i18name="">成功笔数</em>'
+                },
+                {
+                    field: 'successRate',
+                    title: '<em data-i18name="">成功率</em>',
+                    formatter:function (value,row,index) {
+                        return `${value * 100}%`;
+                    }
+                },
+
+                {
+                    field: 'transToday',
+                    title: '<em data-i18name="">交易金额</em>'
+                },
+                {
+                    field: 'ratio',
+                    title: '<em data-i18name="">费率(%)</em>'
+                },
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="">账号金额</em>'
+                },
+                {
+                    field: 'profit_balance',
+                    title: '<em data-i18name="">利润</em>'
+                },
+                {
+                    field: 'splitProfit',
+                    title: '<em data-i18name="">分润</em>',
+                    visible: false
+                },
+
+                {
+                    field: 'available_Balance',
+                    title: '<em data-i18name="">可用金额</em>'
+                },
+                {
+                    field: 'withdrawAmount',
+                    title: '<em data-i18name="">已提金额</em>'
+                }]
+        };
+        $.table.init(options);
+    });
+
+    responseHandler = function (res) {
+        subTotal(res.subtotal,res.totalEntity);
+    }
+</script>
+</body>
+</html>

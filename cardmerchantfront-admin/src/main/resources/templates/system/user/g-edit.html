@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改用户')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body>
+<div class="main-content">
+    <form class="form-horizontal" id="form-user-edit" th:object="${user}">
+        <input name="userId" type="hidden" th:field="*{userId}"/>
+        <h4 class="form-header h4"><em data-i18name="m.basicinfo">基本信息</em></h4>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <input id="roleId" name="roleId" type="hidden" th:field="*{roleId}"/>
+                    <label class="col-xs-4 control-label"><em
+                            data-i18name="t.role">角色</em>：</label>
+                    <div class="col-xs-8">
+                        <input class="form-control" style="border: none;" type="text" readonly="true" name="treeName"
+                               value="管理员">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label is-required"><em
+                            data-i18name="t.supplierbranchid">财务分支</em>：</label>
+                    <div class="col-xs-8">
+                        <select class="form-control" th:title="请选择" multiple
+                                id="supplierbranchidgroup" name="supplierbranchidgroup"
+                                th:field="*{supplierbranchidgroup}">
+                            <option th:each="post:${@dictbank.getSurppilerbranch()}"
+                                    th:value="${post.getId()}"
+                                    th:text="${post.getBranchname()}"
+                            ></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required"><em data-i18name="t.loginname">登录账号</em>：</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" type="text" readonly="true" th:field="*{loginName}"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required"><em data-i18name="t.username">用户名称</em>：</label>
+                    <div class="col-sm-8">
+                        <input name="userName" placeholder="请输入用户名称" class="form-control" type="text" maxlength="30"
+                               th:field="*{userName}" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><em data-i18name="user.userstatus">用户状态</em>：</label>
+                    <div class="col-sm-8">
+                        <label class="toggle-switch switch-solid">
+                            <input type="checkbox" id="status" th:checked="${user.status == '0' ? true : false}">
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><em data-i18name="user.orderallotrule">订单角色</em>：</label>
+                    <div class="col-sm-8">
+                        <select name="orderallotrule" id="orderallotrule" class="form-control m-b"
+                                th:field="*{orderallotrule}">
+                            <!--                            <option value="0">默认</option>-->
+                            <option value="2" selected="selected">操作员</option>
+                            <option value="1">分配员</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"><em data-i18name="t.loginpassword">登录密码</em>：</label>
+                    <div class="col-sm-8">
+                        <input class="form-control" type="password" name="verifedpassword" id="verifedpassword"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6" th:if="!${@permission.isGooglecodePrinple()}">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label is-required">SN:</label>
+                    <div class="col-sm-8">
+                        <div class="input-group" style="width: 100%;">
+                            <input type="text" class="form-control" id="baidu" th:value="*{googlecode}"
+                                   placeholder="请输入并选择你的SN号">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-white dropdown-toggle" data-toggle="dropdown">
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </form>
+</div>
+
+
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: bootstrap-suggest-js"/>
+<th:block th:include="include :: bootstrap-select-css"/>
+<th:block th:include="include :: bootstrap-select-js"/>
+<script th:inline="javascript">
+    var prefix = ctx + "system/user";
+    //百度搜索测试
+    var baiduBsSuggest = $("#baidu").bsSuggest({
+        allowNoKeyword: true, //是否允许无关键字时请求数据
+        multiWord: true, //以分隔符号分割的多关键字支持
+        separator: ",", //多关键字支持时的分隔符，默认为空格
+        searchingTip: '搜索中...',
+        getDataMethod: "url", //获取数据的方式，总是从 URL 获取
+        url: prefix + '/smdlist?pageSize=10&pageNum=1&wd=',
+        /*优先从url ajax 请求 json 帮助数据，注意最后一个参数为关键字请求参数*/
+        /*如果从 url 获取数据，并且需要跨域，则该参数必须设置*/
+
+        processData: function (json) {
+            // url 获取数据时，对数据的处理，作为 getData 的回调函数
+            var i, len, data = {
+                value: []
+            };
+            if (!json || !json.rows || json.rows.length === 0) {
+                return false;
+            }
+
+            console.log(json);
+            len = json.rows.length;
+            for (i = 0; i < len; i++) {
+                data.value.push({
+                    word: json.rows[i].sn
+                });
+            }
+            //字符串转化为 js 对象
+            return data;
+        }
+    });
+
+
+</script>
+
+<script th:inline="javascript">
+    var prefix = ctx + "system/user";
+    let resupplierbranchidgroup = [[${user.supplierbranchidgroup}]].split(',').filter(v => v);
+
+    $('#supplierbranchidgroup').val(resupplierbranchidgroup);
+    $("#form-user-edit").validate({
+        onkeyup: false,
+        rules: {},
+        messages: {
+            "loginName": {
+                remote: "用户已经存在"
+            },
+
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var data = $("#form-user-edit").serializeArray();
+            var status = $("input[id='status']").is(':checked') == true ? 0 : 1;
+            var roleIds = $("#roleId").val();
+            var supplierbranchidgroup = $.form.selectSelects("supplierbranchidgroup");
+
+            let orderallotrule = $("#orderallotrule").val();
+            let val = $("#baidu").val();
+            var googlecode = val && val.trim();
+
+            if (googlecode && !/^\d{9}$/.test(googlecode)) {
+                return $.modal.alertWarning('请选择9位SN码或者输入9位SN码');
+            }
+            let verifedpassword = $('#verifedpassword').val();
+
+            data.push({"verifedpassword": "verifedpassword", "value": verifedpassword});
+            data.push({"name": "supplierbranchidgroup", "value": supplierbranchidgroup});
+            data.push({"name": "googlecode", "value": googlecode});
+            data.push({"name": "orderallotrule", "value": orderallotrule});
+            data.push({"name": "status", "value": status});
+            data.push({"name": "roleIds", "value": roleIds});
+
+            layer.prompt({title: '输入口令', formType: 1}, function (verifycode, index) {
+                data.push({"name": "verifycode", "value": verifycode});
+                $.operate.saveTab(prefix + "/g-edit", data, saveCallback);
+                layer.close(index);
+            });
+        }
+    }
+
+    function saveCallback() {
+        parent.$.table.refresh();
+    }
+
+
+    /*菜单管理-新增-选择菜单树*/
+    function selectMenuTree() {
+        var prefix = ctx + "system/role";
+        var treeId = $("#roldId").val();
+        var menuId = treeId > 0 ? treeId : 1;
+
+        var url = prefix + "/selectMenuTree/" + menuId;
+        var options = {
+            title: '角色选择',
+            width: "380",
+            url: url,
+            callBack: doSubmit
+        };
+        $.modal.openOptions(options);
+    }
+
+    function doSubmit(index, layero) {
+        var body = layer.getChildFrame('body', index);
+        $("#roleId").val(body.find('#treeId').val());
+        $("#treeName").val(body.find('#treeName').val());
+        layer.close(index);
+    }
+
+</script>
+</body>
+</html>

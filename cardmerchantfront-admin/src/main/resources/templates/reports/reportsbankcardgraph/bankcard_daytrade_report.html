@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('银行卡日交易报表列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li class="form-group">
+                            <p class="mylabeltitle"><em data-i18name="biz.banktype">银行类型</em>：</p>
+
+                            <select th:with="type=${@dictbank.getTBanktype()}" name="banktype"
+                                    class="form-control">
+                                <option value="">请选择</option>
+                                <option th:each="dict : ${type}" th:value="${dict.getBanktypecode()}"
+                                        th:text="${dict.getBanktypename()}"></option>
+                            </select>
+
+                        </li>
+                        <!--                        <li class="form-group">-->
+                        <!--                            <p class="mylabeltitle"> <em data-i18name="biz.paychannel">支付渠道</em>：2020-1-15 下午kind确认,不需要这个条件</p>-->
+
+                        <!--                            <select th:with="type=${@dictbank.getPaychannel()}" name="paychannel"-->
+                        <!--                                    class=" select2-multiple">-->
+                        <!--                                <option value="">请选择</option>-->
+                        <!--                                <option th:each="dict : ${type}" th:value="${dict.getPaychannelid()}"-->
+                        <!--                                        th:text="${dict.getPaychannelname()}"></option>-->
+                        <!--                            </select>-->
+
+                        <!--                        </li>-->
+                        <li class="form-group">
+                            <p class="mylabeltitle"><em data-i18name="biz.bankcode">银行卡简码</em>：</p>
+                            <input type="text" class="form-control" placeholder=""
+                                   name="bankcode"/>
+                        </li>
+
+                        <li>
+                            <p class="mylabeltitle">
+                                <em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginLastupdatetime]"/>
+
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endLastupdatetime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="reports:reportsbankcardgraph:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('reports:reportsbankcardgraph:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('reports:reportsbankcardgraph:remove')}]];
+    var prefix = ctx + "reports/reportsbankcardgraph";
+    var worktype = [[${@dictbank.getSelectUIType('WorkType')}]];
+
+    function getWorktype(id) {
+        for (let key in worktype) {
+            if (id == key) {
+                //1=收款,2=出款
+                let worytypeNmae = worktype[key];
+                switch (key) {
+                    // case 100:
+                    //     return ` <a class="badge badge-primary   ">${worytypeNmae}</a>`;
+                    case "1":
+                        return ` <a class="badge badge-primary ">${worytypeNmae}</a>`;
+                        // return ` <a class="badge badge-success ">${worytypeNmae}</a>`;
+                    case "2":
+                        return ` <a class="badge badge-danger ">${worytypeNmae}</a>`;
+                    default:
+                        return worytypeNmae;
+                }
+
+            }
+        }
+
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + '/proview/{id}',
+            modalName: "银行卡日交易报表",
+            columns: [
+                {
+                    field: 'bankid',
+                    title: '银行卡ID',
+                    visible: false
+                },
+                {
+                    field: 'bankcode',
+                    title: '<em data-i18name="biz.bankcode">银行卡简码</em>'
+                },
+                {
+                    field: 'worktype',
+                    title: '<em data-i18name="biz.worktype">工作模式 </em>',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'depositamount',
+                    title: ' <em data-i18name="t.totaldeposit">收款总额</em>'
+                },
+                {
+                    field: 'deposittimes',
+                    title: '<em data-i18name="t.depositimes">收款次数</em>'
+                },
+                {
+                    field: 'withdrawamount',
+                    title: '<em data-i18name="t.withdrewtotalamout">出款总额</em>'
+                },
+                {
+                    field: 'withdrawtimes',
+                    title: ' <em data-i18name="t.withdrewtimes">出款次数</em>'
+                },
+                {
+                    field: 'counttime',
+                    title: '<em data-i18name="t.totaltimes">总次数</em>'
+                },
+                {
+                    field: 'calendar',
+                    title: '<em data-i18name="t.datetime">日期</em>'
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

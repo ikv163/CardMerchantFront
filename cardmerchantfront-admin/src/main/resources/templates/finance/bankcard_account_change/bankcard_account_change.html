@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('银行卡账变列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p><em data-i18name="biz.bankcode">银行卡简码</em>：</p>
+                            <input type="text" name="bankCode"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.platformorderno">平台订单号</em>：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.merchantorder">商户订单号</em>：</p>
+                            <input type="text" name="merchantorderid"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="biz.trademethod">交易方式</em>：</p>
+                            <select name="transtype">
+                                <option value="">请选择</option>
+                                <option value="0">充值</option>
+                                <option value="1">提款</option>
+                                <option value="2">准备金</option>
+                                <option value="3">商户下发</option>
+                            </select>
+                        </li>
+
+                    </ul>
+
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p><em data-i18name="biz.tradeamout">交易金额</em>：</p>
+                            <input type="number" name="transamount"/>
+                        </li>
+                        <li class="select-time">
+                            <p><em data-i18name="user.createtime">创建时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!--<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="finance:bankcard_account_change:add">
+                <i class="fa fa-plus"></i> <em data-i18name="fn.add">添加</em>
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="finance:bankcard_account_change:edit">
+                      <i class="fa fa-edit"></i> <em data-i18name="fn.modify">修改</em>
+    </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="finance:bankcard_account_change:remove">
+                <i class="fa fa-remove"></i> <em data-i18name="fn.remove">删除</em>
+    </a>
+            -->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="finance:bankcard_account_change:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('finance:bankcard_account_change:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('finance:bankcard_account_change:remove')}]];
+    var prefix = ctx + "finance/bankcard_account_change";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            modalName: "银行卡账变",
+            columns: [
+                {
+                    field: 'bankCode',
+                    title: '<em data-i18name="biz.bankcode">银行卡简码</em>'
+                },
+                {
+                    field: 'orderid',
+                    title: '<em data-i18name="biz.platformorderno">平台订单号</em>'
+                },
+                {
+                    field: 'merchantorderid',
+                    title: '<em data-i18name="biz.merchantorder">商户订单号</em>'
+                },
+                {
+                    field: 'transtype',
+                    title: '<em data-i18name="biz.trademethod">交易方式</em>',
+                    formatter: function (value, row, index) {
+                        if (value == 0) {
+                            return "充值";
+                        }
+                        if (value == 1) {
+                            return "提款";
+                        }
+                        if (value == 2) {
+                            return "准备金";
+                        }
+                        if (value == 3) {
+                            return "商户下发";
+                        }
+                        return "-";
+                    }
+                },
+                {
+                    field: 'transamount',
+                    title: '<em data-i18name="biz.tradeamout">交易金额</em>'
+                },
+                {
+                    field: 'paidamount',
+                    title: '<em data-i18name="biz.activedammout">实际金额</em>'
+                },
+                {
+                    field: 'paychannelfee',
+                    title: '<em data-i18name="t.afee">实际手续费</em>'
+                },
+                {
+                    field: 'supplierpaidchannelfee',
+                    title: '<em data-i18name="t.merchatfee">商户手续费</em>'
+                },
+                {
+                    field: 'prebalance',
+                    title: '<em data-i18name="t.beforetradebalace">交易前余额</em>'
+                },
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="t.balance">余额</em>'
+                },
+                {
+                    field: 'createtime',
+                    title: '<em data-i18name="user.createtime">创建时间</em>'
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

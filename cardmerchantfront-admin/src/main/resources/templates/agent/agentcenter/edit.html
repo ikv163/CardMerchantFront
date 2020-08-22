@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改卡商代理')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">修改卡商代理基本信息</h4>
+    <form class="form-horizontal m" id="form-agentcenter-edit" th:object="${tBankcardAgent}">
+        <input name="id" th:field="*{id}" type="hidden">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">代理名称
+                ：</label>
+            <div class="col-sm-7">
+                <input name="agentName" readonly th:field="*{agentName}" class="form-control"
+                       type="text" required>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label">状态：</label>
+            <div class="col-sm-7">
+                <select  th:field="*{status}" name="status" class="form-control m-b"
+                        th:with="type=${@dict.getType('agent_status')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">费率 （最大<span id="maxRatio"  th:text="${maxRatio}" ></span>）：</label>
+            <div class="col-sm-7">
+                <input name="ratio" th:field="*{ratio}" class="form-control"
+                       type="number" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label">代理级别：</label>
+            <div class="col-sm-7">
+                <select th:with="type=${@dict.getType('agent_level')}"  class="form-control m-b" disabled>
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label">登录密码：</label>
+            <div class="col-sm-7">
+                <input name="password" th:field="*{password}" class="form-control" id="password"
+                       type="password">
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "agent/agentcenter";
+    let maxRatio = $('#maxRatio').text();
+    $("#form-agentcenter-edit").validate({
+        focusCleanup: true,
+        rules: {
+            agentCode: {isUserName: true, required: true},
+            ratio:{
+                required:true,
+                max:parseFloat(maxRatio),
+                min:0.1
+            }
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var password=$("#password").val();
+            //如果有填写必须验证，没有填写不需要输入
+            if(password.length>0) {
+                if(password.length <8 || password.length > 16){
+                    $.modal.alertError("登录密码长度必须在8-16之间");
+                    return false;
+                }
+                var pattern = /^\w+$/;
+                if (!pattern.test(password)) {
+                    $.modal.alertError("登录密码只能输入数字和字母(字符A-Z,a-z,0-9)");
+                    return false;
+                }
+            }
+            $.operate.save(prefix + "/edit", $('#form-agentcenter-edit').serialize());
+        }
+    }
+
+    $("input[name='lastUpdateTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改银行卡客户端')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bankcard_client-edit" th:object="${bankClient}">
+
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.basicinfo">基本信息</em></h4>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.clientno">客户端编号</em>：</label>
+            <div class="col-sm-8">
+                <input name="clientId" th:field="*{clientId}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="biz.clientname">客户端名称</em>：</label>
+            <div class="col-sm-8">
+                <input name="clientName" th:field="*{clientName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select name="status" class="form-control m-b" th:field="*{status}"
+                        th:with="type=${@dictbank.getSelectUIType('ClientStatusTwo')}">
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.value}"
+                            th:value="${dict.key}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em
+                    data-i18name="biz.worktype">工作模式</em>：</label>
+            <div class="col-sm-8">
+                <select name="workType" th:field="*{workType}" class="form-control m-b"
+                        th:with="type=${@dictbank.getSelectUIType('WorkTypecreate')}">
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.value}"
+                            th:value="${dict.key}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em
+                    data-i18name="biz.banktype">银行类型</em>：</label>
+            <div class="col-sm-8">
+                <select name="bankType" th:field="*{bankType}" class="form-control m-b"
+                        th:with="type=${@dictbank.getTBanktype()}">
+                    <option value="">请选择</option>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><span style="color: red">*</span><em data-i18name="m.identiy">识别码</em>：</label>
+            <div class="col-sm-8">
+                <input name="identity" th:field="*{identity}" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "bankcard/bankcard_client";
+    let oldclientName = $.common.trim($("[name=clientName]").val());
+    let oldclientidentity = $.common.trim($("[name=identity]").val());
+
+
+    $("#form-bankcard_client-edit").validate({
+        focusCleanup: true,
+        onkeyup: false,
+        rules: {
+            "clientName": {
+                minlength: 2,
+                "required": true,
+                remote: {
+                    url: prefix + "/check",
+                    type: "post",
+                    dataType: "json",
+                    cache: false,
+                    async: true,
+                    data: {
+                        "clientName": function () {
+                            return $.common.trim($("[name=clientName]").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        var clientName = $.common.trim($("[name=clientName]").val());
+                        if (oldclientName != clientName) {
+                            let s = JSON.parse(data);
+                            return s && s.total == 0
+                        }
+                        return true;
+                    }
+                }
+            },
+            "identity": {
+                minlength: 2,
+                "required": true,
+                remote: {
+                    url: prefix + "/check",
+                    type: "post",
+                    dataType: "json",
+                    cache: false,
+                    async: true,
+                    data: {
+                        "identity": function () {
+                            return $.common.trim($("[name=identity]").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        var identity = $.common.trim($("[name=identity]").val());
+                        if (oldclientidentity != identity) {
+                            let s = JSON.parse(data);
+                            return s && s.total == 0
+                        }
+                        return true;
+
+                    }
+                }
+            },
+            "bankType": {"required": true},
+            "bankAccount": {"required": true},
+            "status": {"required": true},
+            "workType": {"required": true}
+        },
+        messages: {
+            "clientName": {"remote": "客户端名称已经存在"},
+            "identity": {"remote": "识别码已经存在"},
+        },
+        submitHandler: function () {
+            $.operate.saveTab(prefix + "/edit", $('#form-bankcard_client-edit').serialize());
+        }
+    });
+
+    function submitHandler() {
+        $("#form-bankcard_client-edit").submit();
+        $.modal.reload();
+    }
+
+</script>
+</body>
+</html>

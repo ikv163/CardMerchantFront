@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('三方下发账变列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+
+
+                <div class="select-list">
+                    <ul>
+
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.platformorderno">平台订单号</em>：</p>
+                            <input type="text" name="orderid"/>
+                        </li>
+
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.channelname">渠道名称</em>：</p>
+                            <select th:with="type=${@dictorders.getPaychannelBywithdraw()}" name="paychannelid"
+                                    class="form-control">
+                                <option value="">请选择</option>
+                                <option th:each="dict : ${type}" th:value="${dict.getPaychannelid()}"
+                                        th:text="${dict.getPaychannelname()}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.issuedamout">下发金额</em>：</p>
+                            <input type="number" name="payamount"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.activedammout">实际金额</em>：</p>
+                            <input type="number" name="paidamount"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="onClickSearch()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="reports:reportsthirdpartydelivery:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "reports/reportsthirdpartydelivery";
+    $("#formId").validate({
+        focusCleanup: true,
+        rules: {
+            payamount: {
+                number: true
+            },
+            paidamount: {
+                number: true
+            },
+        }
+    });
+
+    function onClickSearch() {
+        if ($.validate.form()) {
+            $.table.search();
+        }
+    }
+
+    var ChannelName = [[${@dictbank.getPaychannel()}]];
+
+    function getChannelName(id) {
+        for (let i in ChannelName) {
+            if (id == ChannelName[i].paychannelid) {
+                return ChannelName[i].paychannelname;
+            }
+        }
+
+    }
+
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + '/proview/{id}',
+            modalName: "三方下发账变",
+            columns: [
+                {
+                    field: 'orderindex',
+                    title: '平台订单索引',
+                    visible: false
+                },
+                {
+                    field: 'orderid',
+                    title: '<em data-i18name="biz.platformorderno">平台订单号</em>'
+                },
+                {
+                    field: 'paychannelid',
+                    title: '<em data-i18name="biz.channelname">渠道名称</em>',
+                    formatter: function (value, row, index) {
+                        return getChannelName(value);
+                    }
+                },
+                {
+                    field: 'transamount',
+                    title: '<em data-i18name="biz.issuedamout">下发金额</em>'
+                },
+                {
+                    field: 'paidamount',
+                    title: '<em data-i18name="biz.activedammout">实际金额</em>'
+                },
+                {
+                    field: 'paychannelfee',
+                    title: '<em data-i18name="t.fee">手续费</em>'
+                },
+                {
+                    field: 'createtime',
+                    title: '<em data-i18name="t.recordtime">记账时间</em>'
+                }]
+        };
+        $.table.init(options);
+    });
+
+</script>
+</body>
+</html>

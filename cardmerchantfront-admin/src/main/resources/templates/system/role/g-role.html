@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('角色列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="role-form">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <em data-i18name="t.rolename">角色名称</em>:<input
+                                type="text" name="roleName"/>
+                        </li>
+                        <li>
+                            <em data-i18name="biz.rolestatus">角色状态</em>:<select name="status" class="form-control"
+                                                                                th:with="type=${@dict.getType('sys_normal_disable')}">
+                            <option value="">请选择</option>
+                            <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                    th:value="${dict.dictValue}"></option>
+                        </select>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-primary  " onclick="addRole()"
+               shiro:hasPermission="system:role:add">
+                <i class="fa fa-edit"></i> <em data-i18name="fn.add">添 加</em>
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<style>
+    .bootstrap-tree-table .treetable-tbody td {
+        overflow: inherit;
+        text-overflow: inherit;
+    }
+
+</style>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:role:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:role:remove')}]];
+    var prefix = ctx + "system/role";
+    $(function () {
+
+        var options = {
+            url: prefix + "/g-list",
+            createUrl: prefix + "/g-add",
+            updateUrl: prefix + "/g-edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            sortName: "roleSort",
+            modalName: "角色",
+            columns: [{
+                field: 'selectItem',
+                radio: true
+            },
+                {
+                    field: 'roleName',
+                    title: '<em data-i18name="t.rolename">角色名称</em>',
+                    width: '20%'
+                },
+                {
+                    field: 'roleId',
+                    title: '<em data-i18name="t.roleid">角色编号</em>',
+                    visible: false
+                },
+
+                {
+                    visible: editFlag == 'hidden' ? false : true,
+                    title: '<em data-i18name="biz.rolestatus">角色状态</em>',
+                    formatter: function (value, row, index) {
+                        return statusTools(row);
+                    }
+                },
+                {
+                    title: '<em data-i18name="t.operto">操作</em>',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="editRoleAuth(\'' + row.roleId + '\')"><i class="fa fa-edit"></i>编辑权限</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.roleId + '\')"><i class="fa fa-remove"></i>删除</a> ');
+
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+
+    });
+
+    /* 编辑角色权限 */
+    function editRoleAuth(roleId) {
+        var url = prefix + '/g-edit/' + roleId;
+        $.modal.open("编辑角色权限", url, '1200', '750');
+    }
+
+    /* 编辑角色权限 */
+    function addRole() {
+        var url = prefix + '/g-add';
+        $.modal.open("新增角色", url, '1000', '900');
+    }
+
+
+    /* 角色状态显示 */
+    function statusTools(row) {
+        if (row.status == 1) {
+            return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enable(\'' + row.roleId + '\')"></i> ';
+        } else {
+            return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disable(\'' + row.roleId + '\')"></i> ';
+        }
+    }
+
+    /* 角色管理-停用 */
+    function disable(roleId) {
+        $.modal.confirm("确认要停用角色吗？", function () {
+            $.operate.post(prefix + "/changeStatus", {"roleId": roleId, "status": 1});
+        })
+    }
+
+    /* 角色管理启用 */
+    function enable(roleId) {
+        $.modal.confirm("确认要启用角色吗？", function () {
+            $.operate.post(prefix + "/changeStatus", {"roleId": roleId, "status": 0});
+        })
+    }
+</script>
+</body>
+</html>

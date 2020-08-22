@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBanktransReversalMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.TBanktransReversal" id="TBanktransResult">
+        <result property="id" column="ID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="clientid" column="ClientID"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="bankaccount" column="BankAccount"/>
+        <result property="bankid" column="BankID"/>
+        <result property="paychannelid" column="PayChannelID"/>
+        <result property="transtime" column="TransTime"/>
+        <result property="transfee" column="TransFee"/>
+        <result property="transtype" column="TransType"/>
+        <result property="transamount" column="TransAmount"/>
+        <result property="prebalance" column="PreBalance"/>
+        <result property="balance" column="Balance"/>
+        <result property="remark" column="Remark"/>
+        <result property="name" column="Name"/>
+        <result property="transaccount" column="TransAccount"/>
+        <result property="readmark" column="ReadMark"/>
+        <result property="status" column="Status"/>
+        <result property="picktime" column="PickTime"/>
+        <result property="md5sign" column="Md5Sign"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="merchantid" column="MerchantID"/>
+
+    </resultMap>
+
+    <sql id="selectTBanktransVo">
+            t_banktrans.ID,
+            t_banktrans.SupplierBranchID,
+            t_banktrans.ClientID,
+            t_banktrans.BankCode,
+            t_banktrans.BankAccount,
+            t_banktrans.PayChannelID,
+            t_banktrans.TransTime,
+            t_banktrans.TransFee,
+            t_banktrans.TransType,
+            t_banktrans.TransAmount,
+            t_banktrans.PreBalance,
+            t_banktrans.Balance,
+            t_banktrans.Remark,
+            t_banktrans.Name,
+            t_banktrans.TransAccount,
+            t_banktrans.ReadMark,
+            t_banktrans.Status,
+            t_banktrans.CreateTime,
+            t_banktrans.PickTime,
+            t_banktrans.Md5Sign,
+            t_banktrans.MerchantID
+    </sql>
+
+
+    <!-- 冲正流水 -->
+    <select id="selectReversalTransList" resultMap="TBanktransResult">
+        SELECT
+        t_bankaccountrecord.MerchantOrderID,
+        t_bankaccountrecord.OrderID,
+        '冲正流水' as  transordertype,
+        (case when t_banktrans.TransType =1  then t_banktrans.TransAmount else 0 end) as deposit,
+        (case when t_banktrans.TransType =0 then t_banktrans.TransAmount else 0 end) as withdraw,
+        t_banktrans.BankID,
+
+        <include refid="selectTBanktransVo"/>
+        FROM t_banktrans
+        LEFT JOIN t_bankaccountrecord ON t_banktrans.ID = t_bankaccountrecord.TransID
+        left join t_bankcard on t_bankcard.BankCode= t_banktrans.BankAccount
+        <where>
+            <if test="1==1">and t_banktrans.Status=3 AND t_banktrans.TransType=1 AND t_banktrans.Remark LIKE '%冲%'</if>
+            <if test="supplierbranchid != null ">and t_banktrans.SupplierBranchID = #{supplierbranchid}</if>
+
+
+            <if test="bankaccount != null  and bankaccount != ''">
+                and t_banktrans.BankAccount like concat('%', #{bankaccount}, '%')
+            </if>
+            <if test="merchantorderid != null and merchantorderid != ''">
+                and t_bankaccountrecord.MerchantOrderID like concat('%', #{merchantorderid}, '%')
+            </if>
+
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                and #{params.beginTranstime} &lt;= t_banktrans.TransTime
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                and t_banktrans.TransTime &lt;= #{params.endTranstime}
+            </if>
+
+            <if test="name != null  and name != ''">and t_banktrans.Name like concat('%', #{name}, '%')</if>
+            <if test="remark != null  and remark != ''">and t_banktrans.Remark like concat('%', #{remark}, '%')</if>
+            <if test="minpayamount != null ">and #{minpayamount} &lt;= t_banktrans.TransAmount  </if>
+            <if test="maxpayamount != null ">and t_banktrans.TransAmount &lt;= #{maxpayamount}</if>
+
+            <if test="merchantorderidfilter != null  and merchantorderidfilter == '1' ">
+                and (t_bankaccountrecord.MerchantOrderID is null or t_bankaccountrecord.MerchantOrderID= '')
+            </if>
+
+
+
+<!--            <if test="translevel != null and translevel==1 ">
+                and (t_bankaccountrecord.MerchantOrderID is not null or t_bankaccountrecord.MerchantOrderID != '')
+            </if>
+            <if test="translevel != null and (translevel==2 or translevel==3)">
+                and (t_bankaccountrecord.MerchantOrderID is null or t_bankaccountrecord.MerchantOrderID= '')
+            </if>-->
+
+        </where>
+
+        ORDER BY t_banktrans.TransTime DESC
+
+    </select>
+    <!-- 主流水 -->
+    <select id="selectMainTransList" resultMap="TBanktransResult">
+        SELECT
+        t_bankaccountrecord.MerchantOrderID,
+        t_bankaccountrecord.OrderID,
+        '主流水' as  transordertype,
+        (case when t_banktrans.TransType =1  then t_banktrans.TransAmount else 0 end) as deposit,
+        (case when t_banktrans.TransType =0 then t_banktrans.TransAmount else 0 end) as withdraw,
+        t_bankcard.BankID as BankID,
+        <include refid="selectTBanktransVo"/>
+        FROM t_banktrans
+        LEFT JOIN t_bankaccountrecord ON t_banktrans.ID = t_bankaccountrecord.TransID
+        left join t_bankcard on t_bankcard.BankCode= t_banktrans.BankAccount
+        <where>
+            <!-- 主流水 ： 1、交易方式=支出  2、交易时间= 冲正流水相差10分钟内  3、余额=冲正流水余额-交易金额 -->
+            <if test="supplierbranchid != null ">and t_banktrans.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="1==1"> AND t_banktrans.TransType=0 </if>
+
+            <if test="transtime != null and transtime != ''">
+                and t_banktrans.TransTime >= #{transtime}
+            </if>
+
+            <if test="params.beginTranstime != null and params.beginTranstime != ''">
+                and #{params.beginTranstime} &lt;= t_banktrans.TransTime
+            </if>
+            <if test="params.endTranstime != null and params.endTranstime != ''">
+                and t_banktrans.TransTime &lt;= #{params.endTranstime}
+            </if>
+
+            <if test="balance != null "> and t_banktrans.Balance =  #{balance} </if>
+            <if test="bankaccount != null  and bankaccount != ''">and t_banktrans.BankAccount = #{bankaccount}</if>
+
+            <if test="status != null">  and t_banktrans.Status=#{status}  </if>
+        </where>
+        ORDER BY t_banktrans.TransTime DESC
+        LIMIT 1
+    </select>
+
+
+    <insert id="insertBankAccountRecord" parameterType="com.pay.typay.biz.reports.domain.BankAccountRecord">
+        insert into t_bankaccountrecord
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">BankID,</if>
+            <if test="transid != null ">TransID,</if>
+            <if test="orderindex != null ">OrderIndex,</if>
+            <if test="merchantorderindex != null ">MerchantOrderIndex,</if>
+            <if test="orderid != null  and orderid != ''">OrderID,</if>
+            <if test="merchantorderid != null  and merchantorderid != ''">MerchantOrderID,</if>
+            <if test="transtype != null ">TransType,</if>
+            <if test="transamount != null ">TransAmount,</if>
+            <if test="paidamount != null ">PaidAmount,</if>
+            <if test="paychannelfee != null ">PayChannelFee,</if>
+            <if test="supplierpaidchannelfee != null ">SupplierPaidChannelFee,</if>
+            <if test="prebalance != null ">PreBalance,</if>
+            <if test="balance != null ">Balance,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="transid != null ">#{transid},</if>
+            <if test="orderindex != null ">#{orderindex},</if>
+            <if test="merchantorderindex != null ">#{merchantorderindex},</if>
+            <if test="orderid != null  and orderid != ''">#{orderid},</if>
+            <if test="merchantorderid != null  and merchantorderid != ''">#{merchantorderid},</if>
+            <if test="transtype != null ">#{transtype},</if>
+            <if test="transamount != null ">#{transamount},</if>
+            <if test="paidamount != null ">#{paidamount},</if>
+            <if test="paychannelfee != null ">#{paychannelfee},</if>
+            <if test="supplierpaidchannelfee != null ">#{supplierpaidchannelfee},</if>
+            <if test="prebalance != null ">#{prebalance},</if>
+            <if test="balance != null ">#{balance},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+        </trim>
+    </insert>
+
+
+</mapper>

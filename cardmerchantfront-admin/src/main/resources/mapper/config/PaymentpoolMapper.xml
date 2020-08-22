@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.PaymentpoolMapper">
+
+    <resultMap type="Paymentpool" id="PaymentpoolResult">
+        <result property="paypoolid" column="PayPoolID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="paypoolname" column="PayPoolName"/>
+        <result property="status" column="Status"/>
+        <result property="remark" column="ReMark"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+    </resultMap>
+
+    <sql id="selectPaymentpoolVo">
+        SELECT PayPoolID, SupplierBranchID, PayPoolName, Status, ReMark, CreateTime, LastUpDateTime
+        FROM t_paypool
+    </sql>
+
+    <select id="selectPaymentpoolList" parameterType="Paymentpool" resultMap="PaymentpoolResult">
+
+        SELECT DISTINCT
+        t.PayPoolID,
+        t.SupplierBranchID,
+        t.PayPoolName,
+        t.Status,
+        t.ReMark,
+        t.CreateTime,
+        t.LastUpDateTime
+        FROM t_paypool t
+        LEFT JOIN t_paypoolchannel tp ON t.PayPoolID = tp.PayPoolID
+        LEFT JOIN t_bankinchannel tb ON tb.ChannelID = tp.PayChannelID ${params.dataScope}
+        <where>
+            <if test="supplierbranchid != null ">and t.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="paypoolname != null  and paypoolname != ''">and t.PayPoolName like concat('%', #{paypoolname},
+                '%')
+            </if>
+            <if test="status != null ">and t.Status = #{status}</if>
+            <if test="statusfilter != null ">and t.Status != #{statusfilter}</if>
+            <if test="remark != null  and remark != ''">and t.ReMark = #{remark}</if>
+            <if test="createtime != null ">and t.CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and t.LastUpDateTime = #{lastupdatetime}
+
+            </if>
+
+        </where>
+        ORDER BY  t.PayPoolID
+    </select>
+
+    <select id="selectPaymentpoolById" parameterType="Long" resultMap="PaymentpoolResult">
+        <include refid="selectPaymentpoolVo"/>
+        where PayPoolID = #{paypoolid}
+    </select>
+    <resultMap id="Ztree" type="Ztree">
+        <result property="id" column="id"/>
+        <result property="pId" column="pId"/>
+        <result property="name" column="name"/>
+        <result property="title" column="title"/>
+        <result property="checked" column="checked"/>
+        <result property="id" column="id"/>
+        <result property="open" column="open"/>
+        <result property="nocheck" column="nocheck"/>
+    </resultMap>
+
+    <select id="selectTreepoolchanneltreedataChoose"
+            parameterType="com.pay.typay.biz.domain.Paymentpool"
+            resultType="com.pay.typay.common.core.domain.Ztree">
+        SELECT tp.PayChannelID AS id,
+               tp.PayType      AS pId,
+               (CASE pc.pt2status
+                    WHEN 1 THEN
+                        CONCAT(tp.PayChannelName, '(启用)')
+                    WHEN 0 THEN
+                        CONCAT(tp.PayChannelName, '(停用)')
+                    WHEN -1 THEN
+                        CONCAT(tp.PayChannelName, '(软删除)')
+                    WHEN -2 THEN
+                        CONCAT(tp.PayChannelName, '(预启用)')
+                    WHEN -3 THEN
+                        CONCAT(tp.PayChannelName, '(限额停用)')
+                    WHEN -4 THEN
+                        CONCAT(tp.PayChannelName, '(风控金额停用)')
+                    ELSE
+                        tp.PayChannelName
+               END ) AS name,
+               (CASE pc.PayPoolID
+                    WHEN #{paypoolid} THEN
+                        TRUE
+                    ELSE
+                        FALSE
+               END )    AS checked,
+               FALSE    AS open,
+               FALSE    AS nocheck
+        FROM t_paychannel tp
+        LEFT JOIN (
+            SELECT tp2.Status AS pt2status, p.PayPoolID, tp2.PayChannelID
+            FROM t_paypool p
+            JOIN t_paypoolchannel tp2 ON tp2.PayPoolID = p.PayPoolID
+            left JOIN t_bankinchannel tb ON tb.ChannelID= tp2.PayChannelID ${params.dataScope}
+            WHERE tp2.Status !=-1
+        ) pc ON tp.PayChannelID = pc.PayChannelID
+        WHERE tp.SupplierBranchID = #{supplierbranchid}
+
+        UNION
+        SELECT t.PayTypeID   AS id,
+               0             AS pId,
+               t.PayTypeName AS name,
+               FALSE         AS checked,
+               FALSE         AS open,
+               TRUE          AS nocheck
+        FROM t_paytype t
+
+    </select>
+    <select id="selectTreepoolchanneltreedata" parameterType="Long" resultMap="Ztree"
+            resultType="com.pay.typay.common.core.domain.Ztree">
+        SELECT tp.PayChannelID AS id,
+               tp.PayType      AS pId,
+               (CASE pc.pt2status
+                    WHEN 1 THEN
+                        CONCAT(tp.PayChannelName, '(启用)')
+                    WHEN 0 THEN
+                        CONCAT(tp.PayChannelName, '(停用)')
+                    WHEN -1 THEN
+                        CONCAT(tp.PayChannelName, '(软删除)')
+                    WHEN -2 THEN
+                        CONCAT(tp.PayChannelName, '(预启用)')
+                    WHEN -3 THEN
+                        CONCAT(tp.PayChannelName, '(限额停用)')
+                    WHEN -4 THEN
+                        CONCAT(tp.PayChannelName, '(风控金额停用)')
+                    ELSE
+                        tp.PayChannelName
+                   END
+                   )
+                               AS name,
+               (CASE pc.pt2status
+                    WHEN 1 THEN
+                        TRUE
+                    ELSE
+                        FALSE
+                   END
+                   )           AS checked,
+               FALSE           AS open,
+               FALSE           AS nocheck
+        FROM t_paychannel tp
+                 LEFT JOIN (SELECT tp2.Status AS pt2status, p.PayPoolID, tp2.PayChannelID
+                            FROM t_paypool p
+                            JOIN t_paypoolchannel tp2 ON tp2.PayPoolID = p.PayPoolID
+                            WHERE tp2.Status !=-1
+        ) pc
+                           ON tp.PayChannelID = pc.PayChannelID
+        WHERE tp.SupplierBranchID = #{supplierbranchid}
+
+        UNION
+        SELECT t.PayTypeID   AS id,
+               0             AS pId,
+               t.PayTypeName AS name,
+               FALSE         AS checked,
+               FALSE         AS open,
+               TRUE          AS nocheck
+        FROM t_paytype t
+
+    </select>
+    <resultMap id="Paypoolchannel" type="Paypoolchannel">
+        <result property="paypoolid" column="PayPoolID"></result>
+        <result property="paychannelid" column="PayChannelID"></result>
+        <result property="paychannelname" column="PayChannelName"></result>
+        <result property="status" column="Status"></result>
+        <result property="paypoolid" column="PayPoolID"></result>
+    </resultMap>
+    <select id="selectPaymentpoolpaychannellist" parameterType="Long" resultMap="Paypoolchannel">
+        SELECT p.PayPoolID,
+               p.PayChannelID,
+               t.PayChannelName,
+               p.Status
+
+        FROM t_paychannel t
+                 JOIN t_paypoolchannel p
+                      ON p.PayChannelID = t.PayChannelID
+
+        WHERE p.PayPoolID = #{paypoolid}
+          AND p.Status != -1
+
+            ${params.dataScope}
+    </select>
+    <select id="selectPaypoolchannelByPoolidlist" parameterType="Long" resultMap="Paypoolchannel">
+        SELECT
+            p.PayPoolID,
+            p.PayChannelID
+        FROM t_paypoolchannel p
+        WHERE p.PayPoolID = #{id} AND p.Status != -1
+    </select>
+    <insert id="insertPaymentpool" parameterType="Paymentpool">
+        insert into t_paypool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paypoolid != null ">PayPoolID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="paypoolname != null  and paypoolname != ''">PayPoolName,</if>
+            <if test="status != null ">Status,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+            <if test="createby != null ">createby,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paypoolid != null ">#{paypoolid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="paypoolname != null  and paypoolname != ''">#{paypoolname},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+            <if test="createby != null ">#{createby},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePaymentpool" parameterType="Paymentpool">
+        update t_paypool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="paypoolname != null  and paypoolname != ''">PayPoolName = #{paypoolname},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="remark != null">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where PayPoolID = #{paypoolid}
+    </update>
+
+    <delete id="deletePaymentpoolById" parameterType="Long">
+        DELETE
+        FROM t_paypool
+        WHERE PayPoolID = #{paypoolid}
+    </delete>
+    <delete id="updatepoolchanneldeleteFirst" parameterType="Paypoolchannel">
+        DELETE FROM t_paypoolchannel p WHERE p.PayChannelID IN
+        <foreach collection="mutiplepaychannelid.split(',')" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectpoolchanneldeleteFirst" parameterType="Paypoolchannel"
+            resultType="com.pay.typay.biz.domain.Paypoolchannel">
+        SELECT group_concat(p.PayChannelID) AS mutiplepaychannelid
+        FROM t_paypoolchannel p
+        WHERE p.PayPoolID = #{paypoolid}
+    </select>
+    <insert id="updatepoolchannel" parameterType="Paypoolchannel">
+        INSERT INTO t_paypoolchannel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="paypoolid != null  and paypoolid != ''">PayPoolID,</if>
+
+            <if test="paychannelid != null  and paychannelid != '' || mutiplepaychannelid !=null and mutiplepaychannelid !='' ">
+                PayChannelID,
+            </if>
+
+            <if test="channelrate != null  and channelrate != ''">ChannelRate,</if>
+
+            <if test="status != null  and status != ''">Status,</if>
+
+            <if test="remark != null  and remark != ''">ReMark,</if>
+
+            <if test="createtime != null  and createtime != ''">CreateTime,</if>
+
+            <if test="lastupdatetime != null  and lastupdatetime != ''">LastUpDateTime,</if>
+
+        </trim>
+        values
+
+        <foreach collection="mutiplepaychannelid.split(',')" open="" close="" separator="," item="id">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="paypoolid != null  and paypoolid != ''">#{paypoolid},</if>
+
+                <if test="paychannelid != null  and paychannelid != '' || mutiplepaychannelid !=null and mutiplepaychannelid !='' ">
+                    #{id},
+                </if>
+
+                <if test="channelrate != null  and channelrate != ''">#{channelrate},</if>
+
+                <if test="status != null  and status != ''">#{status},</if>
+
+                <if test="remark != null  and remark != ''">#{remark},</if>
+
+                <if test="createtime != null  and createtime != ''">#{createtime},</if>
+
+                <if test="lastupdatetime != null  and lastupdatetime != ''">#{lastupdatetime},</if>
+
+            </trim>
+
+        </foreach>
+
+
+    </insert>
+
+    <delete id="deletePaymentpoolByIds" parameterType="String">
+        delete from t_paypool where PayPoolID in
+        <foreach item="paypoolid" collection="array" open="(" separator="," close=")">
+            #{paypoolid}
+        </foreach>
+    </delete>
+
+
+
+    <delete id="updatePaypoolchannelClean">
+        delete from t_paypoolchannel WHERE PayPoolID =#{paypoolid}
+    </delete>
+
+    <insert id="insertPaypoolchannel">
+        INSERT INTO t_paypoolchannel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            PayPoolID, PayChannelID,Status
+        </trim>
+        values
+        <foreach item="paychannelid" collection="paychannelids.split(',')" open="" close="" separator="," >
+
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{paypoolid},  #{paychannelid},1
+            </trim>
+        </foreach>
+    </insert>
+</mapper>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('每日汇总')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p><em data-i18name="">卡商名称</em>：</p>
+                            <select class="form-control" th:title="请选择"
+                                    id="supplierbranchidgroup" name="supplierBranchId"  data-style="btn-info"  >
+                                <option value="">全部</option>
+                                <option th:each="post:${@dictbank.getCurrentSurppilerbranchGroup()}" th:value="${post.getId()}"
+                                        th:text="${post.getBranchname()}"
+                                ></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p><em data-i18name="">代理账号</em>：</p>
+                            <input type="text" name="userName"/>
+                        </li>
+
+                        <li>
+                            <p><em data-i18name="">交易类型</em>：</p>
+                            <select name="transType" class="form-control" th:with="type=${@dict.getType('trans_type')}">
+                                <option value="">全选</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <!--<li>
+                            <p><em data-i18name="">订单状态</em>：</p>
+                            <select name="status" th:with="type=${@dict.getType('order_status')}">
+                                <option value="">全选</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>-->
+                        <li>
+                            <p><em data-i18name="">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                        <li>
+                            <p><em data-i18name="">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li>
+                            <p><em data-i18name="">支付方式</em>：</p>
+                            <select class="form-control" th:with="type=${@dictbank.paytypeBankcardpayOnlyList()}"
+                                    name="payType">
+                                <option value="">全选</option>
+                                <option th:each="dict : ${type}" th:value="${dict.getPaytypeid()}"
+                                        th:text="${dict.getPaytypename()}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="reports:paymentstatement:export">
+                <i class="fa fa-download"></i><em data-i18name="fn.export">导出</em>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "reports/paymentstatement";
+
+    var payTypeArr = [[${@dictbank.paytypeBankcardpayOnlyList()}]];
+    var transTypeArr = [[${@dict.getType('trans_type')}]];
+    var statusArr = [[${@dict.getType('order_status')}]];
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            modalName: "每日汇总",
+            detailView: true,
+            onExpandRow: function (index, row, $detail) {
+                initChildTable(index, row, $detail);
+            },
+            columns: [
+                /*{
+                    field: 'OrderId',
+                    title: '<em data-i18name="">订单号</em>'
+                },*/
+                {
+                    field: 'branchName',
+                    title: '<em data-i18name="">卡商</em>'
+                },
+                {
+                    field: 'agentName',
+                    title: '<em data-i18name="">代理账号</em>'
+                },
+                {
+                    field: 'transType',
+                    title: '<em data-i18name="">交易类型</em>',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(transTypeArr, value);
+                    }
+                },
+                /*{
+                    field: 'bankCode',
+                    title: '<em data-i18name="">卡简码</em>'
+                },*/
+                {
+                    field: 'totalPayamount',
+                    title: '<em data-i18name="">订单金额</em>'
+                },
+                {
+                    field: 'totalPaidamount',
+                    title: '<em data-i18name="">支付金额</em>'
+                },
+                {
+                    field: 'totalProfitAmount',
+                    title: '<em data-i18name="">利润</em>'
+                },
+            ]
+        };
+        $.table.init(options);
+    });
+
+    initChildTable = function (index, row, $detail) {
+        var childTable = $detail.html('<table style="table-layout:fixed"></table>').find('table');
+        var param = $.common.formToJSON("formId");
+        param.agentName = row.agentName;
+        param.transType = row.transType;
+        $(childTable).bootstrapTable({
+            url: prefix + "/childList",
+            method: 'post',
+            sidePagination: "server",
+            contentType: "application/x-www-form-urlencoded",
+            queryParams: param,
+            columns: [
+                {
+                    field: 'orderId',
+                    title: '<em data-i18name="">订单号</em>'
+                },
+                {
+                    field: 'agentName',
+                    title: '<em data-i18name="">代理账号</em>'
+                },
+                {
+                    field: 'payType',
+                    title: '<em data-i18name="">支付方式</em>',
+                    formatter: function (value, row, index) {
+                        for (let payTypeElement of payTypeArr) {
+                            if(payTypeElement.paytypeid == value){
+                                return payTypeElement.paytypename;
+                            }
+                        }
+                    }
+                },
+                {
+                    field: 'transType',
+                    title: '<em data-i18name="">交易类型</em>',
+                    formatter: function (value, row, index) {
+                        return getDictVale(value, transTypeArr);
+                    }
+                },
+                {
+                    field: 'bankCode',
+                    title: '<em data-i18name="">卡简码</em>'
+                },
+                {
+                    field: 'transAmount',
+                    title: '<em data-i18name="">申请金额</em>'
+                },
+                {
+                    field: 'paidAmount',
+                    title: '<em data-i18name="">实际金额</em>'
+                },
+                {
+                    field: 'profit_balance',
+                    title: '<em data-i18name="">利润</em>'
+                }
+            ]
+        });
+    };
+</script>
+</body>
+</html>

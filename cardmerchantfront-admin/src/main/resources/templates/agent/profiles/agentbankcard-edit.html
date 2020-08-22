@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改代理银行卡')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">修改代理银行卡基本信息</h4>
+    <form class="form-horizontal m" id="form-profiles-edit" th:object="${tAgentbankcard}">
+        <input name="bankid" th:field="*{bankid}" type="hidden">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">银行卡号码
+                ：</label>
+            <div class="col-sm-8">
+                <input name="banknum" th:field="*{banknum}" class="form-control"
+                       type="text">
+                <input id="bankcode" name="bankcode" type="hidden">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">银行卡类型代码：</label>
+            <div class="col-sm-8">
+                <select class="form-control" th:field="*{banktype}" id="banktype" name="banktype"
+                        th:with="type=${@dictbank.getTBanktype()}">
+                    <option value="">请选择</option>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:data-remark="${dict.getRemark()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">开户地址
+                ：</label>
+            <div class="col-sm-8">
+                <input name="address" th:field="*{address}" class="form-control"
+                       type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">开户人
+                ：</label>
+            <div class="col-sm-8">
+                <input name="ownername" th:field="*{ownername}" class="form-control"
+                       type="text">
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "agent/profiles";
+    var bankcardTypeInfo = [[${@dictbank.getTBanktype()}]];
+
+    function getbankCode(banktypecode, banknum, ownername) {
+        for (let v of bankcardTypeInfo) {
+            if (v.banktypecode == banktypecode) {
+                let banktype = v.remark;
+                return banktype + banknum.substr(-7) + '-' + ownername;
+            }
+        }
+    }
+
+    var oldbanknum = $.common.trim($("[name=banknum]").val());
+    $("#form-profiles-edit").validate({
+        focusCleanup: true,
+        rules: {
+            banknum: {
+                minlength: 16,
+                maxlength: 19,
+                digits: true,
+                required: true,
+                remote: {
+                    url: prefix + "/agentbankcard/check",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "banknum": function () {
+                            return $.common.trim($("[name=banknum]").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        var banknum = $.common.trim($("[name=banknum]").val());
+                        if (oldbanknum != banknum) {
+                            let s = JSON.parse(data);
+                            return s && s.total == 0
+                        }
+                        return true;
+                    }
+                }
+
+            },
+            banktype: {
+                required: true
+            },
+            address: {
+                required: true
+            },
+            ownername: {
+                required: true
+            }
+        },
+        messages: {
+            banktype: {
+                required: "必选"
+            },
+            banknum: {
+                remote: "本卡已存在"
+            }
+        }
+    });
+
+    function submitHandler() {
+
+        if ($.validate.form()) {
+            let bankcode = getbankCode($('[name="banktype"]').val(), $('[name="banknum"]').val(), $('[name="ownername"]').val());
+            $('#bankcode').val(bankcode);
+            $.operate.save(prefix + "/agentbankcard/edit", $('#form-profiles-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

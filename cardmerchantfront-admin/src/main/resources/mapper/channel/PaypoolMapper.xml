@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.PaypoolMapper">
+
+    <resultMap type="Paypool" id="PaypoolResult">
+        <result property="paypoolid" column="PayPoolID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="paypoolname" column="PayPoolName"/>
+        <result property="status" column="Status"/>
+        <result property="remark" column="ReMark"/>
+        <result property="createtime" column="CreateTime"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="parentName" column="parent_name"/>
+        <collection property="childen" resultMap="ChildenResult"/>
+    </resultMap>
+
+    <resultMap type="ChannelVO" id="ChildenResult">
+        <result property="payChannelName" column="PayChannelName"/>
+        <result property="payChannelId" column="payChannelId"/>
+        <result property="payType" column="PayType"/>
+        <result property="workType" column="WorkType"/>
+        <result property="status" column="channelStatus"/>
+        <result property="payPoolId" column="payPoolId"/>
+        <result property="payPoolName" column="PayPoolName"/>
+        <result property="channeltype" column="channeltype"/>
+        <result property="userName" column="username"/>
+    </resultMap>
+
+
+    <sql id="selectPaymentpoolVo">
+        SELECT PayPoolID, SupplierBranchID, PayPoolName, Status, ReMark, CreateTime, LastUpDateTime
+        FROM t_paypool
+    </sql>
+
+    <select id="selectPaypoolList" parameterType="Paypool" resultMap="PaypoolResult">
+        SELECT
+        tt.*,
+        pc.PayChannelName,
+        pc.PayType,
+        pc.WorkType,
+        pc.`Status` as channelStatus
+        FROM
+        (
+        SELECT
+        pp.PayPoolName,
+        pp.`Status`,
+        pp.ReMark,
+        ppc.PayChannelID,
+        ppc.PayPoolID
+        FROM
+        t_paypoolchannel ppc
+        LEFT JOIN t_paypool pp ON ppc.PayPoolID = pp.PayPoolID
+        <where>
+            <if test="paypoolname != null and paypoolname != ''">and pp.PayPoolName like
+                concat('%',#{paypoolname},'%')
+            </if>
+
+            <choose>
+                <when test="status != null">and pp.`Status` = #{status}</when>
+                <otherwise>and pp.`Status` &lt;&gt; -1</otherwise>
+            </choose>
+            <if test="remark != null and remark != ''">pp.ReMark like cancat('%',#{remark},'%')</if>
+        </where>
+        ) tt
+        LEFT JOIN t_paychannel pc ON pc.PayChannelID = tt.PayChannelID
+        <where>
+            <if test="payChannelName != null and payChannelName != ''">and pc.PayChannelName like
+                concat('%',#{payChannelName},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPaypoolById" parameterType="Long" resultMap="PaypoolResult">
+        SELECT tt.*,
+               pc.PayChannelName,
+               pc.PayType,
+               pc.WorkType,
+               pc.`Status` AS channelStatus
+        FROM (
+                 SELECT pp.PayPoolName,
+                        pp.`Status`,
+                        pp.ReMark,
+                        ppc.PayChannelID,
+                        ppc.PayPoolID
+                 FROM t_paypoolchannel ppc
+                          LEFT JOIN t_paypool pp ON ppc.PayPoolID = pp.PayPoolID
+                 WHERE pp.PayPoolID = #{paypoolid}
+             ) tt
+                 LEFT JOIN t_paychannel pc ON pc.PayChannelID = tt.PayChannelID
+    </select>
+
+    <update id="updatePaypool" parameterType="Paypool">
+        update t_paypool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="paypoolname != null  and paypoolname != ''">PayPoolName = #{paypoolname},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where PayPoolID = #{paypoolid}
+    </update>
+
+    <insert id="insertPaypool" parameterType="Paypool">
+        insert into t_paypool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paypoolid != null ">PayPoolID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="paypoolname != null  and paypoolname != ''">PayPoolName,</if>
+            <if test="status != null ">Status,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            CreateTime,
+            LastUpDateTime,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paypoolid != null ">#{paypoolid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="paypoolname != null  and paypoolname != ''">#{paypoolname},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            CURRENT_DATE,
+            CURRENT_DATE,
+        </trim>
+    </insert>
+</mapper>

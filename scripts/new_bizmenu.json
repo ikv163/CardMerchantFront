@@ -1,0 +1,599 @@
+{
+  "代理中心": {
+    "submenu": {
+      "代理中心": {
+        "cn": "代理中心",
+        "en": "agentcenter",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110218
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 511110219
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 51111025111102
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 511110221
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 511110222
+          }
+        ],
+        "menu_id": 511110217
+      },
+      "个人中心": {
+        "cn": "个人中心",
+        "en": "profiles",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110318
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 511110319
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 51111035111103
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 511110321
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 511110322
+          }
+        ],
+        "menu_id": 511110317
+      },
+      "申请提款": {
+        "cn": "申请提款",
+        "en": "applywithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110418
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 511110419
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 51111045111104
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 511110421
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 511110422
+          }
+        ],
+        "menu_id": 511110417
+      }
+    },
+    "icon": "bank",
+    "modulename": "agent",
+    "menu_id": 5111102
+  },
+  "银行卡管理": {
+    "submenu": {
+      "银行卡管理": {
+        "cn": "银行卡管理",
+        "en": "manage_bankcard_center",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2002
+          },
+          {
+            "cn": "添加",
+            "en": "add",
+            "menu_id": 2003
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2004
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2010
+          }
+        ],
+        "menu_id": 2001
+      },
+      "流水中心": {
+        "cn": "流水中心",
+        "en": "statementcenter",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110118
+          }
+        ],
+        "menu_id": 511110117
+      },
+      "银行卡客户端": {
+        "cn": "银行卡客户端",
+        "en": "bankcard_client",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2018
+          },
+          {
+            "cn": "添 加",
+            "en": "add",
+            "menu_id": 2019
+          },
+          {
+            "cn": "修改",
+            "en": "edit",
+            "menu_id": 2020
+          },
+          {
+            "cn": "删除",
+            "en": "remove",
+            "menu_id": 2021
+          },
+          {
+            "cn": "启用",
+            "en": "operateurl",
+            "menu_id": 2022
+          }
+        ],
+        "menu_id": 2017
+      }
+    },
+    "icon": "credit-card",
+    "modulename": "bankcard",
+    "menu_id": 2000
+  },
+  "渠道管理": {
+    "submenu": {
+      "渠道管理": {
+        "cn": "渠道管理",
+        "en": "paymentchannel",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2031
+          },
+          {
+            "cn": "新增",
+            "en": "add",
+            "menu_id": 2032
+          },
+          {
+            "cn": "编辑",
+            "en": "edit",
+            "menu_id": 2033
+          },
+          {
+            "cn": "删除",
+            "en": "edit",
+            "menu_id": 2034
+          },
+          {
+            "cn": "启用",
+            "en": "enable",
+            "menu_id": 2035
+          },
+          {
+            "cn": "停用",
+            "en": "stop",
+            "menu_id": 2036
+          }
+        ],
+        "menu_id": 2030
+      }
+    },
+    "icon": "sheqel",
+    "modulename": "channel",
+    "menu_id": 2023
+  },
+  "订单管理": {
+    "submenu": {
+      "用户充值订单": {
+        "cn": "用户充值订单",
+        "en": "userecharge",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52171719
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52171720
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52171721
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52171722
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52171723
+          },
+          {
+            "cn": "查看",
+            "en": "proview",
+            "menu_id": 52171724
+          }
+        ],
+        "menu_id": 52171718
+      },
+      "用户提款订单": {
+        "cn": "用户提款订单",
+        "en": "userwithdrew",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52171819
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52171820
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52171821
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52171822
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52171823
+          },
+          {
+            "cn": "查看",
+            "en": "proview",
+            "menu_id": 52171824
+          }
+        ],
+        "menu_id": 52171818
+      },
+      "中转订单": {
+        "cn": "中转订单",
+        "en": "transfer",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172319
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52172320
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52172321
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52172322
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52172323
+          },
+          {
+            "cn": "查看",
+            "en": "proview",
+            "menu_id": 52172324
+          }
+        ],
+        "menu_id": 52172318
+      },
+      "转换额度订单": {
+        "cn": "转换额度订单",
+        "en": "exchargeamout",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 52172519
+          },
+          {
+            "cn": "导出",
+            "en": "export",
+            "menu_id": 52172520
+          },
+          {
+            "cn": "推送",
+            "en": "orderSend",
+            "menu_id": 52172521
+          },
+          {
+            "cn": "确认",
+            "en": "orderConfirm",
+            "menu_id": 52172522
+          },
+          {
+            "cn": "取消",
+            "en": "orderClose",
+            "menu_id": 52172523
+          },
+          {
+            "cn": "查看",
+            "en": "proview",
+            "menu_id": 52172524
+          }
+        ],
+        "menu_id": 52172518
+      }
+    },
+    "icon": "table",
+    "modulename": "orders",
+    "menu_id": 2075
+  },
+  "报表管理": {
+    "submenu": {
+      "每日汇总": {
+        "cn": "每日汇总",
+        "en": "reportdalily",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110564
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 511110565
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 511110566
+          }
+        ],
+        "menu_id": 511110563
+      },
+      "收支報表": {
+        "cn": "收支報表",
+        "en": "paymentstatement",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 511110664
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 511110665
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 511110666
+          }
+        ],
+        "menu_id": 511110663
+      }
+    },
+    "icon": "list-alt",
+    "modulename": "reports",
+    "menu_id": 2162
+  },
+  "日志管理": {
+    "submenu": {
+      "操作日志": {
+        "cn": "操作日志",
+        "en": "operlog",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2189
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2190
+          }
+        ],
+        "menu_id": 2188
+      },
+      "登录日志": {
+        "cn": "登录日志",
+        "en": "logininfor",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 2192
+          },
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 2193
+          }
+        ],
+        "menu_id": 2191
+      }
+    },
+    "icon": "map",
+    "modulename": "monitor",
+    "menu_id": 2187
+  },
+  "系统工具": {
+    "submenu": {
+      "代码生成": {
+        "cn": "代码生成",
+        "en": "gen",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 1057
+          },
+          {
+            "en": "edit",
+            "cn": "编辑",
+            "menu_id": 1058
+          },
+          {
+            "en": "remove",
+            "cn": "删除",
+            "menu_id": 1059
+          },
+          {
+            "en": "preview",
+            "cn": "预览",
+            "menu_id": 1060
+          },
+          {
+            "en": "code",
+            "cn": "代码",
+            "menu_id": 1061
+          }
+        ],
+        "menu_id": 114
+      }
+    },
+    "icon": "tasks",
+    "modulename": "tool",
+    "menu_id": 3
+  },
+  "系统管理": {
+    "submenu": {
+      "用户管理": {
+        "cn": "用户管理",
+        "en": "user",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 1000
+          },
+          {
+            "en": "add",
+            "cn": "增加",
+            "menu_id": 1001
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 1002
+          },
+
+          {
+            "en": "remove",
+            "cn": "删除",
+            "menu_id": 1003
+          },
+
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 1004
+          },
+          {
+            "en": "import",
+            "cn": "导入",
+            "menu_id": 1005
+          },
+
+          {
+            "en": "重置密码",
+            "cn": "resetPwd",
+            "menu_id": 1006
+          }
+        ],
+        "menu_id": 100
+      },
+      "角色管理": {
+        "cn": "角色管理",
+        "en": "role",
+        "rights": [
+          {
+            "en": "list",
+            "cn": "查询",
+            "menu_id": 1007
+          },
+          {
+            "en": "add",
+            "cn": "增加",
+            "menu_id": 1008
+          },
+          {
+            "en": "edit",
+            "cn": "修改",
+            "menu_id": 1009
+          },
+
+          {
+            "en": "remove",
+            "cn": "删除",
+            "menu_id": 1010
+          },
+
+          {
+            "en": "export",
+            "cn": "导出",
+            "menu_id": 1011
+          }
+        ],
+        "menu_id": 101
+      }
+    },
+    "icon": "gears",
+    "modulename": "system",
+    "menu_id": 1
+  }
+}

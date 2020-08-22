@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('银行卡列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.bankcode">银行卡简码</em>：</p>
+
+                            <input type="text" name="bankcode"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.worktype">工作模式</em>：</p>
+                            <select name="worktypes" th:with="type=${@dict.getType('bankcardworktype')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.servicestatus">服务状态</em>：</p>
+                            <select name="status" th:with="type=${@dict.getType('bankcardstatus')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.startime">开始时间</em>：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[startTime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.endtime">结束时间</em>：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchBank()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="reset()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+
+            </form>
+        </div>
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()"
+               shiro:haspermission="bankcard:manage_bankcard_center:add" th:if="${@permission.hasRole('代理')} != 'hidden'">
+                <i class="fa fa-plus"></i> <em data-i18name="fn.add">添 加</em>
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:haspermission="bankcard:manage_bankcard_center:edit">
+                <i class="fa fa-edit"></i> <em data-i18name="fn.modify">修改</em>
+            </a>
+
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:haspermission="bankcard:manage_bankcard_center:remove">
+                <i class="fa fa-remove"></i> <em data-i18name="fn.remove">删除</em>
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+
+            <table id="bootstrap-table"></table>
+        </div>
+
+    </div>
+</div>
+<style>
+    .banktotal {
+        text-align: right;
+    }
+
+    .banktotal span {
+        padding-right: 10px;
+        padding-left: 5px
+    }
+
+    .banktotal span em {
+        color: red;
+    }
+</style>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: vue-js"/>
+
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('bankcard:manage_bankcard_center:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('bankcard:manage_bankcard_center:remove')}]];
+    var prefix = ctx + "bankcard/manage_bankcard_center";
+    var worktype = [[${@dictbank.getSelectUIType('WorkType')}]];
+    var serviceState = [[${@dictbank.getSelectUIType('Status')}]];
+
+    $("#startTime").val("");
+    function loadTotal() {
+        $.get(prefix + "/total?" + $("#formId").serialize(), function (data) {
+            let text = getTitle(data.rows);
+            // app.rows = data.rows;
+            $(".fixed-table-body").find(".banktotal").remove();
+
+            $(".fixed-table-body").prepend(text);
+        });
+    }
+
+
+    function getServiceState(id, iscolor = false) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                if (iscolor == true) {
+                    return `<a>${serviceStateElement}</a>`;
+                } else {
+                    switch (id) {
+                        case 100:
+                            return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                        case 1:
+                            return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                        default:
+                            return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                    }
+                }
+
+
+            }
+        }
+
+    }
+
+
+    function getWorktype(id) {
+        for (let key in worktype) {
+            if (id == key) {
+                return worktype[key];
+            }
+        }
+
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            popupdateUrl: prefix + "/balanceedit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + '/proview/{id}',
+            modalName: "",
+            rememberSelected: true,
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            responseHandler:loadTotal(),
+            showFooter: true,
+            columns: [
+                {
+                    field: 'state',
+                    checkbox: true
+                },
+                {
+                    field: 'bankid',
+                    title: ' <em data-i18name="t.bankcardno">银行卡编号</em>',
+                    visible: false
+                },
+                {
+                    field: 'banknum',
+                    title: '<em data-i18name="biz.bankcode">银行卡简码</em>',
+                    formatter: function (value, row, index) {
+                        let s = `
+                            <div>${row.bankcode}</div>
+                        `;
+                        return s;
+                    },
+                    footerFormatter: function () {
+                        return "小计:"
+                    }
+                },
+
+                {
+                    field: 'worktype',
+                    title: '<em data-i18name="biz.worktype">工作模式 </em>',
+                    formatter: function (value, row, index) {
+
+                        return getWorktype(value);
+                    }
+                },
+
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="t.balance">余额</em>',
+                    footerFormatter: function (value) {
+                        return value.length ? Math.round(value.map(v => v.balance).reduce((a, b) => a + b) * 100) / 100 : 0
+                    }
+                },
+
+                {
+                    field: 'historyDepositAmount',
+                    title: '今日交易',
+                    footerFormatter: function (value) {
+
+                        return value.length ? Math.round(value.map(v => v.historyDepositAmount).reduce((a, b) => a + b) * 100) / 100 : 0
+                    }
+                },
+                {
+                    field: 'depositamount',
+                    title: '今日充值',
+                    footerFormatter: function (value) {
+                        return value.length ? Math.round(value.map(v => v.depositamount).reduce((a, b) => a + b) * 100) / 100 : 0
+                    }
+                },
+                {
+                    field: 'maxbalance',
+                    sortable: true,
+                    title: '<em data-i18name="m.maxminbalance">最小/最大保留额度</em>',
+                    formatter: function (value, row) {
+                        return row.minbalance + "/" + row.maxbalance;
+                    },
+                    footerFormatter: function (value) {
+                        return value.length ? Math.round(value.map(v => v.historyDepositAmount).reduce((a, b) => a + b) * 100) / 100 : 0
+                    }
+                },
+                {
+                    field: 'sumamountperdaytrans',
+                    title: '<em data-i18name="t.dayliylimit">当日限额</em>'
+                },
+                {
+                    field: 'status',
+                    title: '<em data-i18name="biz.servicestatus">服务状态</em>',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                },
+                {
+                    field: 'createtime',
+                    title: '<em data-i18name="user.createtime">创建时间</em>',
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        return `<span style="white-space: nowrap">${value}</span>`;
+                    }
+                }, {
+                    field: 'updatetime',
+                    title: '更新时间',
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        return `<span style="white-space: nowrap">${value}</span>`;
+                    }
+                },
+                {
+                    title: '<em data-i18name="t.operto">操作</em>',
+                    align: 'center',
+                    visible: false,
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.bankid + '\')"><i class="fa fa-eye"></i><em data-i18name="fn.view">查看</em></a> ');
+                        return actions.join('');
+                    }
+                }
+
+            ]
+        };
+
+        $.table.init(options);
+        loadTotal();
+
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+        let selectRows = table.rememberSelecteds[table.options.id];
+        if (selectRows.length > 0) {
+            let _result = selectRows.filter(v => v.poolid || (v.poolid && v.poolid != 0));
+            if (_result.length > 0) {
+                $("#distribution").addClass("disabled");
+            } else {
+                $("#distribution").removeClass("disabled")
+            }
+        }
+    }
+
+    function onDblClickRow(row, $element) {
+        let index = $($element.context).index();
+        if (!(index == 5 || index == 7)) {
+            $.operate.proview(row.bankid);
+        }
+    }
+
+    function sethandwithdraw(a, url) {
+        $.modal.open("设置自动手动区分金额", url);
+    }
+
+
+    function getTitle(data) {
+        var content = '<p class="banktotal">';
+        viewstate = {
+            "0": "停用",
+            "1": "启用",
+            "100": "在线",
+        }
+        for (let status in viewstate) {
+            let ishave = false;
+            for (let i = 0; i < data.length; i++) {
+                if (status == data[i].status) {
+                    ishave = true;
+                    index = data[i];
+                    content += '<span >' + getServiceState(index.status, true) + '<b></b><span style="color:red;">' + index.parentId + '</span></span>';
+                }
+            }
+            if (ishave == false) {
+                content += '<span >' + getServiceState(status, true) + '<b></b><span style="color:red;">' + 0 + '</span></span>';
+            }
+        }
+        return content + "</p>";
+    }
+
+    function searchBank() {
+        loadTotal();
+        $.table.search();
+    }
+
+    function reset() {
+        $.form.resetDate();
+        loadTotal();
+    }
+
+
+</script>
+
+</body>
+</html>

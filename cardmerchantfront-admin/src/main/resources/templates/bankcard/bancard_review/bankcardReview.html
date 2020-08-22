@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('代理银行卡审核列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">申请人名称：</p>
+                            <input type="text" name="applicantName"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">审核状态:</p>
+                            <select name="reviewStatus">
+                                <option value="">所有</option>
+                                <option value="0">申请中</option>
+                                <option value="1">成功</option>
+                                <option value="2">拒绝</option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">审核人名称：</p>
+                            <input type="text" name="reviewer"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">原工作模式：</p>
+                            <select name="beforWorktype"
+                                    th:with="type=${@dict.getType('bankcardworktype')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">新工作模式：</p>
+                            <select name="afterWorktype"
+                                    th:with="type=${@dict.getType('bankcardworktype')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle">代理名称：</p>
+                            <input type="text" name="agentName"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">银行卡简码：</p>
+                            <input type="text" name="bankAcount"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">审核时间：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginReviewTime]"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle">审核时间：</p>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endReviewTime]"/>
+                        </li>
+                    </ul>
+                </div>
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()"
+               shiro:hasPermission="bankcard:bankcardReview:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('biz.card_distribution_bankcard:BankcardReview:edit')}]];
+    var proviewFlag = [[${@permission.hasPermi('biz.card_distribution_bankcard:BankcardReview:proview')}]];
+    var removeFlag = [[${@permission.hasPermi('biz.card_distribution_bankcard:BankcardReview:remove')}]];
+    var prefix = ctx + "bancard/bancard_review";
+    var serviceState = [[${@dictbank.getSelectUIType('ReviewStatus')}]];
+    var worktype = [[${@dictbank.getSelectUIType('WorkType')}]];
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            popupdateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + "/proview/{id}",
+            modalName: "代理银行卡审核",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: 'agentName',
+                    title: '代理名称'
+                },
+                {
+                    field: 'reviewStatus',
+                    title: '审核状态',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                },
+                {
+                    field: 'applicantName',
+                    title: '申请人名称'
+                },
+                {
+                    field: 'reviewer',
+                    title: '审核人名称'
+                },
+                {
+                    field: 'bankAcount',
+                    title: '银行卡简码'
+                },
+                {
+                    field: 'beforWorktype',
+                    title: '审核前工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'afterWorktype',
+                    title: '审核后工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'reviewTime',
+                    title: '审核时间'
+                },
+                /*{
+                    field: 'bankcardId',
+                    title: '银行卡id'
+                },*/
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + proviewFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.id + '\')"><i class="fa fa-eye"></i>查看</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function onDblClickRow(row, $element) {
+        $.operate.proview(row.id);
+    }
+
+    function getServiceState(id) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+            }
+        }
+    }
+
+    function getWorktype(id) {
+        for (let key in worktype) {
+            if (id == key) {
+                return worktype[key];
+            }
+        }
+    }
+</script>
+</body>
+</html>

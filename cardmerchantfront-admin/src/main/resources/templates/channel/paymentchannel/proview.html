@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看银行卡支付渠道')"/>
+</head>
+<body class="white-bg">
+<form class="form-horizontal m">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content div-border-tyle" id="content">
+
+    </div>
+    <div class="form-group col-sm-12">
+        <h4 class="form-header h4"><em data-i18name="m.bankcardgroupinfo">银行卡集合信息</em></h4>
+    </div>
+</form>
+<div class="col-sm-12 select-table table-striped" id="bootstrap-table-dev">
+    <table id="bootstrap-table"></table>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var data = [[${paychannel}]];
+    var rules = [[${rate}]];
+    var PayType = [[${@dict.getType('payment_type')}]];
+    var WorkType = [[${@dictbank.getSelectUIType('WorkType')}]];
+
+    function getWorkType(id) {
+        for (let key in WorkType) {
+            if (id == key) {
+                return WorkType[key];
+            }
+        }
+    }
+
+    var servicestatus = [[${@dictbank.getSelectUIType('Status')}]];
+
+    function getStatusStr(id) {
+        let value = "";
+        for (let key in servicestatus) {
+            if (id == key) {
+                value = servicestatus[key];
+            }
+        }
+        return value;
+    }
+
+    $(function () {
+        var options = {
+            basicInfo: [
+                {
+                    field: 'paychannelname',
+                    title: '<em data-i18name="biz.channelname">渠道名称</em>',
+                    formatter: function (value) {
+                        return value || "";
+                    }
+                },
+                {
+                    field: 'worktype',
+                    title: '<em data-i18name="biz.worktype">工作模式 </em>',
+                    formatter: function (value, row, index) {
+                        return getWorkType(value);
+                    }
+                },
+                {
+                    field: 'paytype',
+                    title: '<em data-i18name="biz.paymentype">支付方式</em>',
+                    formatter: function (value, row, index) {
+                        return getDictVale(value,PayType);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '渠道状态',
+                    formatter: function (value, row, index) {
+                        return getStatusStr(value);
+                    }
+                }
+            ],
+            paramInfo: [
+                {
+                    field: 'minamountpertrans',
+                    title: '<em data-i18name="t.timemin">每笔最小</em>',
+                    formatter: function (value) {
+                        return value || "";
+                    }
+                },
+                {
+                    field: 'maxamountpertrans',
+                    title: '<em data-i18name="t.timemax">每笔最大</em>',
+                    formatter: function (value) {
+                        return value || "";
+                    }
+                }
+            ]
+        };
+
+        let html = `<h4 class="form-header h4">渠道基本信息</h4>`;
+        let basicInfo = options.basicInfo;
+        for (let item of basicInfo) {
+            let field = item.field;
+            let value = data[field];
+            if (item.formatter) {
+                value = item.formatter(value, data);
+            }
+            html += `
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-4 control-label">${item.title}：</label>
+                    <div class="col-sm-8">
+                        <span class="form-control"  disabled="disabled">${value || ""}</span>
+                    </div>
+                </div>
+            `;
+        }
+        let paramInfo = options.paramInfo;
+        for (let item of paramInfo) {
+            let field = item.field;
+            let value = data[field];
+            if (item.formatter) {
+                value = item.formatter(value, data);
+            }
+            html += `
+                <div class="form-group col-sm-6">
+                    <label class="col-sm-4 control-label">${item.title}：</label>
+                    <div class="col-sm-8">
+                        <span class="form-control"  disabled="disabled">${value || ""}</span>
+                    </div>
+                </div>
+            `;
+        }
+        html += `</div>`
+        $('#content').html(html);
+        changebankcar();
+
+        function changebankcar() {
+            $("#bootstrap-table-dev").show();
+
+            $('#formId').show()
+            let worktype = options.basicInfo[2].worktype;
+
+            initbankcar(worktype, '', '');
+        }
+    });
+
+
+    function initbankcar(worktype, bankcode, ownername) {
+        let bankcardworktypeMapElement = worktype;
+
+        function queryParams(params) {
+            var search = $.table.queryParams(params);
+            search.poolid = null;
+            search.bankcode = bankcode;
+            search.worktype = bankcardworktypeMapElement;
+            search.ownername = ownername;
+
+            search.channelid = data.paychannelid;
+            return search;
+        }
+
+        var url = ctx + "bankcard/manage_bankcard_center/listByWorktype1";
+        var options = {
+            url: url,
+            method: 'post',
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+
+            sidePagination: "server",
+            contentType: "application/x-www-form-urlencoded",
+            queryParams: queryParams,
+            columns: [
+                {
+                    field: 'state',
+                    checkbox: true
+                },
+                {
+                    field: 'bankid',
+                    title: '银行卡编号',
+                    visible: false
+                },
+                {
+                    field: 'banknum',
+                    title: '银行卡简码',
+                    formatter: function (value, row, index) {
+                        let s = `
+                            <div>${row.bankcode}</div>
+                        `;
+                        return s;
+                    }
+                },
+                {
+                    field: 'worktype',
+                    title: '工作模式',
+                    formatter: function (value, row, index) {
+                        return getWorktype(value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '服务状态',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                }
+            ]
+        };
+        $.table.destroy();
+        $.table.init(options);
+    }
+
+    var worktypes = [[${@dictbank.getSelectUIType('WorkType')}]];
+
+    function getWorktype(id) {
+        for (let key in worktypes) {
+            if (id == key) {
+                return worktypes[key];
+            }
+        }
+    }
+
+    var serviceState = [[${@dictbank.getSelectUIType('Statussearch')}]];
+
+    function getServiceState(id) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+
+            }
+        }
+    }
+
+</script>
+<style type="text/css">
+    .ul-class {
+    }
+
+    .ul-class, .ul-class li {
+        list-style: none;
+    }
+
+    .ul-class li {
+        float: left;
+        text-align: center;
+    }
+
+    .div-border-tyle {
+        border-style: none;
+    }
+</style>
+</body>
+</html>

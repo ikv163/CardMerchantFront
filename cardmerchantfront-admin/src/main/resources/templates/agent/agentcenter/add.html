@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:include="include :: header('新增卡商代理')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">新增卡商代理基本信息</h4>
+    <form class="form-horizontal m" id="form-agentcenter-add">
+        <input type="hidden" name="agentLevel" th:value="${level}"/>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">代理名称
+                ：</label>
+            <div class="col-sm-7">
+                <input name="agentName" id="agentName" class="form-control" type="text" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">登录密码：</label>
+            <div class="col-sm-7">
+                <input name="password" class="form-control" id="password" type="password" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">代理级别：</label>
+            <div class="col-sm-7">
+                <input th:value="${levelLable}" class="form-control" type="text" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">费率（最大<span id="maxRatio" th:text="${maxRatio}"></span>）：</label>
+            <div class="col-sm-7">
+                <input name="ratio" class="form-control" type="number" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-5 control-label is-required">状态：</label>
+            <div class="col-sm-7">
+                <select name="status" th:with="type=${@dict.getType('bankcardstatus')}" class="form-control m-b" disabled>
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:selected="${dict.dictValue == '0'}"
+                            th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6"  shiro:hasRole="admin">
+            <label   class="col-sm-5 control-label is-required">卡商 ：</label>
+            <div class="col-sm-7">
+                <select class="form-control" th:title="请选择"
+                        id="supplierBranchId" name="supplierBranchId"  data-style="btn-info"  >
+                    <option th:each="post:${@dictbank.getCurrentSurppilerbranchGroup()}" th:value="${post.getId()}"
+                            th:text="${post.getBranchname()}"
+                    ></option>
+                </select>
+            </div>
+        </div>
+
+
+<!--        <div class="form-group col-sm-6"   shiro:hasRole="admin" >-->
+<!--            <label  class="col-sm-5 control-label is-required">财务分支名称 ：</label>-->
+<!--            <div class="col-sm-7" >-->
+<!--                <input name="branchName"  class="form-control" type="text" required>-->
+<!--            </div>-->
+<!--        </div>-->
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "agent/agentcenter";
+    let maxRatio = $('#maxRatio').text();
+    $("#form-agentcenter-add").validate({
+        focusCleanup: true,
+        rules: {
+            agentCode: {isUserName: true, required: true},
+            agentName: {
+                minlength: 2,
+                maxlength: 20,
+                remote: {
+                    url: prefix + "/checkLoginNameUnique",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "agentName": function () {
+                            return $.common.trim($("#agentName").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },password:{
+                minlength:8,
+                maxlength:16,
+                required:true
+            },
+            branchName:{
+                required:true
+            },
+            ratio:{
+                required:true,
+                max:parseFloat(maxRatio),
+                min:0.1
+            }
+        },
+        messages: {
+            agentName: {
+                remote: "该代理号已存在"
+            }
+        }
+    });
+
+    //自定义正则表达示验证方法
+    $.validator.addMethod("password",function(value,element){
+        var checkPwd = /^\w+$/;
+        return this.optional(element)||(checkPwd.test(value));
+    },"只能输入数字和字母(字符A-Z,a-z,0-9)");
+
+    function submitHandler() {
+        if ($.validate.form()) {
+           $.operate.save(prefix + "/add", $('#form-agentcenter-add').serialize());
+        }
+    }
+
+    $("input[name='lastUpdateTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.BankcardDaytradeReportMapper">
+
+    <resultMap type="BankcardDaytradeReport" id="BankcardDaytradeReportResult">
+        <result property="worktype" column="WorkType"/>
+        <result property="sumamountperdaytrans" column="SumAmountPerDayTrans"/>
+        <result property="banktype" column="BankType"/>
+        <result property="banknum" column="BankNum"/>
+        <result property="bankcode" column="BankCode"/>
+        <result property="counttime" column="countTime"/>
+        <result property="bankid" column="bankid"/>
+        <result property="depositamount" column="DepositAmount"/>
+        <result property="historydepositamount" column="HistoryDepositAmount"/>
+        <result property="withdrawamount" column="WithdrawAmount"/>
+        <result property="calendar" column="Calendar"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="deposittimes" column="DepositTimes"/>
+        <result property="withdrawtimes" column="WithdrawTimes"/>
+        <result property="version" column="Version"/>
+        <result property="alideposittimes" column="AliDepositTimes"/>
+        <result property="alidepositamount" column="AliDepositAmount"/>
+    </resultMap>
+
+
+    <sql id="selectBankcardDaytradeReportVo">
+        SELECT tbk.WorkType,
+               tbk.SumAmountPerDayTrans,
+               tbk.BankType,
+               tbk.BankNum,
+               tbk.BankCode,
+               (tb.DepositTimes + tb.WithdrawTimes) AS countTime,
+               tb.bankid,
+               tb.DepositAmount,
+               tb.HistoryDepositAmount,
+               tb.WithdrawAmount,
+               tb.Calendar,
+               tb.LastUpDateTime,
+               tb.DepositTimes,
+               tb.WithdrawTimes,
+               tb.Version,
+               tb.AliDepositTimes,
+               tb.AliDepositAmount
+        FROM t_bankcardsummary tb
+                 LEFT JOIN t_bankcard tbk ON tbk.BankID = tb.BankID
+
+    </sql>
+
+    <select id="selectBankcardDaytradeReportList" parameterType="BankcardDaytradeReport"
+            resultMap="BankcardDaytradeReportResult">
+        <include refid="selectBankcardDaytradeReportVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}
+            </if>
+            <if test="worktype != null and worktype != ''">and WorkType = #{worktype}</if>
+            <if test="banktype != null and banktype != ''">and BankType = #{banktype}</if>
+            <if test="bankcode != null and bankcode != ''">and BankCode like concat('%',#{bankcode},'%')</if>
+            <if test="bankid != null and bankid != ''">and bankid = #{bankid}</if>
+            <if test="lastupdatetime != null and lastupdatetime != ''">and LastUpDateTime = #{lastupdatetime}</if>
+            <if test="params.beginLastupdatetime != null and params.beginLastupdatetime != ''"><!-- 开始时间检索 -->
+                and tb.Calendar &gt;= #{params.beginLastupdatetime}
+            </if>
+            <if test="params.endLastupdatetime != null and params.endLastupdatetime != ''"><!-- 结束时间检索 -->
+                and tb.Calendar &lt;= #{params.endLastupdatetime}
+            </if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="selectBankcardDaytradeReportById" parameterType="Long" resultMap="BankcardDaytradeReportResult">
+        <include refid="selectBankcardDaytradeReportVo"/>
+        where tbk.BankID = #{bankid}
+    </select>
+
+
+</mapper>

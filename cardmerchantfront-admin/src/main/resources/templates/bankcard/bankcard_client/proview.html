@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看{functionName}')"/>
+</head>
+<body class="white-bg">
+
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bankcard_client-edit" th:object="${bankClient}">
+
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.basicinfo">基本信息</em></h4>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.clientno">客户端编号</em>：</label>
+            <div class="col-sm-8">
+                <input name="clientId" th:field="*{clientId}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.clientname">客户端名称</em>：</label>
+            <div class="col-sm-8">
+                <input name="clientName" th:field="*{clientName}" class="form-control" type="text" disabled>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select name="status" class="form-control m-b" th:field="*{status}"
+                        th:with="type=${@dictbank.getSelectUIType('ClientStatusTwo')}" disabled>
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.value}"
+                            th:value="${dict.key}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.worktype">工作模式</em>：</label>
+            <div class="col-sm-8">
+                <select name="workType" th:field="*{workType}" class="form-control m-b"
+                        th:with="type=${@dictbank.getSelectUIType('WorkTypecreate')}" disabled>
+                    <option th:each="dict : ${type}"
+                            th:text="${dict.value}"
+                            th:value="${dict.key}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.banktype">银行类型</em>：</label>
+            <div class="col-sm-8">
+                <select name="bankType" th:field="*{bankType}" class="form-control m-b"
+                        th:with="type=${@dictbank.getTBanktype()}" disabled>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.identiy">识别码</em>：</label>
+            <div class="col-sm-8">
+                <input name="identity" th:field="*{identity}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.bankcode">银行卡简码</em>：</label>
+            <div class="col-sm-8">
+                <input name="bankAccount" th:field="*{bankAccount}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="t.onlinetime">上线时间</em>：</label>
+            <div class="col-sm-8">
+                <input name="remark" id="remark" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="t.logoutime">退出时间</em>：</label>
+            <div class="col-sm-8">
+                <input type="text" id="lastUpDateTime" name="lastUpDateTime" class="form-control" readonly/>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.remark">备注</em>：</label>
+            <div class="col-sm-8">
+                <input name="realremark" th:field="*{remark}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var AdminName = [[${@dictorders.getAdminList()}]];
+    function getAdminName(id) {
+        for (let i in AdminName) {
+            if (id == AdminName[i].id) {
+                return AdminName[i].username;
+            }
+        }
+    }
+
+    var data = [[${bankClient}]];
+    $(function () {
+        $("#lastUpDateTime").val(data.lastUpDateTime);
+        $("#updatetime").val(data.updatetime);
+        $("#createtime").val(data.createtime);
+        if (data.remark) {
+            $("#remark").val(data.remark.split("_")[1]);
+        }
+        if (data.createby) {
+            $("#createby").val(getAdminName(data.createby));
+        }
+        if (data.updateby) {
+            $("#updateby").val(getAdminName(data.updateby));
+        }
+    });
+
+</script>
+</body>
+</html>

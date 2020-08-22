@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增卡商提款订单')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <h4 class="form-header h4">新增卡商提款订单基本信息</h4>
+    <form class="form-horizontal m" id="form-applywithdrew-add">
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label">可提款金额：</label>
+            <div class="col-sm-8">
+
+                <input name="withdrawOkAmount" id="withdrawOkAmount" readonly th:value="*{withdrawOkAmount}" class="form-control"
+                       type="text" required>
+
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">提款金额：</label>
+            <div class="col-sm-8">
+                <input name="payamount" class="form-control" type="number" required>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">银行卡简码：</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="bankcode" name="bankcode"
+                        th:with="type=${@dictbank.getCurrentUserBankCard()}">
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBankcode()}"
+                            th:text="${dict.getBankcode()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">谷歌验证码
+                ：</label>
+            <div class="col-sm-8">
+                <input name="googlecode"  class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required">提款密码：</label>
+            <div class="col-sm-8">
+                <input name="password" class="form-control" type="password" required>
+            </div>
+
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script th:inline="javascript">
+    var prefix = ctx + "agent/applywithdrew"
+    let withdrawOkAmount = $('#withdrawOkAmount').val();
+    $("#form-applywithdrew-add").validate({
+        focusCleanup: true,
+        rules: {
+            password: {
+                required: true
+            },
+            bankcode: {
+                required: true
+            },
+            payamount: {
+                required: true,
+                max:parseFloat(withdrawOkAmount),
+                min:1.00
+
+            }
+        },
+        messages: {
+            bankcode: {
+                required: '<i class="fa fa-times-circle"></i> 必选'
+            },
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-applywithdrew-add').serialize());
+        }
+    }
+
+    $("input[name='ordernotifytime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增银行卡')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="white-bg">
+<div id="app" class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-manage_bankcard_center-add">
+        <div class="form-group col-sm-12">
+            <div id="banktypelabels">
+
+                <!--原数据 ：收款1， 出款3， 缓冲2， 中转4；  新调整： 收款1 ， 出款2， 中转3， 下发4(原缓冲)， 手动出款5-->
+                <button type="button" class="btn btn-purple" style="width:78px;"
+                        onclick="basemoney(1,this)" value="1">收款卡
+                </button>
+                <button type="button" class="btn btn-purple" style="width:78px;"
+                        onclick="basemoney(2,this)">出款卡
+                </button>
+                <button type="button" class="btn btn-purple" style="width:78px;"
+                        onclick="basemoney(3,this)">中转卡
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.bankcardbasicinfo">银行卡基本信息</em></h4>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em
+                    data-i18name="biz.banknum">银行卡号码</em>：</label>
+            <div class="col-sm-8">
+                <input id="bankcard-banknum" name="banknum" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em data-i18name="m.opener">开户人</em></label>
+            <div class="col-sm-8">
+                <input id="bankcard-ownername" name="ownername" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em
+                    data-i18name="biz.banktype">银行类型</em>：</label>
+            <div class="col-sm-8" id="banktypediv">
+                <select id="bankcard_banktype" name="banktype" data-size="10" class="selectpicker"
+                        data-live-search="true"
+                        th:with="type=${@dictbank.getTBanktype()}">
+                    <option value="">请选择</option>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:data-remark="${dict.getRemark()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em
+                    data-i18name="biz.bankcode">银行卡简码</em>：</label>
+            <div class="col-sm-8">
+                <input id="bankcard-bankcode" name="bankcode" class="form-control" type="hidden" readonly>
+                <span id="bankcard-bankcode-span" readonly class="form-control"></span>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.childaccount">子账号</em>：</label>
+            <div class="col-sm-8">
+                <input name="ucode" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em
+                    data-i18name="m.openeraddr">开户地址</em>：</label>
+            <div class="col-sm-8">
+                <input name="address" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.depositphone">预留手机号</em>：</label>
+            <div class="col-sm-8">
+                <input name="ownerphone" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.openerid">开户人身份证</em>：</label>
+            <div class="col-sm-8">
+                <input name="owneridentity" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.openerid">充值地址</em>：</label>
+            <div class="col-sm-8">
+                <input name="depositaddress" class="form-control" type="text">
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label is-required"><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select name="status" class="form-control" th:with="type=${@dict.getType('bankcardstatus')}">
+                    <option value="">所有</option>
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                </select></div>
+        </div>
+
+
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.bankcardbizparam">银行卡业务参数</em></h4>
+        </div>
+
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.balance">余额</em>：</label>
+            <div class="col-sm-8">
+                <input name="balance" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.keepbalance">保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="initbalance" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.maxkeepbalance">最大保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="maxbalance" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.minkeepbalance">最小保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="minbalance" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.daylimit">日总限额</em>：</label>
+            <div class="col-sm-8">
+                <input name="sumamountperdaytrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"> <em data-i18name="m.daytimes">日笔数限定：</em>：</label>
+            <div class="col-sm-8">
+                <input name="sumtimesperdaytrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.maxtime">每笔最大</em>：</label>
+            <div class="col-sm-8">
+                <input name="maxamountpertrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.mintime">每笔最小</em>：</label>
+            <div class="col-sm-8">
+                <input name="minamountpertrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.totalalipaydaylimit">支付宝日总限额</em>：</label>
+            <div class="col-sm-8">
+                <input name="alisumamountperdaytrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.totalalipaydaytimelimit">支付宝日笔数限制</em>：</label>
+            <div class="col-sm-8">
+                <input name="alisumtimesperdaytrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.alipaytimemax">支付宝每笔最大</em>：</label>
+            <div class="col-sm-8">
+                <input name="alimaxamountpertrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="m.alipaytimemin">支付宝每笔最小</em>：</label>
+            <div class="col-sm-8">
+                <input name="aliminamountpertrans" min="0" type="number" class="form-control">
+            </div>
+        </div>
+        <input id="bankcard-worktype" name="worktype" type="hidden">
+
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.remark">备注</em>：</label>
+            <div class="col-sm-8">
+                <input type="text"  name="remark" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.remark">交易密码</em>：</label>
+            <div class="col-sm-8">
+                <input type="text"  name="paypwd" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.remark">网银登录账号</em>：</label>
+            <div class="col-sm-8">
+                <input type="text"  name="loginaccount" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group col-sm-6">
+            <label class="col-sm-4 control-label"><em data-i18name="biz.remark">网银登录密码</em>：</label>
+            <div class="col-sm-8">
+                <input type="text"  name="loginpwd" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group col-sm-6"></div>
+        <div class="form-group col-sm-6"></div>
+        <div class="form-group col-sm-6"></div>
+        <div class="form-group col-sm-6"></div>
+    </form>
+</div>
+
+<style>
+    .bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
+        width: 100%;
+    }
+    .bootstrap-select > .dropdown-toggle {
+        width: 100%;
+    }
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.72871;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+</style>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: vue-js"/>
+<script th:inline="javascript">
+
+
+    function onChangeBankcardworktype(type) {
+        // 左边银行卡工作模式,右边卡池的roletype
+        var bankcardworktypeMap = {
+            // 入款 ok
+            1: 0,
+            // 出款 ok
+            2: 1,
+            // 下发  ok
+            4: 2,
+            // 其他
+            '': 3,
+            // 中转 ok
+            3: 4,
+            // 手动出款 ok
+            5: 5,
+            // 四方 ok
+            10: 6
+        };
+        let cardPoolByWorktype = getCardPoolByWorktype(bankcardworktypeMap[type]);
+        app.rebankcardpool = cardPoolByWorktype;
+    }
+
+    var bankcardpoollist = [[${@dictbank.selectTBankcardpoolInfoList()}]];
+
+    function getCardPoolByWorktype(type) {
+        return bankcardpoollist.slice().filter(v => v.roletype == type);
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            rebankcardpool: [],
+        },
+        methods: {}
+    });
+    onChangeBankcardworktype(1);
+    $("#banktypelabels").children("button").each(function () {
+        if ($(this).attr('value') == 1) {
+            // $(this).attr('class', 'btn btn-purple btn-success');
+            $(this).click();
+        }
+    });
+    // $('.selectpicker').attr('disabled', true).selectpicker('refresh');
+    $("#status").val(0);
+
+    var prefix = ctx + "bankcard/manage_bankcard_center"
+    $("#form-manage_bankcard_center-add").validate({
+        focusCleanup: true,
+        rules: {
+            "banknum": {
+                minlength: 16,
+                maxlength: 19,
+                digits: true,
+
+                "required": true,
+                remote: {
+                    url: prefix + "/check",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "banknum": function () {
+                            return $.common.trim($("[name=banknum]").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        let s = JSON.parse(data);
+                        return s && s.total == 0
+                    }
+                }
+            },
+
+            "status": {"required": true},
+            "ownername": {"required": true},
+            "banktype": {"required": true},
+            "ownerphone": {"number": true, "maxlength": 11},
+            "balance": {"number": true, "maxlength": 13},
+            "initbalance": {"number": true, "maxlength": 13},
+            "maxbalance": {"number": true, "maxlength": 13},
+            "minbalance": {"number": true, "maxlength": 13},
+            "sumamountperdaytrans": {"number": true, "maxlength": 13},
+            "sumtimesperdaytrans": {"digits": true, "maxlength": 6},
+            "maxamountpertrans": {"digits": true, "maxlength": 6},
+            "minamountpertrans": {"digits": true, "maxlength": 6},
+            "alisumamountperdaytrans": {"number": true, "maxlength": 13},
+            "alisumtimesperdaytrans": {"digits": true, "maxlength": 6},
+            "alimaxamountpertrans": {"digits": true, "maxlength": 6},
+            "aliminamountpertrans": {"digits": true, "maxlength": 6},
+            "comments": {"maxlength": 2000},
+            "address": {"required": true, "maxlength": 200}
+        },
+        messages: {
+            "banknum": {"remote": "银行卡号已经存在"},
+        }
+    });
+    $('#bankcard-banknum').blur(function () {
+        //$('#bankcard-banknum').val($('#bankcard-banknum').replace(/[^\d]/g,''));
+        //a.replace(/[^\d]/g,'')
+
+        let bank = getBankNameByBankCode($(this).val());
+        if (bank) {
+            $('.selectpicker').selectpicker('val', bank[1]);
+            $('.selectpicker').selectpicker('refresh');
+        } else {
+            $('.selectpicker').selectpicker('val', '');
+            $('.selectpicker').selectpicker('refresh');
+        }
+        autoBankCode();
+    });
+    $('#bankcard-banknum').keyup(function () {
+        autoBankCode();
+    })
+    $('#bankcard-ownername').keyup(function () {
+        autoBankCode();
+    });
+    $('.selectpicker').change(function () {
+        autoBankCode(1);
+    });
+
+    function autoBankCode(isChange = 0) {
+        var banknum = $('#bankcard-banknum').val();
+        var ownername = $('#bankcard-ownername').val();
+        /*var banktype = $('#bankcard-banktype option:selected').data('remark') || "";*/
+        var banktype = $('.selectpicker').selectpicker('val');
+        $($('.selectpicker').selectpicker()[0]).find("option").each(function () {
+            if ($(this).attr("value") == banktype) {
+                banktype = $(this).attr("data-remark");
+            }
+        });
+
+        if (banknum.length < 7 || $.common.isEmpty(ownername) || $.common.isEmpty(banktype)) {
+            $('#bankcard-bankcode').val('');
+            $('#bankcard-bankcode-span').text('');
+            return false;
+        }
+        var temp = banktype + banknum.substr(-7) + '-' + ownername;
+        $('#bankcard-bankcode').val(temp);
+        $('#bankcard-bankcode-span').text(temp);
+
+
+    }
+
+    function bankInfo(card) {
+        try {
+            card_8 = card.substr(0, 8);
+            if (bankList[card_8] != undefined) {
+                return bankList[card_8];
+            }
+            card_6 = card.substr(0, 6);
+            if (bankList[card_6] != undefined) {
+                return bankList[card_6];
+            }
+            card_5 = card.substr(0, 5);
+            if (bankList[card_5] != undefined) {
+                return bankList[card_5];
+            }
+            card_4 = card.substr(0, 4);
+            if (bankList[card_4] != undefined) {
+                return bankList[card_4];
+            }
+        } catch (e) {
+            return -1;
+        }
+        return -1;
+    }
+
+    function basemoney(type, ths) {
+        $(ths).siblings().removeClass('btn-success');
+        $(ths).addClass('btn-success');
+        var changeFlag = false;
+        $('#bankcard-worktype').val(type);
+        onChangeBankcardworktype(type);
+        $('[name=worktype] option').each(function () {
+            //新增了一个收款卡（柬），是从收款卡直接复制出来，收款卡的type = 1，收款卡（柬） 的type = 14,为了工作模式设置为收款，
+            //这里把收款卡（柬）的type改成收款卡的type
+            if (type == 14) {
+                type = 1;
+                changeFlag = true;
+            }
+            if ($(this).val() == type) {
+                $(this).prop('selected', 'selected');
+                return false;
+            }
+        });
+        //如果是收款卡（柬），把type改回13，确保basemoney取值无误
+        if (changeFlag) {
+            type = 14;
+        }
+
+        if (type == 4) {
+            $('[name=status] option').each(function () {
+                if ($(this).val() == 0) {
+                    $(this).prop('selected', 'selected');
+                    return false;
+                }
+            });
+        }
+        var basemoney = [
+            //保留额度，     <em data-i18name="t.dayliylimit">日总额限额</em>，             每笔最大，            最大保留额度， 最小保留额度，  <em data-i18name="t.daylimitime">日笔数限额</em>，           每笔最小，             支付宝<em data-i18name="t.daylimitime">日笔数限额</em>，          支付宝每笔最小，        支付宝每笔最大，        支付宝日总额
+            ["initbalance", "sumamountperdaytrans", "maxamountpertrans", "maxbalance", "minbalance", "sumtimesperdaytrans", "minamountpertrans", "alisumtimesperdaytrans", "aliminamountpertrans", "alimaxamountpertrans", "alisumamountperdaytrans"],
+            [
+                //收款
+                [1000, 100000, 49999, 50000, 5000, 0, 100, 0, 100, 49999, 100000],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //出款
+                [13000, 180000, 49999, 0, 500, 100, 100, 0, 0, 0, 0],  //个人
+                [13000, 180000, 49999, 0, 500, 0, 100, 0, 0, 0, 0], //企业
+            ],
+            [
+                //中转
+                [500, 50000, 49999, 49999, 500, 50, 10000, 0, 0, 0, 0],  //个人
+                [1000, 2000000, 30000, 50000, 0, 0, 10000, 0, 0, 0, 0], //企业
+            ],
+            [
+                //下发
+                [49999, 180000, 49999, 0, 300, 20, 1000, 0, 0, 0, 0],  //个人
+                [0, 2000000, 48999, 300, 0, 0, 0, 0, 0, 0, 0], //企业
+            ],
+            [
+                //手动出款
+                [300, 180000, 49999, 500, 300, 100, 10000, 0, 0, 0, 0],  //个人
+                [300, 2000000, 49999, 2000, 0, 0, 0, 0, 0, 0, 0], //企业
+            ],
+            [
+                //风云出款
+                [0, 150000, 4999, 0, 500, 200, 100, 0, 0, 0, 0],  //个人
+                [12000, 2000000, 49999, 0, 500, 0, 100, 0, 0, 0, 0], //企业
+            ],
+            [
+                //风云入款
+                [1000, 300000, 49999, 1500, 1000, 0, 1000, 0, 100, 49999, 300000],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //结汇
+                [110000, 100000, 100000, 120000, 5000, 3, 10000, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //第三方
+                [300, 100000, 49999, 2000, 300, 100, 50, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //第四方
+                [50000, 100000, 5000, 50000, 200, 100, 100, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //技术支持
+                [49999, 100000, 1000, 49999, 0, 200, 10, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //U盾
+                [0, 100000, 0, 0, 0, 0, 0, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //U盾异常
+                [0, 100000, 0, 0, 0, 0, 0, 0, 0, 0, 0],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+            [
+                //收款卡（柬）
+                [1000, 100000, 49999, 50000, 0, 0, 100, 0, 100, 49999, 100000],  //个人
+                [0, 2000000, 49999, 0, 0, 0, 0, 0, 0, 49999, 2000000], //企业
+            ],
+
+        ];
+        for (var i = 0; i < basemoney[0].length; i++) {
+            var _index = 0;
+            $('input[name=' + basemoney[0][i] + ']').val(basemoney[type][_index][i]);
+        }
+
+
+    }
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var config = {
+                url: prefix + "/add",
+                type: "post",
+                dataType: "json",
+                data: $('#form-manage_bankcard_center-add').serialize(),
+                beforeSend: function (request) {
+                    request.setRequestHeader("newDate", new Date().getTime());
+                    $.modal.loading("正在处理中，请稍后...");
+                    $.modal.disable();
+                },
+                success: function (result) {
+                    if (typeof callback == "function") {
+                        callback(result);
+                    }
+                    successCallback(result);
+                }
+            };
+            $.ajax(config)
+        }
+    }
+
+    $("input[name='lastupdatetime']").datetimepicker({
+        format: 'yyyy-mm-dd hh:ii:ss',
+
+        autoclose: true
+    });
+
+    function successCallback(result){
+        if (result.code == web_status.SUCCESS) {
+            var parent = window.parent;
+            $.modal.close();
+            parent.$.modal.msgSuccess(result.msg);
+            parent.$.table.refresh();
+            parent.loadTotal();
+        } else if (result.code == web_status.WARNING) {
+            $.modal.alertWarning(result.msg)
+        } else {
+            $.modal.alertError(result.msg);
+        }
+        $.modal.closeLoading();
+        $.modal.enable();
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看银行卡')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-manage_bankcard_center-edit">
+        <input name="bankid" type="hidden">
+        <div class="form-group col-sm-12">
+            <h4 class="form-header h4"><em data-i18name="m.bankcardbasicinfo">银行卡基本信息</em></h4>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="biz.banknum">银行卡号码</em>：</label>
+            <div class="col-sm-8">
+                <input id="bankcard-banknum" name="banknum" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.opener">开户人</em></label>
+            <div class="col-sm-8">
+                <input id="bankcard-ownername" name="ownername" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="biz.banktype">银行类型</em>：</label>
+            <div class="col-sm-8">
+                <select id="bankcard-banktype" class="form-control" name="banktype"
+                        th:with="type=${@dictbank.getTBanktype()}">
+                    <option value="">请选择</option>
+                    <option th:each="dict : ${type}"
+                            th:value="${dict.getBanktypecode()}"
+                            th:data-remark="${dict.getRemark()}"
+                            th:text="${dict.getBanktypename()}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="biz.bankcode">银行卡简码</em>：</label>
+            <div class="col-sm-8">
+                <input id="bankcard-bankcode" name="bankcode" class="form-control" type="text" readonly>
+                <span id="bankcard-bankcode-span"></span>
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.childaccount">子账号</em>：</label>
+            <div class="col-sm-8">
+                <input name="ucode" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.openeraddr">开户地址</em>：</label>
+            <div class="col-sm-8">
+                <input name="address" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.depositphone">预留手机号</em>：</label>
+            <div class="col-sm-8">
+                <input name="ownerphone" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.openerid">开户人身份证</em>：</label>
+            <div class="col-sm-8">
+                <input name="owneridentity" class="form-control" type="text">
+            </div>
+        </div>
+
+
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="biz.servicestatus">服务状态</em>：</label>
+            <div class="col-sm-8">
+                <select class="form-control" name="status" th:with="type=${@dictbank.getSelectUIType('Statussearch')}">
+                    <option th:each="dict : ${type}" th:text="${dict.value}"
+                            th:value="${dict.key}"></option>
+
+                </select>
+
+            </div>
+        </div>
+        <div class="form-group col-sm-12">
+
+            <h4 class="form-header h4"><em data-i18name="m.bankcardbizparam">银行卡业务参数</em></h4>
+        </div>
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.balance">余额</em>：</label>
+            <div class="col-sm-8">
+                <input name="balance" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.keepbalance">保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="initbalance" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.maxkeepbalance">最大保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="maxbalance" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.minkeepbalance">最小保留额度</em>：</label>
+            <div class="col-sm-8">
+                <input name="minbalance" class="form-control" type="number">
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.daylimit">日总限额</em>：</label>
+            <div class="col-sm-8">
+                <input name="sumamountperdaytrans" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"> <em data-i18name="m.daytimes">日笔数限定：</em>：</label>
+            <div class="col-sm-8">
+                <input name="sumtimesperdaytrans" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.mintime">每笔最小</em>：</label>
+            <div class="col-sm-8">
+                <input name="minamountpertrans" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label"><em data-i18name="m.maxtime">每笔最大</em>：</label>
+            <div class="col-sm-8">
+                <input name="maxamountpertrans" class="form-control" type="number">
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label">人工备注：</label>
+            <div class="col-sm-8">
+                <textarea maxlength="2000" rows="5" name="comments" class="form-control" type="text">
+                </textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<!--<div class="row">-->
+<!--    <div class="col-sm-offset-5 col-sm-10">-->
+
+<!--        <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i><em-->
+<!--                data-i18name="fn.close">关 闭</em>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--</div>-->
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+
+    var bankcardpool = [[${@dictbank.selectTBankcardpoolInfoList()}]];
+    var worktype = [[${@dictbank.getSelectUIType('WorkType')}]];
+    var rolechecker = [[${@dictbank.getRoleChecker()}]];
+    var serviceState = [[${@dictbank.getSelectUIType('Statussearch')}]];
+    var data = [[${tBankcard}]];
+    var renderkey = ["bankid", "banknum", "ownername", "banktype", "bankcode", "ucode", "address", "ownerphone", "owneridentity", "depositaddress", "initbalance", "status", "tagid", "sumamountperdaytrans", "sumtimesperdaytrans", "minamountpertrans", "maxamountpertrans", "alisumamountperdaytrans", "alisumtimesperdaytrans", "aliminamountpertrans", "alimaxamountpertrans", "balance", "maxbalance", "minbalance", "worktype", "poolid", "paypwd", "loginaccount", "loginpwd", "comments", "createtime", "lastupdatetime", "createbyname", "updatebyname", "updatetime"];
+    renderkey.forEach(function (key) {
+        let ele = $(`[name=${key}]`);
+        ele.val(data[key]);
+        ele.attr("disabled", "disabled")
+    });
+    var prefix = ctx + "bankcard/manage_bankcard_center";
+
+    function getServiceState(id) {
+        for (let key in serviceState) {
+            if (id == key) {
+                let serviceStateElement = serviceState[key];
+                switch (id) {
+                    case 100:
+                        return ` <a class="badge badge-primary   ">${serviceStateElement}</a>`;
+                    case 1:
+                        return ` <a class="badge badge-success ">${serviceStateElement}</a>`;
+                    default:
+                        return ` <a class="badge badge-danger ">${serviceStateElement}</a>`;
+                }
+
+            }
+        }
+
+    }
+
+    function getrolechecker(id) {
+        for (let item of rolechecker) {
+            if (id == item.id) {
+                return item.bankpoolname;
+            }
+        }
+
+    }
+
+
+
+    function getWorktype(id) {
+        for (let key in worktype) {
+            if (id == key) {
+                return worktype[key];
+            }
+        }
+
+    }
+
+    function getBankcardpoolname(id) {
+        for (let item of bankcardpool) {
+            if (id == item.bankpooid) {
+                return item.bankpoolname;
+            }
+        }
+    }
+
+    /*$(function () {
+        var options = {
+            columns: [
+                {
+                    field: 'bankid',
+                    title: ' <em data-i18name="t.bankcardno">银行卡编号</em>',
+                    visible: true
+                },
+                {
+                    field: 'banknum',
+                    title: '<em data-i18name="biz.bankcode">银行卡简码</em>',
+                    formatter: function (value, row, index) {
+                        let s = `
+                            <div>${row.bankcode}</div>
+                        `;
+                        return s;
+                    }
+                },
+                {
+                    field: 'poolid',
+                    title: '<em data-i18name="biz.cardpool">卡池名称</em>',
+                    formatter: function (value, row, index) {
+                        let bankcardpoolname = getBankcardpoolname(value) || '';
+                        return bankcardpoolname;
+                    }
+                },
+                {
+                    field: 'worktype',
+                    title: '<em data-i18name="biz.worktype">工作模式 </em>',
+                    formatter: function (value, row, index) {
+
+                        return getWorktype(value);
+                    }
+                },
+
+
+                {
+                    field: 'balance',
+                    title: '<em data-i18name="t.balance">余额</em>'
+                },
+                {
+                    field: 'maxbalance',
+                    title: '<em data-i18name="m.maxkeepbalance">最大保留额度</em>',
+                    formatter: function (value, row, index) {
+                        return `
+                       ${row.maxbalance}
+                        `;
+
+                    }
+                },
+                {
+                    field: 'minbalance',
+                    title: '<em data-i18name="m.minkeepbalance">最小保留额度</em>',
+                    formatter: function (value, row, index) {
+                        return `
+                       ${row.minbalance}
+                        `;
+
+                    }
+                },
+                {
+                    field: 'initbalance',
+                    title: '保留额度'
+                },
+                {
+                    field: 'sumamountperdaytrans',
+                    title: '<em data-i18name="t.dayliylimit">日总额限额</em>'
+                },
+
+                {
+                    field: 'sumtimesperdaytrans',
+                    title: '<em data-i18name="t.daylimitime">日笔数限额</em>'
+                },
+
+                {
+                    field: 'maxamountpertrans',
+                    title: '<em data-i18name="t.timemax">每笔最大</em>',
+                    formatter: function (value, row, index) {
+                        return `${row.maxamountpertrans}`;
+                    }
+                },
+                {
+                    field: 'minamountpertrans',
+                    title:  '<em data-i18name="t.timemin">每笔最小</em>',
+                    formatter: function (value, row, index) {
+                        return `${row.minamountpertrans}`;
+                    }
+                },
+                {
+                    field: 'alisumtimesperdaytrans',
+                    title: '支付宝日总额'
+                },
+                {
+                    field: 'alisumamountperdaytrans',
+                    title: '支付宝<em data-i18name="t.daylimitime">日笔数限额</em>'
+                },
+                {
+                    field: 'alimaxamountpertrans',
+                    title: '<em data-i18name="m.alipaytimemax">支付宝每笔最大</em>',
+                    formatter: function (value, row, index) {
+                        return `${row.alimaxamountpertrans}`;
+                    }
+                },
+                {
+                    field: 'aliminamountpertrans',
+                    title: '<em data-i18name="m.alipaytimemin">支付宝每笔最小</em>',
+                    formatter: function (value, row, index) {
+                        return `${row.aliminamountpertrans}`;
+                    }
+                },
+
+                {
+                    field: 'status',
+                    title: '<em data-i18name="biz.servicestatus">服务状态</em>',
+                    formatter: function (value, row, index) {
+                        return getServiceState(value);
+                    }
+                },
+                {
+                    field: 'auth',
+                    title: '查看员',
+                    formatter: function (value, row, index) {
+                        if (!value) {
+                            return ` <span class="badge badge-danger ">未分配</span>`;
+                            ;
+                        }
+                        let rolechecker1 = getrolechecker(value);
+                        if (!rolechecker1) {
+                            return ` <span class="badge badge-danger ">未分配</span>`;
+                            ;
+                        }
+
+                        return `
+                            <span class="badge badge-success ">${rolechecker1}</span>
+                         `;
+                    },
+
+                },
+
+                {
+                    field: 'createtime',
+                    title: '<em data-i18name="user.createtime">创建时间</em>',
+                    formatter: function (value, row, index) {
+                        return `<span style="white-space: nowrap">${value}</span>`;
+                    }
+                },
+            ]
+        };
+        var html = '';
+        let myoptions = options.columns;
+        for (let item of myoptions) {
+            let field = item.field;
+            let value = data[field];
+            if (item.formatter) {
+                value = item.formatter(value,data);
+            }
+            html += `
+        <div class="form-group col-sm-4">
+            <label class="col-sm-3 control-label">${item.title}：</label>
+            <div class="col-sm-8">
+                <span class="form-control"  disabled="disabled">${value || ""}</span>
+            </div>
+        </div>
+            `;
+        }
+        $('.form-horizontal').html(html);
+
+    });*/
+
+
+</script>
+</body>
+</html>

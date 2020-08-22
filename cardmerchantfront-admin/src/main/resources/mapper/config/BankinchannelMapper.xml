@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.BankinchannelMapper">
+
+    <resultMap type="com.pay.typay.biz.domain.Bankinchannel" id="BankinchannelResult">
+        <result property="bankid" column="BankID"/>
+        <result property="channelid" column="ChannelID"/>
+    </resultMap>
+
+    <sql id="selectBankinchannelVo">
+        select BankID, ChannelID
+        from t_bankinchannel
+    </sql>
+
+    <select id="selectBankinchannelList" parameterType="com.pay.typay.biz.domain.Bankinchannel"
+            resultMap="BankinchannelResult">
+        <include refid="selectBankinchannelVo"/>
+        <where>
+            <if test="channelid != null"> channelid = #{channelid}</if>
+        </where>
+    </select>
+
+    <select id="selectBankinchannelById" parameterType="Long" resultMap="BankinchannelResult">
+        <include refid="selectBankinchannelVo"/>
+        where BankID = #{bankid}
+    </select>
+
+    <insert id="insertBankinchannel" parameterType="com.pay.typay.biz.domain.Bankinchannel">
+        insert into t_bankinchannel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">BankID,</if>
+            <if test="channelid != null ">ChannelID,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankid != null ">#{bankid},</if>
+            <if test="channelid != null ">#{channelid},</if>
+        </trim>
+    </insert>
+    <insert id="insertBankinchannelByBatch" parameterType="com.pay.typay.biz.domain.Bankinchannel">
+        insert into t_bankinchannel (BankID,ChannelID)
+        values
+        <foreach collection ="list" item="bankinchannel" index= "index" separator =",">
+            ( #{bankinchannel.bankid}, #{bankinchannel.channelid} )
+        </foreach >
+    </insert>
+
+
+
+
+    <update id="updateBankinchannel" parameterType="com.pay.typay.biz.domain.Bankinchannel">
+        update t_bankinchannel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="channelid != null ">ChannelID = #{channelid},</if>
+        </trim>
+        where BankID = #{bankid}
+    </update>
+
+    <delete id="deleteBankinchannelById" parameterType="Long">
+        delete
+        from t_bankinchannel
+        where BankID = #{bankid}
+    </delete>
+
+    <delete id="deleteBankinchannelByIds" parameterType="String">
+        delete from t_bankinchannel where BankID in
+        <foreach item="bankid" collection="array" open="(" separator="," close=")">
+            #{bankid}
+        </foreach>
+    </delete>
+
+
+
+<!--    根据银行卡池ID查找 渠道关联的银行卡-->
+    <select id="selectBankinchannelListBybankpoolid"  parameterType="Long"
+            resultMap="BankinchannelResult">
+        SELECT
+            t1.BankID,
+            t1.ChannelID
+        FROM
+            t_bankinchannel t1
+                LEFT JOIN t_paychannel t2 ON t1.ChannelID = t2.PayChannelID
+                LEFT JOIN t_bankcardpool t3 ON t2.PayPoolID = t3.BankPooID
+        where
+            t3.BankPooID=#{bankid}
+
+    </select>
+
+
+    <delete id="deleteBankinchannelByChannelIds" parameterType="String">
+        delete from t_bankinchannel where ChannelID in
+        <foreach item="channelid" collection="array" open="(" separator="," close=")">
+            #{channelid}
+        </foreach>
+    </delete>
+
+    <select id="selectBankinchannelListByChannelids" parameterType="String"
+            resultMap="BankinchannelResult">
+        select BankID, ChannelID
+        from t_bankinchannel
+        where ChannelID in
+        <foreach item="channelid" collection="array" open="(" separator="," close=")">
+            #{channelid}
+        </foreach>
+    </select>
+
+
+    <!--    根据银行卡池ID查找 渠道关联的银行卡-->
+    <select id="selectChannelidsListBybankpoolid"  parameterType="Long"
+            resultType="String">
+        SELECT
+            PayChannelID
+        FROM t_paychannel
+        where
+            PayPoolID=#{bankpooid}
+
+    </select>
+    <select id="selectBankids" resultType="com.pay.typay.biz.domain.Bankinchannel" resultMap="BankinchannelResult">
+        select BankID, ChannelID
+        from t_bankinchannel
+        where ChannelID = #{paychannelid}
+    </select>
+
+
+</mapper>

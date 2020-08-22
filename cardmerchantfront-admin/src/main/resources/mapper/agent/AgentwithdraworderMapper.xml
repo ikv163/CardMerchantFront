@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.agent.mapper.AgentwithdraworderMapper">
+
+    <resultMap type="Agentwithdraworder" id="AgentwithdraworderResult">
+        <result property="orderindex" column="orderindex"/>
+        <result property="orderid" column="orderid"/>
+        <result property="ordernotifytime" column="ordernotifytime"/>
+        <result property="supplierbranchid" column="supplierbranchid"/>
+        <result property="paytype" column="paytype"/>
+        <result property="payamount" column="payamount"/>
+        <result property="paidamount" column="paidamount"/>
+        <result property="notifyurl" column="notifyurl"/>
+        <result property="returnurl" column="returnurl"/>
+        <result property="paychannelid" column="paychannelid"/>
+        <result property="bankaccount" column="bankaccount"/>
+        <result property="orderstatus" column="orderstatus"/>
+        <result property="ordernotifystatus" column="ordernotifystatus"/>
+        <result property="remark" column="remark"/>
+        <result property="bankcode" column="bankcode"/>
+        <result property="banknum" column="banknum"/>
+        <result property="bankaddress" column="bankaddress"/>
+        <result property="bankowner" column="bankowner"/>
+        <result property="md5orderid" column="md5orderid"/>
+        <result property="digest" column="digest"/>
+        <result property="ordertype" column="ordertype"/>
+        <result property="createtime" column="createtime"/>
+        <result property="agent_id" column="agent_id"/>
+        <result property="agent_name" column="agent_name"/>
+        <result property="lastupdatetime" column="lastupdatetime"/>
+    </resultMap>
+
+    <sql id="selectAgentwithdraworderVo">
+        SELECT orderindex,
+               orderid,
+               ordernotifytime,
+               supplierbranchid,
+               paytype,
+               payamount,
+               paidamount,
+               notifyurl,
+               returnurl,
+               paychannelid,
+               bankaccount,
+               orderstatus,
+               ordernotifystatus,
+               remark,
+               bankcode,
+               banknum,
+               bankaddress,
+               bankowner,
+               md5orderid,
+               digest,
+               ordertype,
+               createtime,
+               agent_code,
+               agent_id,
+               agent_name,
+               lastupdatetime
+        FROM t_agentwithdraworder
+    </sql>
+
+    <select id="selectAgentwithdraworderList" parameterType="Agentwithdraworder" resultMap="AgentwithdraworderResult">
+        <include refid="selectAgentwithdraworderVo"/>
+        <where>
+
+            <if test="supplierbranchid !=null">
+                and supplierbranchid =#{supplierbranchid}
+            </if>
+            <if test="orderid !=null and orderid != ''">
+                and orderid =#{orderid}
+            </if>
+            <if test="bankcode !=null and bankcode !=''">
+                and bankcode =#{bankcode}
+            </if>
+            <if test="orderstatus !=null">
+                and orderstatus =#{orderstatus}
+            </if>
+
+            <if test="payamount !=null">
+                and payamount =#{payamount}
+            </if>
+
+            <if test="params.startTime != null and params.startTime != ''">
+                AND createtime &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND createtime &lt;= #{params.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAgentwithdraworderById" resultMap="AgentwithdraworderResult">
+        <include refid="selectAgentwithdraworderVo"/>
+        where orderindex = #{param1} and supplierbranchid = #{param2}
+    </select>
+
+
+    <select id="getSuccessSummary" resultMap="AgentwithdraworderResult">
+        select sum(paidamount) paidamount from t_agentwithdraworder
+        <where>
+            ( orderstatus = 3 or orderstatus =4 )
+            <if test="agentId !=null">
+                and agent_id =#{agentId}
+            </if>
+
+            <if test="startTime != null and startTime != ''">
+                AND createtime &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND createtime &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertAgentwithdraworder" parameterType="Agentwithdraworder">
+        insert into t_agentwithdraworder
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderindex != null ">orderindex,</if>
+            <if test="orderid != null  and orderid != ''">orderid,</if>
+            <if test="ordernotifytime != null ">ordernotifytime,</if>
+            <if test="supplierbranchid != null ">supplierbranchid,</if>
+            <if test="paytype != null ">paytype,</if>
+            <if test="payamount != null ">payamount,</if>
+            <if test="paidamount != null ">paidamount,</if>
+            <if test="notifyurl != null  and notifyurl != ''">notifyurl,</if>
+            <if test="returnurl != null  and returnurl != ''">returnurl,</if>
+            <if test="paychannelid != null ">paychannelid,</if>
+            <if test="bankaccount != null  and bankaccount != ''">bankaccount,</if>
+            <if test="orderstatus != null ">orderstatus,</if>
+            <if test="ordernotifystatus != null ">ordernotifystatus,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode,</if>
+            <if test="banknum != null  and banknum != ''">banknum,</if>
+            <if test="bankaddress != null  and bankaddress != ''">bankaddress,</if>
+            <if test="bankowner != null  and bankowner != ''">bankowner,</if>
+            <if test="md5orderid != null  and md5orderid != ''">md5orderid,</if>
+            <if test="digest != null  and digest != ''">digest,</if>
+            <if test="ordertype != null ">ordertype,</if>
+            <if test="createtime != null ">createtime,</if>
+            <if test="agent_id != null ">agent_id,</if>
+            <if test="agent_name != null ">agent_name,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderindex != null ">#{orderindex},</if>
+            <if test="orderid != null  and orderid != ''">#{orderid},</if>
+            <if test="ordernotifytime != null ">#{ordernotifytime},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="paytype != null ">#{paytype},</if>
+            <if test="payamount != null ">#{payamount},</if>
+            <if test="paidamount != null ">#{paidamount},</if>
+            <if test="notifyurl != null  and notifyurl != ''">#{notifyurl},</if>
+            <if test="returnurl != null  and returnurl != ''">#{returnurl},</if>
+            <if test="paychannelid != null ">#{paychannelid},</if>
+            <if test="bankaccount != null  and bankaccount != ''">#{bankaccount},</if>
+            <if test="orderstatus != null ">#{orderstatus},</if>
+            <if test="ordernotifystatus != null ">#{ordernotifystatus},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="bankcode != null  and bankcode != ''">#{bankcode},</if>
+            <if test="banknum != null  and banknum != ''">#{banknum},</if>
+            <if test="bankaddress != null  and bankaddress != ''">#{bankaddress},</if>
+            <if test="bankowner != null  and bankowner != ''">#{bankowner},</if>
+            <if test="md5orderid != null  and md5orderid != ''">#{md5orderid},</if>
+            <if test="digest != null  and digest != ''">#{digest},</if>
+            <if test="ordertype != null ">#{ordertype},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="agent_id != null ">#{agent_id},</if>
+            <if test="agent_name != null ">#{agent_name},</if>
+
+        </trim>
+    </insert>
+
+    <update id="updateAgentwithdraworder" parameterType="Agentwithdraworder">
+        update t_agentwithdraworder
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderid != null  and orderid != ''">orderid = #{orderid},</if>
+            <if test="ordernotifytime != null ">ordernotifytime = #{ordernotifytime},</if>
+            <if test="supplierbranchid != null ">supplierbranchid = #{supplierbranchid},</if>
+            <if test="paytype != null ">paytype = #{paytype},</if>
+            <if test="payamount != null ">payamount = #{payamount},</if>
+            <if test="paidamount != null ">paidamount = #{paidamount},</if>
+            <if test="notifyurl != null  and notifyurl != ''">notifyurl = #{notifyurl},</if>
+            <if test="returnurl != null  and returnurl != ''">returnurl = #{returnurl},</if>
+            <if test="paychannelid != null ">paychannelid = #{paychannelid},</if>
+            <if test="bankaccount != null  and bankaccount != ''">bankaccount = #{bankaccount},</if>
+            <if test="orderstatus != null ">orderstatus = #{orderstatus},</if>
+            <if test="ordernotifystatus != null ">ordernotifystatus = #{ordernotifystatus},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="bankcode != null  and bankcode != ''">bankcode = #{bankcode},</if>
+            <if test="banknum != null  and banknum != ''">banknum = #{banknum},</if>
+            <if test="bankaddress != null  and bankaddress != ''">bankaddress = #{bankaddress},</if>
+            <if test="bankowner != null  and bankowner != ''">bankowner = #{bankowner},</if>
+            <if test="md5orderid != null  and md5orderid != ''">md5orderid = #{md5orderid},</if>
+            <if test="digest != null  and digest != ''">digest = #{digest},</if>
+            <if test="ordertype != null ">ordertype = #{ordertype},</if>
+            <if test="createtime != null ">createtime = #{createtime},</if>
+        </trim>
+        where orderindex = #{orderindex}
+    </update>
+
+    <delete id="deleteAgentwithdraworderById" parameterType="Long">
+        DELETE
+        FROM t_agentwithdraworder
+        WHERE orderindex = #{orderindex}
+    </delete>
+
+    <delete id="deleteAgentwithdraworderByIds" parameterType="String">
+        delete from t_agentwithdraworder where orderindex in
+        <foreach item="orderindex" collection="array" open="(" separator="," close=")">
+            #{orderindex}
+        </foreach>
+    </delete>
+
+
+
+</mapper>

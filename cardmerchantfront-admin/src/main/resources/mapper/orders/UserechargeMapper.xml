@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.orders.mapper.UserechargeMapper">
+    
+    <resultMap type="Userecharge" id="UserechargeResult">
+        <result property="orderindex"    column="OrderIndex"    />
+        <result property="orderid"    column="OrderID"    />
+        <result property="supplierbranchid"    column="SupplierBranchID"    />
+        <result property="merchantid"    column="MerchantID"    />
+        <result property="merchantorderid"    column="MerchantOrderID"    />
+        <result property="userlevel"    column="UserLevel"    />
+        <result property="userid"    column="UserID"    />
+        <result property="merchantordertime"    column="MerchantOrderTime"    />
+        <result property="paytype"    column="PayType"    />
+        <result property="clienttype"    column="ClientType"    />
+        <result property="payamount"    column="PayAmount"    />
+        <result property="paidamount"    column="PaidAmount"    />
+        <result property="paidchannelfee"    column="PaidChannelFee"    />
+        <result property="supplierpaidchannelfee"    column="SupplierPaidChannelFee"    />
+        <result property="notifyurl"    column="NotifyUrl"    />
+        <result property="returnurl"    column="ReturnUrl"    />
+        <result property="merchantremark"    column="MerchantRemark"    />
+        <result property="channelorderid"    column="ChannelOrderID"    />
+        <result property="bankcode"    column="BankCode"    />
+        <result property="md5orderid"    column="MD5OrderID"    />
+        <result property="paychannelid"    column="PayChannelID"    />
+        <result property="banknum"    column="BankNum"    />
+        <result property="bankaccount"    column="BankAccount"    />
+        <result property="orderstatus"    column="OrderStatus"    />
+        <result property="orderpaidstatuschangetime"    column="OrderPaidStatusChangeTime"    />
+        <result property="ordernotifystatus"    column="OrderNotifyStatus"    />
+        <result property="ordernotifytime"    column="OrderNotifyTime"    />
+        <result property="remark"    column="Remark"    />
+        <result property="name"    column="Name"    />
+        <result property="readmark"    column="ReadMark"    />
+        <result property="closereason"    column="CloseReason"    />
+        <result property="createtime"    column="CreateTime"    />
+        <result property="userip"    column="UserIP"    />
+        <result property="operator"    column="Operator"    />
+        <result property="memberaccount"    column="MemberAccount"    />
+        <result property="usercreditlevel"    column="UserCreditLevel"    />
+    </resultMap>
+
+    <sql id="selectUserechargeVo">
+         select d.OrderIndex, d.OrderID, d.SupplierBranchID,
+          d.PayAmount, d.PaidAmount,d.MerchantOrderID,
+          MerchantRemark, ChannelOrderID, d.BankCode, PayChannelID, d.BankNum,
+          BankAccount, OrderStatus, OrderPaidStatusChangeTime, OrderNotifyStatus, OrderNotifyTime, d.Remark, Name,
+          ReadMark, CloseReason, d.CreateTime, d.UserIP, d.Operator, d.UserCreditLevel,
+          a.agent_name agentName,ifnull((a.ratio * d.paidamount / 100),0.00) as profit
+          from t_depositorder d
+           join t_bankcard b on d.BankAccount = b.BankCode
+          left join t_bankcard_agent a on a.user_id = b.CreateBy
+
+    </sql>
+
+    <select id="selectUserechargeList" parameterType="Userecharge" resultMap="UserechargeResult">
+        <include refid="selectUserechargeVo"/>
+        <where>
+            <if test="createby != null and createby >0 "> and b.CreateBy = #{createby}</if>
+            <if test="orderid != null  and orderid != ''"> and OrderID = #{orderid}</if>
+            <if test="supplierbranchid != null "> and d.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and d.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="merchantid != null "> and MerchantID = #{merchantid}</if>
+            <if test="merchantorderid != null  and merchantorderid != ''"> and MerchantOrderID = #{merchantorderid}</if>
+            <if test="userlevel != null "> and UserLevel = #{userlevel}</if>
+            <if test="userid != null  and userid != ''"> and UserID = #{userid}</if>
+            <if test="merchantordertime != null "> and MerchantOrderTime = #{merchantordertime}</if>
+            <if test="paytype != null "> and PayType = #{paytype}</if>
+            <if test="clienttype != null "> and ClientType = #{clienttype}</if>
+            <if test="payamount != null "> and PayAmount = #{payamount}</if>
+            <if test="paidamount != null "> and PaidAmount = #{paidamount}</if>
+            <if test="paidchannelfee != null "> and PaidChannelFee = #{paidchannelfee}</if>
+            <if test="supplierpaidchannelfee != null "> and SupplierPaidChannelFee = #{supplierpaidchannelfee}</if>
+            <if test="notifyurl != null  and notifyurl != ''"> and NotifyUrl = #{notifyurl}</if>
+            <if test="returnurl != null  and returnurl != ''"> and ReturnUrl = #{returnurl}</if>
+            <if test="merchantremark != null  and merchantremark != ''"> and MerchantRemark = #{merchantremark}</if>
+            <if test="channelorderid != null  and channelorderid != ''"> and ChannelOrderID = #{channelorderid}</if>
+            <if test="bankcode != null  and bankcode != ''"> and d.BankCode = #{bankcode}</if>
+            <if test="md5orderid != null  and md5orderid != ''"> and MD5OrderID = #{md5orderid}</if>
+            <if test="paychannelid != null "> and PayChannelID = #{paychannelid}</if>
+            <if test="banknum != null  and banknum != ''"> and BankNum = #{banknum}</if>
+            <if test="bankaccount != null  and bankaccount != ''"> and d.BankAccount = #{bankaccount}</if>
+            <if test="orderstatus != null "> and OrderStatus = #{orderstatus}</if>
+            <if test="orderpaidstatuschangetime != null "> and OrderPaidStatusChangeTime = #{orderpaidstatuschangetime}</if>
+            <if test="ordernotifystatus != null "> and OrderNotifyStatus = #{ordernotifystatus}</if>
+            <if test="ordernotifytime != null "> and OrderNotifyTime = #{ordernotifytime}</if>
+            <if test="remark != null  and remark != ''"> and d.Remark = #{remark}</if>
+            <if test="name != null  and name != ''"> and Name like concat('%', #{name}, '%')</if>
+            <if test="readmark != null  and readmark != ''"> and ReadMark = #{readmark}</if>
+            <if test="closereason != null  and closereason != ''"> and CloseReason = #{closereason}</if>
+            <if test="createtime != null "> and CreateTime = #{createtime}</if>
+            <if test="userip != null  and userip != ''"> and UserIP = #{userip}</if>
+            <if test="operator != null "> and Operator = #{operator}</if>
+            <if test="memberaccount != null  and memberaccount != ''"> and MemberAccount = #{memberaccount}</if>
+            <if test="usercreditlevel != null  and usercreditlevel != ''"> and UserCreditLevel = #{usercreditlevel}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                AND d.CreateTime &gt;= #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                AND d.CreateTime &lt;= #{params.endCreatetime}
+            </if>
+        </where>
+        order by d.OrderPaidStatusChangeTime desc,d.CreateTime desc
+    </select>
+    
+    <select id="selectUserechargeById" resultMap="UserechargeResult">
+        <include refid="selectUserechargeVo"/>
+        where d.OrderIndex = #{param1} and d.SupplierBranchID = #{param2}
+    </select>
+
+    <select id="getSummary" parameterType="Long" resultMap="UserechargeResult">
+        select sum(ta.PayAmount) PayAmount,sum(ta.PaidAmount) PaidAmount
+        from t_depositorder ta
+        join t_bankcard b on ta.BankAccount = b.BankCode
+        join t_bankcard_agent a on a.user_id = b.CreateBy
+        <where>
+            <if test="createby != null and createby >0 "> and b.CreateBy = #{createby}</if>
+            <if test="orderid != null  and orderid != ''"> and ta.orderid = #{orderid}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and ta.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="payamount != null "> and ta.payamount = #{payamount}</if>
+            <if test="orderstatus != null "> and ta.orderstatus = #{orderstatus}</if>
+
+            <if test="bankcode != null  and bankcode != ''"> and ta.bankcode like concat('%', #{bankcode}, '%')</if>
+
+            <if test="supplierbranchid != null">and ta.supplierbranchid = #{supplierbranchid}</if>
+            <if test="merchantorderid != null  and merchantorderid != ''"> and MerchantOrderID = #{merchantorderid}</if>
+            <if test="beginTime != null  and beginTime != ''"> and ta.createtime >= #{beginTime}</if>
+            <if test="endTime != null  and endTime != ''"> and ta.createtime &lt;= #{endTime}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                and ta.createtime >=  #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                and ta.createtime &lt;= #{params.endCreatetime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getSuccessTotal" parameterType="Long" resultMap="UserechargeResult">
+        select count(OrderIndex) OrderIndex,sum(PaidAmount) transAmount
+        from t_depositorder ta
+        join t_bankcard b on ta.BankAccount = b.BankCode
+        join t_bankcard_agent a on a.user_id = b.CreateBy
+        <where>
+            ( ta.OrderStatus = 3 or  ta.OrderStatus = 4 )
+            <if test="createby != null and createby >0 "> and b.CreateBy = #{createby}</if>
+            <if test="supplierBranchIdGroupList != null ">
+                and ta.SupplierBranchID in
+                <foreach  item="supplierBranchIdGroupList" index="index" collection="supplierBranchIdGroupList" open="(" close=")" separator=",">
+                    #{supplierBranchIdGroupList}
+                </foreach>
+            </if>
+            <if test="orderid != null  and orderid != ''"> and ta.orderid = #{orderid}</if>
+            <if test="payamount != null "> and ta.payamount = #{payamount}</if>
+            <if test="orderstatus != null "> and ta.orderstatus = #{orderstatus}</if>
+
+            <if test="bankcode != null  and bankcode != ''"> and ta.bankcode like concat('%', #{bankcode}, '%')</if>
+
+            <if test="supplierbranchid != null">and ta.supplierbranchid = #{supplierbranchid}</if>
+            <if test="merchantorderid != null  and merchantorderid != ''"> and MerchantOrderID = #{merchantorderid}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                and ta.createtime >=  #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                and ta.createtime &lt;= #{params.endCreatetime}
+            </if>
+            <if test="beginTime != null  and beginTime != ''"> and ta.createtime >= #{beginTime}</if>
+            <if test="endTime != null  and endTime != ''"> and ta.createtime &lt;= #{endTime}</if>
+            <if test="createby != null  and createby != ''"> and b.CreateBy = #{createby}</if>
+        </where>
+    </select>
+
+    <select id="getAllTotal" parameterType="Long" resultMap="UserechargeResult">
+        select count(OrderIndex) OrderIndex,sum(PaidAmount) PaidAmount
+        from t_depositorder ta
+        join t_bankcard b on ta.BankAccount = b.BankCode
+        join t_bankcard_agent a on a.user_id = b.CreateBy
+        <where>
+            b.CreateBy = #{createby}
+            <if test="orderid != null  and orderid != ''"> and ta.orderid = #{orderid}</if>
+            <if test="payamount != null "> and ta.payamount = #{payamount}</if>
+            <if test="orderstatus != null "> and ta.orderstatus = #{orderstatus}</if>
+
+            <if test="bankcode != null  and bankcode != ''"> and ta.bankcode like concat('%', #{bankcode}, '%')</if>
+
+            <if test="supplierbranchid != null">and ta.supplierbranchid = #{supplierbranchid}</if>
+            <if test="merchantorderid != null  and merchantorderid != ''"> and MerchantOrderID = #{merchantorderid}</if>
+            <if test="params.beginCreatetime != null and params.beginCreatetime != ''">
+                and ta.createtime >=  #{params.beginCreatetime}
+            </if>
+            <if test="params.endCreatetime != null and params.endCreatetime != ''">
+                and ta.createtime &lt;= #{params.endCreatetime}
+            </if>
+            <if test="createby != null  and createby != ''"> and b.CreateBy = #{createby}</if>
+            <if test="beginTime != null  and beginTime != ''"> and ta.createtime >= #{beginTime}</if>
+            <if test="endTime != null  and endTime != ''"> and ta.createtime &lt;= #{endTime}</if>
+        </where>
+    </select>
+        
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBankcardsummaryMapper">
+
+    <resultMap type="TBankcardsummary" id="TBankcardsummaryResult">
+        <result property="bankid" column="BankID"/>
+        <result property="depositamount" column="DepositAmount"/>
+        <result property="historydepositamount" column="HistoryDepositAmount"/>
+        <result property="withdrawamount" column="WithdrawAmount"/>
+        <result property="calendar" column="Calendar"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="deposittimes" column="DepositTimes"/>
+        <result property="withdrawtimes" column="WithdrawTimes"/>
+        <result property="version" column="Version"/>
+        <result property="alideposittimes" column="AliDepositTimes"/>
+        <result property="alidepositamount" column="AliDepositAmount"/>
+    </resultMap>
+
+    <sql id="selectTBankcardsummaryVo">
+        SELECT BankID,
+               DepositAmount,
+               HistoryDepositAmount,
+               WithdrawAmount,
+               Calendar,
+               LastUpDateTime,
+               DepositTimes,
+               WithdrawTimes,
+               Version,
+               AliDepositTimes,
+               AliDepositAmount
+        FROM t_bankcardsummary
+    </sql>
+
+    <select id="selectTBankcardsummaryList" parameterType="TBankcardsummary" resultMap="TBankcardsummaryResult">
+        <include refid="selectTBankcardsummaryVo"/>
+        <where>
+            <if test="depositamount != null ">and DepositAmount = #{depositamount}</if>
+            <if test="bankid != null ">and bankid = #{bankid}</if>
+            <if test="historydepositamount != null ">and HistoryDepositAmount = #{historydepositamount}</if>
+            <if test="withdrawamount != null ">and WithdrawAmount = #{withdrawamount}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+            <if test="deposittimes != null ">and DepositTimes = #{deposittimes}</if>
+            <if test="withdrawtimes != null ">and WithdrawTimes = #{withdrawtimes}</if>
+            <if test="version != null ">and Version = #{version}</if>
+            <if test="alideposittimes != null ">and AliDepositTimes = #{alideposittimes}</if>
+            <if test="alidepositamount != null ">and AliDepositAmount = #{alidepositamount}</if>
+        </where>
+    </select>
+
+    <select id="selectTBankcardsummaryById" parameterType="TBankcardsummary" resultMap="TBankcardsummaryResult">
+        select BankID, DepositAmount from t_bankcardsummary
+        where BankID in
+        <foreach collection="bankcards" index="index" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and DATE_FORMAT(Calendar,'%y-%m-%d') = DATE_FORMAT(NOW(),'%y-%m-%d')
+    </select>
+
+    <update id="updateTBankcardsummary" parameterType="TBankcardsummary">
+        update t_bankcardsummary
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="depositamount != null ">DepositAmount = #{depositamount},</if>
+            <if test="historydepositamount != null ">HistoryDepositAmount = #{historydepositamount},</if>
+            <if test="withdrawamount != null ">WithdrawAmount = #{withdrawamount},</if>
+            <if test="calendar != null ">Calendar = #{calendar},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+            <if test="deposittimes != null ">DepositTimes = #{deposittimes},</if>
+            <if test="withdrawtimes != null ">WithdrawTimes = #{withdrawtimes},</if>
+            <if test="version != null ">Version = #{version},</if>
+            <if test="alideposittimes != null ">AliDepositTimes = #{alideposittimes},</if>
+            <if test="alidepositamount != null ">AliDepositAmount = #{alidepositamount},</if>
+        </trim>
+        where BankID = #{bankid}
+    </update>
+
+    <update id="updateTBankcardsummarys" parameterType="TBankcardsummary">
+        <foreach collection="bankcardsummarys" open="" separator=";" index="index" item="item" close="">
+            update t_bankcardsummary set DepositAmount = 0.00, WithdrawAmount = 0.00, Version = Version +
+            1,LastUpDateTime = CURRENT_DATE
+            where BankID = #{item.bankid} and DATE_FORMAT(Calendar, '%y-%m-%d') =
+            DATE_FORMAT(NOW(), '%y-%m-%d')
+        </foreach>
+    </update>
+</mapper>

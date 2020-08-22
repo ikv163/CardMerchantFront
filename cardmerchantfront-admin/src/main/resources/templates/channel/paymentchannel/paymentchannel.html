@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('支付渠道列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.channelname">渠道名称</em>：</p>
+                            <input type="text" name="paychannelname"/>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.worktype">工作模式</em>：</p>
+                            <select name="worktype" class="form-control">
+                                <option value="">全选</option>
+                                <option value="1">收款</option>
+                                <option value="2">出款</option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.paymentype">支付方式</em>：</p>
+                            <select name="paytype" class="form-control" th:with="type=${@dict.getType('payment_type')}">
+                                <option value="">全选</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em>银行卡简码</em>：</p>
+                            <input type="text" name="bankcode"/>
+
+                        </li>
+                        <li>
+                            <p class="mylabeltitle"><em data-i18name="biz.servicestatus">服务状态</em>：</p>
+                            <select name="status" class="form-control">
+                                <option value="">全选</option>
+                                <option value="1">启用</option>
+                                <option value="0">停用</option>
+                            </select>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i><em data-i18name="fn.search">搜索</em></a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.resetDate()"><i
+                                    class="fa fa-refresh"></i><em data-i18name="fn.reset">重置</em></a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()"
+               shiro:haspermission="channel:paymentchannel:add">
+                <i class="fa fa-plus"></i> <em data-i18name="fn.create">新增</em>
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:haspermission="channel:paymentchannel:edit">
+                <i class="fa fa-edit"></i><em data-i18name="biz.edit">编辑</em>
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="edit(-1)"
+               shiro:haspermission="channel:paymentchannel:edit">
+                <i class="fa fa-remove"></i> <em data-i18name="fn.remove">删除</em>
+            </a>
+            <a class="btn btn-warning" onclick="enable()" shiro:haspermission="channel:paymentchannel:enable">
+                <i class="fa fa-download"></i><em data-i18name="biz.enable">启用</em>
+            </a>
+            <a class="btn btn-warning" onclick="stop(0)" shiro:haspermission="channel:paymentchannel:stop">
+                <i class="fa fa-download"></i> <em data-i18name="biz.stop">停用</em>
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('channel:paymentchannel:edit')}]];
+    var proviewFlag = [[${@permission.hasPermi('channel:paymentchannel:proview')}]];
+    var prefix = ctx + "channel/paymentchannel";
+    var PayType = [[${@dict.getType('payment_type')}]];
+    var WorkType = [[${@dictbank.getSelectUIType('WorkType')}]];
+
+    function enable() {
+        edit(1);
+    }
+
+    function stop() {
+        edit(0);
+    }
+
+    function getWorkType(id) {
+        for (let key in WorkType) {
+            if (id == key) {
+                return WorkType[key];
+            }
+        }
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            popupdateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            proviewUrl: prefix + '/proview/{id}',
+            preViewUrl: prefix + "/maintenance/{id}",
+            modalName: "支付渠道",
+            onClickRow: onClickRow,
+            onDblClickRow: onDblClickRow,
+            columns: [
+                {
+                    field: 'state',
+                    checkbox: true
+                },
+                {
+                    field: 'paychannelid',
+                    title: '<em data-i18name="t.channelno">渠道编号</em>',
+                    visible: false
+                },
+                {
+                    field: 'paychannelname',
+                    title: '<em data-i18name="biz.channelname">渠道名称</em>'
+                },
+                {
+                    field: 'paytype',
+                    title: '<em data-i18name="biz.paymentype">支付方式</em>',
+                    formatter: function (value, row, index) {
+                        return getDictVale(value,PayType);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '<em data-i18name="biz.servicestatus">服务状态</em>',
+                    formatter: function (value, row, index) {
+
+                        return getStatusStr(value);
+                    }
+                },
+                {
+                    field: 'worktype',
+                    title: '<em data-i18name="biz.worktype">工作模式 </em>',
+                    formatter: function (value, row, index) {
+                        return getWorkType(value);
+                    }
+                },
+                {
+                    field: 'balance',
+                    title: '支持金额',
+                    formatter:function (value,row,index) {
+                        return (row.minamountpertrans || 0) + "-" + ( row.maxamountpertrans);
+                    }
+                },
+
+                {
+                    title: '<em data-i18name="t.operto">操作</em>',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + proviewFlag + '" href="javascript:void(0)" onclick="$.operate.proview(\'' + row.paychannelid + '\')"><i class="fa fa-eye"></i><em data-i18name="fn.view">查看</em></a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function onClickRow(row, $element) {
+        $($element).find('[name=btSelectItem]').click();
+    }
+
+    function onDblClickRow(row, $element) {
+        $.operate.proview(row.paychannelid);
+    }
+
+    var servicestatus = [[${@dictbank.getSelectUIType('Status')}]];
+
+    function getStatusStr(id) {
+        let value = "";
+        for (let key in servicestatus) {
+            if (id == key) {
+                value = servicestatus[key];
+            }
+        }
+        switch (id) {
+            case 1 :
+                return ` <a class="badge badge-success">${value}</a>`;
+            case 100 :
+                return ` <a class="badge badge-primary ">${value}</a>`;
+            default:
+                return ` <a class="badge badge-danger">${value}</a>`;
+        }
+    }
+
+    function edit(status) {
+        var preViewUrl = prefix + "/edit";
+        var rows = $.table.selectColumns("paychannelid");
+        var oldStatus = $.table.selectColumns("status");
+        if (rows.length == 0) {
+            $.modal.alertWarning("请至少选择一条记录");
+            return;
+        }
+        let message = status == -1 ? "删除" : status == 0 ? "停止" : "启动";
+        if(status == oldStatus && status != -1){
+            $.modal.alertWarning("此渠道已经是"+message+"状态！");
+            return;
+        }
+        let params = {"idsStr": rows.join(), "status": status};
+        $.modal.confirm("确定要" + message + "选中的数据吗？", function () {
+            $.modal.loading("正在" + message + "，请稍后...");
+            $.post(preViewUrl, params, function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    $.table.refresh();
+                    // $.modal.msgReload("" + message + "成功,正在刷新数据请稍后……", modal_status.SUCCESS);
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            });
+        });
+    }
+</script>
+</body>
+</html>

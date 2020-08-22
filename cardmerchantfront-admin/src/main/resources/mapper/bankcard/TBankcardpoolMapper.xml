@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pay.typay.biz.mapper.TBankcardpoolMapper">
+
+    <resultMap type="TBankcardpool" id="TBankcardpoolResult">
+        <result property="bankpooid" column="BankPooID"/>
+        <result property="supplierbranchid" column="SupplierBranchID"/>
+        <result property="bankpoolname" column="BankPoolName"/>
+        <result property="worktype" column="WorkType"/>
+        <result property="status" column="Status"/>
+        <result property="roletype" column="RoleType"/>
+        <result property="inputpoolid" column="InputPoolID"/>
+        <result property="outputpoolid" column="OutputPoolID"/>
+        <result property="remark" column="ReMark"/>
+        <result property="lastupdatetime" column="LastUpDateTime"/>
+        <result property="groupoolname" column="groupoolname"/>
+        <result property="sumdepositamount" column="sumdepositamount"/>
+        <result property="sumwithdrawamount" column="sumwithdrawamount"/>
+
+        <result property="sumwithdrawtimes" column="sumwithdrawtimes"/>
+        <result property="sumdeposittimes" column="sumdeposittimes"/>
+        <result property="sumbalance" column="sumbalance"/>
+        <result property="bankcode" column="bankcode"/>
+        <result property="bindnumm" column="bindnumm"/>
+
+
+    </resultMap>
+
+    <sql id="selectTBankcardpoolVo">
+        SELECT BankPooID,
+               SupplierBranchID,
+               BankPoolName,
+               WorkType,
+               Status,
+               RoleType,
+               InputPoolID,
+               OutputPoolID,
+               ReMark,
+               LastUpDateTime
+        FROM t_bankcardpool
+    </sql>
+
+    <select id="selectBankcardPoolListsum" resultMap="TBankcardpoolResult">
+        SELECT
+            SUM(bs.DepositAmount) as sumdepositamount,
+            SUM(bs.DepositTimes) as sumdeposittimes,
+            SUM(bs.HistoryDepositAmount),
+            SUM(bs.WithdrawTimes) as sumwithdrawtimes,
+            SUM(bs.WithdrawAmount) as sumwithdrawamount,
+            SUM(bd.Balance) sumbalance,
+            bp.BankPoolName,
+            bp.SupplierBranchID,
+            bp.BankPooID,
+            bp.Status,
+            bp.RoleType
+--             SUM(bd1.Balance) as WithdrawBalance,
+--             SUM(bd2.Balance) as DepositBalance
+        FROM
+            t_bankcardpool bp
+            LEFT JOIN t_bankcard bd ON bp.BankPooID = bd.PoolID
+            LEFT JOIN t_bankcardsummary bs ON bs.BankID=bd.BankID and Calendar = CURRENT_DATE
+--             left JOIN t_bankcard bd1 ON bp.BankPooID = bd1.PoolID and bd1.WorkType=1 and bd1.Status=100
+--             left JOIN t_bankcard bd2 ON bp.BankPooID = bd2.PoolID and bd2.WorkType=2 and bd2.Status=100
+        <where>
+            bp.status=1
+            <if test="supplierbranchid != null ">and bp.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">and bp.BankPoolName like concat('%', #{bankpoolname},
+                '%')
+            </if>
+            <if test="bankcode != null  and bankcode != ''">and ttt.bankcode like concat('%', #{bankcode}, '%')</if>
+            <if test="worktype != null ">and bp.WorkType = #{worktype}</if>
+            <if test="status != null ">and bp.Status = #{status}</if>
+            <if test="statusfilter != null ">and bp.Status != #{statusfilter}</if>
+            <if test="roletype != null ">and bp.RoleType = #{roletype}</if>
+            <if test="inputpoolid != null ">and bp.InputPoolID = #{inputpoolid}</if>
+            <if test="outputpoolid != null ">and bp.OutputPoolID = #{outputpoolid}</if>
+            <if test="remark != null  and remark != ''">and bp.ReMark = #{remark}</if>
+            <if test="createtime != null ">and bp.CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and bp.LastUpDateTime = #{lastupdatetime}</if>
+            ${params.bpds}
+        </where>
+        GROUP BY bp.BankPooID
+
+    </select>
+    <select id="selectTBankCardPoolList" resultMap="TBankcardpoolResult">
+        <include refid="selectTBankcardpoolVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">and BankPoolName like concat('%', #{bankpoolname},
+                '%')
+            </if>
+            <if test="worktype != null ">and WorkType = #{worktype}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="statusfilter != null ">and Status != #{statusfilter}</if>
+            <if test="roletype != null ">and RoleType = #{roletype}</if>
+            <if test="inputpoolid != null ">and InputPoolID = #{inputpoolid}</if>
+            <if test="outputpoolid != null ">and OutputPoolID = #{outputpoolid}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+        </where>
+    </select>
+
+    <select id="selectBankcardPoolList" parameterType="TBankcardpool" resultMap="TBankcardpoolResult">
+        SELECT
+        t.BankPooID,
+        t.SupplierBranchID,
+        t.BankPoolName,
+        t.WorkType,
+        t.Status,
+        t.RoleType,
+        t.InputPoolID,
+        t.OutputPoolID,
+        t.ReMark,
+        t.LastUpDateTime,
+        COUNT(tb.BankID) as bindnumm
+        FROM t_bankcardpool t
+        LEFT JOIN t_bankcard tb ON t.BankPooID = tb.PoolID
+        <where>
+            <if test="supplierbranchid != null ">and t.SupplierBranchID = #{supplierbranchid}</if>
+            <if test="bankpoolname != null and bankpoolname != ''">and t.BankPoolName like concat('%', #{bankpoolname},
+                '%')
+            </if>
+            <if test="bankcode != null and bankcode != ''">and tb.bankcode like concat('%', #{bankcode},'%')
+            </if>
+
+            <if test="worktype != null ">and t.WorkType = #{worktype}</if>
+            <if test="status != null ">and t.Status = #{status}</if>
+            <if test="statusfilter != null ">and t.Status != #{statusfilter}</if>
+            <if test="roletype != null ">and t.RoleType = #{roletype}</if>
+            <if test="inputpoolid != null ">and t.InputPoolID = #{inputpoolid}</if>
+            <if test="outputpoolid != null ">and t.OutputPoolID = #{outputpoolid}</if>
+            <if test="createtime != null ">and t.CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and t.LastUpDateTime = #{lastupdatetime}</if>
+            ${params.bpds}
+        </where>
+        GROUP BY t.BankPooID
+    </select>
+    <select id="selectBankcardPoolListCheck" parameterType="TBankcardpool" resultMap="TBankcardpoolResult">
+
+        SELECT DISTINCT t.BankPooID,
+        t.SupplierBranchID,
+        t.BankPoolName,
+        t.WorkType,
+        t.Status,
+        t.RoleType,
+        t.InputPoolID,
+        t.OutputPoolID,
+        t.ReMark,
+        t.LastUpDateTime
+        FROM t_bankcardpool t
+        LEFT JOIN t_bankcard tb ON t.BankPooID = tb.PoolID
+        <where>
+            <if test="bankpoolname != null and bankpoolname != ''">and t.BankPoolName =#{bankpoolname}</if>
+        </where>
+
+    </select>
+
+    <select id="selectTBankcardpoolList" parameterType="TBankcardpool" resultMap="TBankcardpoolResult">
+        <include refid="selectTBankcardpoolVo"/>
+        <where>
+            <if test="supplierbranchid != null ">and SupplierBranchID = #{supplierbranchid}</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">and BankPoolName like concat('%', #{bankpoolname},
+                '%')
+            </if>
+            <if test="worktype != null ">and WorkType = #{worktype}</if>
+            <if test="status != null ">and Status = #{status}</if>
+            <if test="statusfilter != null ">and Status != #{statusfilter}</if>
+            <if test="roletype != null ">and RoleType = #{roletype}</if>
+            <if test="inputpoolid != null ">and InputPoolID = #{inputpoolid}</if>
+            <if test="outputpoolid != null ">and OutputPoolID = #{outputpoolid}</if>
+            <if test="remark != null  and remark != ''">and ReMark = #{remark}</if>
+            <if test="createtime != null ">and CreateTime = #{createtime}</if>
+            <if test="lastupdatetime != null ">and LastUpDateTime = #{lastupdatetime}</if>
+        </where>
+    </select>
+
+    <!--    <select id="selectTBankCardPoolGroupList" resultMap="TBankcardpoolResult">-->
+    <!--        <include refid="selectTBankcardpoolGroupVo"></include>-->
+    <!--    </select>-->
+    <update id="updateBankcardPoolid">
+        UPDATE t_bankcard SET PoolID=#{poolid} WHERE BankID IN (
+        <foreach collection="ids.split(',')" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </update>
+
+    <update id="updateBankcardPoolidClean">
+        UPDATE t_bankcard SET PoolID=null WHERE PoolID =#{poolid}
+    </update>
+
+    <update id="updateBatchBankcardPoolidClean">
+        UPDATE t_bankcard SET PoolID=null WHERE PoolID IN
+        <foreach item="bankpooid" collection="array" open="(" separator="," close=")">
+            #{bankpooid}
+        </foreach>
+    </update>
+
+    <select id="selectTBankcardpoolById" parameterType="Long" resultMap="TBankcardpoolResult">
+        <include refid="selectTBankcardpoolVo"/>
+        where BankPooID = #{bankpooid}
+    </select>
+
+    <insert id="insertTBankcardpool" parameterType="TBankcardpool">
+        insert into t_bankcardpool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bankpooid != null ">BankPooID,</if>
+            <if test="supplierbranchid != null ">SupplierBranchID,</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">BankPoolName,</if>
+            <if test="worktype != null ">WorkType,</if>
+            <if test="status != null ">Status,</if>
+            <if test="roletype != null ">RoleType,</if>
+            <if test="inputpoolid != null ">InputPoolID,</if>
+            <if test="outputpoolid != null ">OutputPoolID,</if>
+            <if test="remark != null  and remark != ''">ReMark,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="lastupdatetime != null ">LastUpDateTime,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bankpooid != null ">#{bankpooid},</if>
+            <if test="supplierbranchid != null ">#{supplierbranchid},</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">#{bankpoolname},</if>
+            <if test="worktype != null ">#{worktype},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="roletype != null ">#{roletype},</if>
+            <if test="inputpoolid != null ">#{inputpoolid},</if>
+            <if test="outputpoolid != null ">#{outputpoolid},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="lastupdatetime != null ">#{lastupdatetime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTBankcardpool" parameterType="TBankcardpool">
+        update t_bankcardpool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierbranchid != null ">SupplierBranchID = #{supplierbranchid},</if>
+            <if test="bankpoolname != null  and bankpoolname != ''">BankPoolName = #{bankpoolname},</if>
+            <if test="worktype != null ">WorkType = #{worktype},</if>
+            <if test="status != null ">Status = #{status},</if>
+            <if test="roletype != null ">RoleType = #{roletype},</if>
+            <if test="inputpoolid != null ">InputPoolID = #{inputpoolid},</if>
+            <if test="outputpoolid != null ">OutputPoolID = #{outputpoolid},</if>
+            <if test="remark != null  and remark != ''">ReMark = #{remark},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="lastupdatetime != null ">LastUpDateTime = #{lastupdatetime},</if>
+        </trim>
+        where BankPooID = #{bankpooid}
+    </update>
+
+    <update id="deleteTBankcardpoolById" parameterType="Long">
+        UPDATE t_bankcardpool
+        SET Status = -1
+        WHERE BankPooID = #{bankpooid}
+    </update>
+
+    <update id="deleteTBankcardpoolByIds" parameterType="String">
+        UPDATE t_bankcardpool SET Status =-1 where BankPooID in
+        <foreach item="bankpooid" collection="array" open="(" separator="," close=")">
+            #{bankpooid}
+        </foreach>
+    </update>
+
+</mapper>
